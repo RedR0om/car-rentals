@@ -168,64 +168,146 @@ error_reporting(0);
 
                 <!-- Car Listings -->
                 <div class="col-md-9">
-                    <div class="sort-search-bar mb-3">
-                        <!--<select class="form-control sort-dropdown">
-              <option>Sort by Date</option>
-              <option>Sort by Price</option>
-            </select>-->
-                        <form method="get" action="" class="d-flex mb-3">
+                    <!-- filtering feature -->
+                    <form method="get" action="">
+                        <div class="input-group">
+                            <select class="custom-select" id="brand" name="brand">
+                                <option value="">Select Brand</option>
+                                <?php
+                                    $brandQuery = $dbh->query("SELECT DISTINCT BrandName, id FROM tblbrands ORDER BY BrandName ASC");
+                                    while ($brand = $brandQuery->fetch(PDO::FETCH_OBJ)) {
+                                        $selected = isset($_GET['brand']) && $_GET['brand'] == $brand->id ? 'selected' : '';
+                                        echo '<option value="' . htmlentities($brand->id) . '" ' . $selected . '>' . htmlentities($brand->BrandName) . '</option>';
+                                    }
+                                ?>
+                            </select>
+
+                            <input type="number" name="min_price" class="form-control ml-2" placeholder="Min Price" value="<?php echo isset($_GET['min_price']) ? htmlentities($_GET['min_price']) : ''; ?>">
+                            <input type="number" name="max_price" class="form-control ml-2" placeholder="Max Price" value="<?php echo isset($_GET['max_price']) ? htmlentities($_GET['max_price']) : ''; ?>">
+
+                            <select class="custom-select ml-2" id="rating" name="rating">
+                                <option value="">Select Rating</option>
+                                <?php
+                                    for ($i = 1; $i <= 5; $i++) {
+                                        $selected = isset($_GET['rating']) && $_GET['rating'] == $i ? 'selected' : '';
+                                        echo '<option value="' . $i . '" ' . $selected . '>' . str_repeat('★', $i) . ' - up</option>';
+                                    }
+                                ?>
+                            </select>
+                        </div>
+                    
+                        <div class="sort-search-bar mb-3">
                             <input type="text" name="search" class="form-control"
                                 placeholder="Search by car name or brand"
                                 value="<?php echo isset($_GET['search']) ? htmlentities($_GET['search']) : ''; ?>"
-                                style=" height: 40px;
-    margin-top: 16px; width: 685px;">
-                            <button type="submit" class="btn btn-primary ml-2" style="  height: 40px;
-    margin-top: 16px;">Search</button>
-                        </form>
-                    </div>
+                                style=" height: 40px; margin-top: 16px; width: 685px;">
+                            <button type="submit" class="btn btn-primary ml-2" style="height: 40px; margin-top: 16px; width: 132px;">Filter</button>
+                            <button type="reset" class="btn btn-secondary ml-2" style="background-color:cornflowerblue; height: 40px; margin-top: 16px; width: 132px;"
+                                onclick="window.location.href = window.location.pathname;">Reset</button>
+                        </div>
+                    </form>
 
                     <!-- Car Cards -->
                     <div class="row">
                         <?php
-                        $itemsPerPage = 10;
-                        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-                        $offset = ($page - 1) * $itemsPerPage;
-                        $search = isset($_GET['search']) ? $_GET['search'] : '';
 
-                        // Modify SQL based on search input
-                        $searchSQL = "";
-                        if (!empty($search)) {
-                            $searchSQL = "AND (v.VehiclesTitle LIKE :search OR b.BrandName LIKE :search)";
+                        function buildQueryString($params) {
+                            $filteredParams = array_filter($params, function($value) {
+                                return $value !== '' && $value !== null;
+                            });
+                            unset($filteredParams['page']);
+                            return http_build_query($filteredParams) ? '&' . http_build_query($filteredParams) : '';
                         }
 
-                        // Get the total count for pagination
-                        $countSQL = "SELECT COUNT(*) FROM tblvehicles v JOIN tblbrands b ON b.id = v.VehiclesBrand WHERE 1=1 $searchSQL";
-                        $countQuery = $dbh->prepare($countSQL);
-                        if (!empty($search)) {
-                            $searchParam = "%" . $search . "%";
-                            $countQuery->bindParam(':search', $searchParam, PDO::PARAM_STR);
-                        }
-                        $countQuery->execute();
-                        $totalItems = $countQuery->fetchColumn();
-                        $totalPages = ceil($totalItems / $itemsPerPage);
+                        try {
 
-                        // Fetch cars for the current page
-                        $sql = "SELECT v.id, v.VehiclesTitle, v.PricePerDay, v.Vimage1, v.SeatingCapacity, v.ModelYear, 
-                    v.FuelType, b.BrandName,
-                    (SELECT AVG(rating) FROM tblbooking WHERE VehicleId = v.id) AS avg_rating
-                    FROM tblvehicles v
-                    JOIN tblbrands b ON b.id = v.VehiclesBrand
-                    WHERE 1=1 $searchSQL
-                    ORDER BY v.id ASC
-                    LIMIT :offset, :itemsPerPage";
-                        $query = $dbh->prepare($sql);
-                        $query->bindParam(':offset', $offset, PDO::PARAM_INT);
-                        $query->bindParam(':itemsPerPage', $itemsPerPage, PDO::PARAM_INT);
-                        if (!empty($search)) {
-                            $query->bindParam(':search', $searchParam, PDO::PARAM_STR);
+                            $conditions = [];
+                            $params = [];
+
+                            // Handle brand filter
+                            if (!empty($_GET['brand'])) {
+                                $conditions[] = "(v.VehiclesBrand = :brand)";
+                                $params[':brand'] = $_GET['brand'];
+                            }
+
+                            // Handle price range filter
+                            if (!empty($_GET['min_price'])) {
+                                $conditions[] = "v.PricePerDay >= :min_price";
+                                $params[':min_price'] = $_GET['min_price'];
+                            }
+                            if (!empty($_GET['max_price'])) {
+                                $conditions[] = "v.PricePerDay <= :max_price";
+                                $params[':max_price'] = $_GET['max_price'];
+                            }
+
+                            // Handle rating filter
+                            if (!empty($_GET['rating'])) {
+                                $conditions[] = "COALESCE((SELECT AVG(rating) FROM tblbooking WHERE VehicleId = v.id), 0) >= :rating";
+                                $params[':rating'] = $_GET['rating'];
+                            }
+
+                            // Handle search filter
+                            if (!empty($_GET['search'])) {
+                                $conditions[] = "(v.VehiclesTitle LIKE :search OR b.BrandName LIKE :search)";
+                                $params[':search'] = '%' . $_GET['search'] . '%';
+                            }
+
+                            // Combine all conditions
+                            $whereSQL = '';
+                            if (!empty($conditions)) {
+                                $whereSQL = ' AND ' . implode(' AND ', $conditions);
+                            }
+
+                            $itemsPerPage = 12;
+                            $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+                            $offset = ($page - 1) * $itemsPerPage;
+
+                            // Get the total count for pagination
+                            $countSQL = "SELECT COUNT(*) FROM tblvehicles v JOIN tblbrands b ON b.id = v.VehiclesBrand WHERE 1=1 $whereSQL";
+                            $countQuery = $dbh->prepare($countSQL);
+
+                            foreach ($params as $key => &$value) {
+                                $countQuery->bindParam($key, $value);
+                            }
+
+                            if (!empty($_GET['search'])) {
+                                $searchParam = "%" . $_GET['search'] . "%";
+                                $countQuery->bindParam(':search', $searchParam, PDO::PARAM_STR);
+                            }
+                            
+                            $countQuery->execute();
+                            $totalItems = $countQuery->fetchColumn();
+                            $totalPages = ceil($totalItems / $itemsPerPage);
+
+                            // Fetch cars for the current page
+                            $sql = "SELECT v.id, v.VehiclesTitle, v.PricePerDay, v.Vimage1, v.SeatingCapacity, v.ModelYear, 
+                            v.FuelType, b.BrandName, v.VehiclesBrand,
+                            COALESCE((SELECT AVG(rating) FROM tblbooking WHERE VehicleId = v.id), 0) AS avg_rating
+                            FROM tblvehicles v
+                            JOIN tblbrands b ON b.id = v.VehiclesBrand
+                            WHERE 1=1 $whereSQL
+                            ORDER BY v.id ASC
+                            LIMIT :offset, :itemsPerPage";
+
+                            $query = $dbh->prepare($sql);
+
+                            foreach ($params as $key => &$value) {
+                                $query->bindParam($key, $value);
+                            }
+
+                            $query->bindParam(':offset', $offset, PDO::PARAM_INT);
+                            $query->bindParam(':itemsPerPage', $itemsPerPage, PDO::PARAM_INT);
+
+                            $query->execute();
+
+                            $results = $query->fetchAll(PDO::FETCH_OBJ);
+
+                        } catch (PDOException $e) {
+                            error_log("Query Error: " . $e->getMessage());
+                            die("A database error occurred.");
                         }
-                        $query->execute();
-                        $results = $query->fetchAll(PDO::FETCH_OBJ);
+                       
+                        
 
                         if ($query->rowCount() > 0) {
                             foreach ($results as $result) {
@@ -258,40 +340,37 @@ error_reporting(0);
                     </div>
 
                     <!-- Pagination -->
-                    <!-- Pagination -->
                     <div class="row">
                         <div class="col d-flex justify-content-center">
                             <nav aria-label="Page navigation">
-                                <div class="pagination">
-                                    <!-- Previous Button -->
-                                    <a href="<?php if ($page > 1)
-                                        echo '?page=' . ($page - 1) . '&search=' . htmlentities($search);
-                                    else
-                                        echo '#'; ?>" class="<?php if ($page <= 1)
-                                              echo 'disabled'; ?>">&laquo;</a>
+                            <div class="pagination">
+                                <!-- Previous Button -->
+                                <a href="<?php if ($page > 1) echo '?page=' . ($page - 1) . buildQueryString($_GET); else echo '#'; ?>" class="<?php if ($page <= 1) echo 'disabled'; ?>">&laquo;</a>
 
-                                    <!-- Page Numbers -->
-                                    <?php
-                                    $start = max(1, $page - 2);  // Start from 2 pages before the current page
-                                    $end = min($totalPages, $page + 2);  // End at 2 pages after the current page
-                                    for ($i = $start; $i <= $end; $i++) { ?>
-                                        <a href="?page=<?php echo $i; ?>&search=<?php echo htmlentities($search); ?>" class="<?php if ($i == $page)
-                                                  echo 'active'; ?>">
-                                            <?php echo $i; ?>
-                                        </a>
-                                    <?php } ?>
+                                <!-- Page Numbers -->
+                                <?php
+                                $maxPagesToShow = 5; // Limit the number of page links to 5
+                                $startPage = max(1, $page - floor($maxPagesToShow / 2)); // Determine the starting page
+                                $endPage = min($totalPages, $startPage + $maxPagesToShow - 1); // Determine the ending page
 
-                                    <!-- Next Button -->
-                                    <a href="<?php if ($page < $totalPages)
-                                        echo '?page=' . ($page + 1) . '&search=' . htmlentities($search);
-                                    else
-                                        echo '#'; ?>" class="<?php if ($page >= $totalPages)
-                                              echo 'disabled'; ?>">&raquo;</a>
-                                </div>
+                                // Adjust the startPage if the total pages are less than maxPagesToShow
+                                if ($endPage - $startPage < $maxPagesToShow - 1) {
+                                    $startPage = max(1, $endPage - $maxPagesToShow + 1);
+                                }
+
+                                // Loop through and display the page numbers
+                                for ($i = $startPage; $i <= $endPage; $i++) { ?>
+                                    <a href="?page=<?php echo $i . buildQueryString($_GET); ?>" class="<?php if ($i == $page) echo 'active'; ?>">
+                                        <?php echo $i; ?>
+                                    </a>
+                                <?php } ?>
+
+                                <!-- Next Button -->
+                                <a href="<?php if ($page < $totalPages) echo '?page=' . ($page + 1) . buildQueryString($_GET); else echo '#'; ?>" class="<?php if ($page >= $totalPages) echo 'disabled'; ?>">&raquo;</a>
+                            </div>
                             </nav>
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>
