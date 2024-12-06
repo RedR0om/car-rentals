@@ -1,11 +1,14 @@
 <?php
 session_start();
 include('includes/config.php');
-error_reporting(0);
+// error_reporting(0);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 if (isset($_POST['submit'])) {
-  $driver = $_POST['driver'];
   $payment = $_POST['payment'];
+  $paymentOption = $_POST['payment'];
   $fromdatetime = date('Y-m-d H:i:s', strtotime($_POST['fromdatetime'])); // Updated format
   $todatetime = date('Y-m-d H:i:s', strtotime($_POST['todatetime'])); // Updated format
   $message = $_POST['message'];
@@ -16,8 +19,30 @@ if (isset($_POST['submit'])) {
   $vhid = $_GET['vhid'];
   $bookingno = mt_rand(100000000, 999999999);
 
-  // Initialize GCash number
-  $gcash_number = isset($_POST['gcash_number']) ? $_POST['gcash_number'] : null;
+  
+  if ($payment === 'cash') {
+    $payment = 1;
+  }
+
+  if ($payment === 'gcash') {
+    $payment = 2;
+  }
+
+  if ($payment === 'bdo') {
+    $payment = 3;
+  }
+
+  if ($payment === 'security bank') {
+    $payment = 4;
+  }
+
+  if ($payment === 'bpi') {
+    $payment = 5;
+  }
+
+  // Initialize Account details
+  $account_number = isset($_POST['account_number']) ? $_POST['account_number'] : null;
+  $account_name = isset($_POST['account_name']) ? $_POST['account_name'] : null;
 
   $sql = "SELECT * FROM tblbooking WHERE 
                 (:fromdatetime BETWEEN FromDate AND ToDate 
@@ -49,10 +74,12 @@ if (isset($_POST['submit'])) {
       $gcash_target_folder = "gcash_receipts/";
       $gcash_target_file = $gcash_target_folder . $gcash_random_name;
 
-      if (move_uploaded_file($gcash_receipt, $gcash_target_file)) {
+      if ($payment == 2 && !move_uploaded_file($gcash_receipt, $gcash_target_file)) {
+        echo "<script>alert('Error uploading GCash receipt.');</script>";
+      } else {
         // Insert booking into the database
-        $sql = "INSERT INTO tblbooking(driver, userEmail, VehicleId, FromDate, ToDate, message, Status, payment, image, BookingNumber, gcash_receipt, gcash_number, pickup_location, dropoff_location) 
-VALUES(:driver, :useremail, :vhid, :fromdatetime, :todatetime, :message, :status, :payment, :image, :bookingno, :gcash_receipt, :gcash_number, :pickup_location, :dropoff_location)";
+        $sql = "INSERT INTO tblbooking(userEmail, VehicleId, FromDate, ToDate, message, Status, payment, image, BookingNumber, gcash_receipt, payment_option, account_number, account_name, pickup_location, dropoff_location) 
+        VALUES(:useremail, :vhid, :fromdatetime, :todatetime, :message, :status, :payment, :image, :bookingno, :gcash_receipt, :payment_option, :account_number, :account_name, :pickup_location, :dropoff_location)";
         $query = $dbh->prepare($sql);
         $query->bindParam(':pickup_location', $pickup_location, PDO::PARAM_STR);
         $query->bindParam(':dropoff_location', $dropoff_location, PDO::PARAM_STR);
@@ -65,19 +92,19 @@ VALUES(:driver, :useremail, :vhid, :fromdatetime, :todatetime, :message, :status
         $query->bindParam(':payment', $payment, PDO::PARAM_STR);
         $query->bindParam(':image', $target_file);
         $query->bindParam(':bookingno', $bookingno, PDO::PARAM_STR);
-        $query->bindParam(':driver', $driver, PDO::PARAM_STR);
         $query->bindParam(':gcash_receipt', $gcash_target_file, PDO::PARAM_STR);
-        $query->bindParam(':gcash_number', $gcash_number, PDO::PARAM_STR);
-
+        $query->bindParam(':payment_option', $paymentOption, PDO::PARAM_STR);
+        $query->bindParam(':account_number', $account_number, PDO::PARAM_STR);
+        $query->bindParam(':account_name', $account_name, PDO::PARAM_STR);
 
         if ($query->execute()) {
-          echo "<script>alert('Booking successful!');</script>";
+        echo "<script>alert('Booking successful!');</script>";
         } else {
-          echo "<script>alert('Error in booking.');</script>";
+        echo "<script>alert('Error in booking.');</script>";
         }
-      } else {
-        echo "<script>alert('Error uploading GCash receipt.');</script>";
+
       }
+
     } else {
       echo "<script>alert('Error uploading valid ID.');</script>";
     }
@@ -203,27 +230,27 @@ VALUES(:driver, :useremail, :vhid, :fromdatetime, :todatetime, :message, :status
                   <ul>
 
                     <li> <i class="fa fa-calendar" aria-hidden="true"></i>
-                      <h5><?php echo htmlentities($result->ModelYear); ?></h5>
+                      <h5><?php echo htmlentities($result->ModelYear ?? ''); ?></h5>
                       <p>Reg.Year</p>
                     </li>
                     <li> <i class="fa fa-cogs" aria-hidden="true"></i>
-                      <h5><?php echo htmlentities($result->FuelType); ?></h5>
+                      <h5><?php echo htmlentities($result->FuelType ?? ''); ?></h5>
                       <p>Fuel Type</p>
                     </li>
 
                     <li> <i class="fa fa-user-plus" aria-hidden="true"></i>
-                      <h5><?php echo htmlentities($result->SeatingCapacity); ?></h5>
+                      <h5><?php echo htmlentities($result->SeatingCapacity ?? ''); ?></h5>
                       <p>Seater</p>
                     </li>
                     <li><i class="fa fa-wrench" aria-hidden="true"></i>
 
-                      <h5><?php echo htmlentities($result->carType); ?></h5>
+                      <h5><?php echo htmlentities($result->carType ?? ''); ?></h5>
                       <p>Transmission Type</p>
                     </li>
 
                     <li><i class="fa fa-car" aria-hidden="true"></i>
 
-                      <h5><?php echo htmlentities($result->carspecs); ?></h5>
+                      <h5><?php echo htmlentities($result->carspecs ?? ''); ?></h5>
                       <p>Vehicle Type</p>
                     </li>
 
@@ -408,8 +435,6 @@ VALUES(:driver, :useremail, :vhid, :fromdatetime, :todatetime, :message, :status
               <div class="sidebar_widget">
                 <div class="widget_heading">
                   <h5><i class="fa fa-envelope" aria-hidden="true"></i>Book Now</h5>
-
-
                 </div>
 
                 <script>
@@ -423,10 +448,119 @@ VALUES(:driver, :useremail, :vhid, :fromdatetime, :todatetime, :message, :status
                 </script>
 
                 <!-- Trigger/Button to Open Modal -->
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#bookingModal"
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#termsModal"
                   style="background: #ff0000; width: 220px;">
                   Book Now
                 </button>
+
+                <!-- Terms and Conditions Modal -->
+                <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title text-center" id="termsModalLabel">Terms and Conditions for Car Rental Service</h5>
+                      </div>
+                      <div class="modal-body">
+                        <ol>
+                          <li><strong>Personal Information</strong>
+                            <ul>
+                              <li>Full Name</li>
+                              <li>Address</li>
+                              <li>Contact Number</li>
+                              <li>At least 2 valid ID’s or Passport</li>
+                            </ul>
+                          </li>
+
+                          <li><strong>General Terms</strong>
+                            <ul>
+                              <li>
+                                Rental Agreement- By renting a vehicle from Triple Mike Transport and Car Rental Services, 
+                                you agree to all terms and conditions stated herein, as well as any terms outlined in your rental contract.
+                              </li>
+                            </ul>
+                          </li>
+
+                          <li><strong>Rental Period</strong>
+                            <ul>
+                              <li>
+                                Duration - The rental period is specified in the rental agreement. Extensions must be requested 
+                                and approved in advance, and additional fees may apply.
+                              </li>
+                              <li>
+                                Late Return- Late returns may incur additional charges. If a vehicle is returned later than the scheduled
+                                time without prior approval, you may be charged an hourly or daily rate for the excess time.
+                              </li>
+                            </ul>
+                          </li>
+
+                          <li><strong>Payments and Deposits</strong>
+                            <ul>
+                              <li>
+                                Reservation - the client are required to pay 50% of total booking  fee.( To be paid and upload the proof of 
+                                payment in the booking tab). The remaining balance will be paid through cash given to the  driver or online transactions.
+                              </li>
+                              <li>
+                                Rental Fees - The rental fees are calculated based on the agreed-upon rate, rental period, and any additional options selected.
+                              </li>
+                              <li>
+                                Payment Method - All payments are due at the start of the rental period. Payment processing is manual, 
+                                as per the business agreement between the owner and customer.
+                              </li>
+                            </ul>
+                          </li>
+
+                          <li><strong>Vehicle Use and Restrictions</strong>
+                            <ul>
+                              <li>
+                                Permitted Use - The vehicle is to be used only as a passenger vehicle, operated by authorized drivers.
+                              </li>
+                              <li>
+                                Geographic Limitations - Vehicles are restricted to specific geographical areas book by client.
+                              </li>
+                            </ul>
+                          </li>
+
+                          <li><strong>Insurance</strong>
+                            <ul>
+                              <li>
+                                Liability - Triple Mike  Transport and Car Rental Services is not responsible for any injuries, 
+                                damage, or losses incurred during the rental period.
+                              </li>
+                            </ul>
+                          </li>
+
+                          <li><strong>Cancellations and No-Shows</strong>
+                            <ul>
+                              <li>
+                                Cancellation Policy -  strictly no cancellation and no refund.
+                              </li>
+                              <li>
+                                Reschedule - is allowed 3 days prior to date of booking.
+                              <li>
+                                No-Show Policy - If the renter fails to pick up the vehicle at the scheduled time without prior 
+                                notification, Triple Mike Transport and Car Rental Services reserves the right to cancel the 
+                                reservation, and reservation fee will not be refunded.
+                              </li>
+                            </ul>
+                          </li>
+
+                          <li><strong>Agreement and Acceptance</strong>
+                            <ul>
+                              <li>
+                                By agreeing  to the rental agreement or receiving a vehicle from Triple Mike Transport and 
+                                Car Rental Services, the renter acknowledges and accepts all terms and conditions stated
+                              </li>
+                            </ul>
+                          </li>
+                        </ol>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#bookingModal" onclick="checkTermsCheckbox()">Accept</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 <!-- Modal -->
                 <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel"
@@ -470,10 +604,10 @@ VALUES(:driver, :useremail, :vhid, :fromdatetime, :todatetime, :message, :status
 
                           <!-- Drop-off Location Dropdown -->
                           <div class="form-group">
-                            <label for="dropoff" class="control-label">Drop-off Location:</label>
+                            <label for="dropoff" class="control-label">Venue Location:</label>
                             <select class="form-control" name="dropoff_location" required
                               style="height: calc(3.25rem + 2px);">
-                              <option value="">Select Drop-off Location</option>
+                              <option value="">Select Venue Location</option>
                                             <?php foreach ($places as $place) { ?>
                                 <option value="<?php echo $place->PlaceID; ?>">
                                                 <?php echo htmlentities($place->PlaceName); ?>
@@ -497,44 +631,46 @@ VALUES(:driver, :useremail, :vhid, :fromdatetime, :todatetime, :message, :status
                               onchange="validateDateTime(this)" required style="height: calc(3.25rem + 2px);">
                           </div>
 
-                          <!-- Driver Option -->
-                          <div class="form-group">
-                            <label for="driver" class="control-label">Driver:</label><br>
-                            <input type="radio" name="driver" value="1" required> With Driver<br>
-                            <input type="radio" name="driver" value="2" required> Without Driver<br>
-                          </div>
-
                           <!-- Message -->
                           <div class="form-group">
-                            <textarea rows="4" class="form-control" name="message" placeholder="Message"
+                            <textarea rows="4" class="form-control" name="message" placeholder="Itinerary"
                               required></textarea>
                           </div>
 
                           <!-- Payment Option -->
                           <div class="form-group">
-                            <label class="control-label">Payment Option</label>
+                            <label class="control-label">Payment Option:</label>
                             <select class="selectpicker form-control" name="payment" id="payment-option" required
                               onchange="showPaymentFields()" style="height: calc(3.25rem + 2px);">
                               <option value="" disabled selected>Select Payment Method</option>
                               <option value="cash">Cash</option>
                               <option value="gcash">GCash</option>
+                              <option value="bdo">BDO</option>
+                              <option value="security bank">Security Bank</option>
+                              <option value="bpi">BPI</option>
                             </select>
                           </div>
 
                           <!-- GCash Payment Fields -->
                           <div id="gcash-fields" style="display: none;">
-                            <p>Send it to this Gcash Number: 0909584666</p>
+                            <p>Send it to this <span id="payment-type">Gcash</span> Account: <span id="account-number">0909584666</span></p>
+
                             <div class="form-group">
-                              <label for="gcash-number" class="control-label">GCash Number:</label>
-                              <input type="text" class="form-control" name="gcash_number" placeholder="Enter GCash Number"
-                                required>
+                              <label for="account_name" class="control-label">Account Name:</label>
+                              <input type="text" class="form-control" id="account_name" name="account_name" placeholder="Enter Account Name" required>
                             </div>
+
                             <div class="form-group">
-                              <label class="control-label">Upload GCash Payment Receipt</label><br>
-                              <input type="file" class="form-control-file" id="gcash_receipt" name="gcash_receipt"
-                                required>
+                              <label for="account_number" class="control-label">Account Number:</label>
+                              <input type="number" class="form-control" id="account_number" name="account_number" placeholder="Enter Account Number" required>
+                            </div>
+
+                            <div class="form-group">
+                              <label class="control-label">Upload Payment Receipt</label><br>
+                              <input type="file" class="form-control-file" id="gcash_receipt" name="gcash_receipt" required>
                             </div>
                           </div>
+
 
                           <!-- Upload Valid ID -->
                                         <?php if ($_SESSION['login']) { ?>
@@ -542,10 +678,19 @@ VALUES(:driver, :useremail, :vhid, :fromdatetime, :todatetime, :message, :status
                               <label class="control-label">Upload Valid ID</label><br>
                               <input type="file" class="form-control-file" id="image" name="image" required>
                             </div>
-                            <div class="form-group">
+
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="" id="termsCheckbox" required>
+                              <label class="form-check-label" for="termsCheckbox">
+                                I agree to the <a href="#" data-toggle="modal" data-target="#termsModal">Terms and Conditions</a>.
+                              </label>
+                            </div>
+
+                            <div class="form-group mt-2" style="display: flex; justify-content: center; align-items: center;">
                               <input type="submit" class="btn" name="submit" value="Book Now" style="background: #ff0000;"
                                 id="submit-btn">
                             </div>
+                            
                                         <?php } else { ?>
                             <a href="#loginform" class="btn btn-xs uppercase" data-toggle="modal" data-dismiss="modal">Login
                               For Book</a>
@@ -571,18 +716,42 @@ VALUES(:driver, :useremail, :vhid, :fromdatetime, :todatetime, :message, :status
                   });
                 </script>
 
-
-
-
                 <script>
                   function showPaymentFields() {
                     var paymentOption = document.getElementById("payment-option").value;
                     var gcashFields = document.getElementById("gcash-fields");
+                    var paymentType = document.getElementById("payment-type");
+                    var accountNumber = document.getElementById("account-number");
 
-                    if (paymentOption === "gcash") {
+                    var accountNumbers = {
+                      "gcash": "0909584666",
+                      "bdo": "010650235126",
+                      "security bank": "0000059935150",
+                      "bpi": "09473821708",
+                    };
+
+                    if (paymentOption !== "cash") {
                       gcashFields.style.display = "block";
+
+                      paymentType.textContent = paymentOption.charAt(0).toUpperCase() + paymentOption.slice(1);
+                      accountNumber.textContent = accountNumbers[paymentOption] || "Unknown";
+
+                      document.getElementById('account_name').setAttribute('required', 'required');
+                      document.getElementById('account_number').setAttribute('required', 'required');
+                      document.getElementById('gcash_receipt').setAttribute('required', 'required');
                     } else {
                       gcashFields.style.display = "none";
+
+                      document.getElementById('account_name').removeAttribute('required');
+                      document.getElementById('account_number').removeAttribute('required');
+                      document.getElementById('gcash_receipt').removeAttribute('required');
+                    }
+                  }
+
+                  function checkTermsCheckbox() {
+                    const termsCheckbox = document.getElementById('termsCheckbox');
+                    if (termsCheckbox) {
+                      termsCheckbox.checked = true;
                     }
                   }
                 </script>
