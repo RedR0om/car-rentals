@@ -42,7 +42,7 @@
 		</li>
 	</ul>
 	</li>
-	<li><a href="chatting.php">Chat</a></li>
+	<li><a href="chatting.php">Client Inquiries</a></li>
 
 
 

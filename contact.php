@@ -1,22 +1,76 @@
 <?php
 session_start();
-error_reporting(0);
+// error_reporting(0);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'includes/vendor/autoload.php';
+
 include('includes/config.php');
+
 if (isset($_POST['send'])) {
   $name = $_POST['fullname'];
   $email = $_POST['email'];
   $contactno = $_POST['contactno'];
   $message = $_POST['message'];
+
   $sql = "INSERT INTO  tblcontactusquery(name,EmailId,ContactNumber,Message) VALUES(:name,:email,:contactno,:message)";
+
   $query = $dbh->prepare($sql);
+
   $query->bindParam(':name', $name, PDO::PARAM_STR);
   $query->bindParam(':email', $email, PDO::PARAM_STR);
   $query->bindParam(':contactno', $contactno, PDO::PARAM_STR);
   $query->bindParam(':message', $message, PDO::PARAM_STR);
+
   $query->execute();
+
   $lastInsertId = $dbh->lastInsertId();
+
   if ($lastInsertId) {
-    $msg = "Query Sent. We will contact you shortly";
+    // PHPMailer setup
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->SMTPDebug = 0;
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'temporental2020@gmail.com';
+        $mail->Password = 'poxmfhhclnpaqvip';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+        $mail->setFrom('temporental2020@gmail.com', 'temporental2020@gmail.com');
+        $mail->addAddress($email, $name);
+        $mail->isHTML(true);
+        $mail->Subject = 'Client Inquiry';
+
+        $mail->Body = '
+          <p>Dear ' . $name . ',</p>
+
+          <p>Thank you for reaching out to us! We have successfully received your inquiry and our team is reviewing it. Please note that a support representative will get back to you as soon as possible with more information regarding your concern.</p>
+
+          <p>We appreciate your patience while we work on addressing your inquiry. If your concern requires immediate attention, please feel free to follow up with us at any time.</p>
+
+          <p>Thank you for choosing our services. We will be in touch shortly!</p>
+
+          <p>Best regards,</p>
+
+          <p>Your Support Team<br>
+          Triple Mike Transport Services.</p>';
+
+        $mail->send();
+
+        header("Location: " . $_SERVER['PHP_SELF'] . "?success=1");
+        exit;
+    } catch (Exception $e) {
+        echo "<script>alert('Something went wrong. Please try again');</script>";
+    }
+
   } else {
     $error = "Something went wrong. Please try again";
   }
@@ -78,7 +132,7 @@ if (isset($_POST['send'])) {
     <section id="contact" class="wow fadeInUp">
       <div class="container">
         <div class="section-header">
-          <p style="width: 100%; font-family:'Tahoma',sans-serif">Please contact us via email or phone at 09199044995.
+          <p style="width: 100%; font-family:'Tahoma',sans-serif">Please contact us via email or phone at <b>09199044995</b>.
             We would be delighted to answer your questions and arrange a meeting with you. Tempo | Rental can help you
             stand out from the crowd.</p>
         </div>
@@ -103,13 +157,18 @@ if (isset($_POST['send'])) {
                   href="https://mail.google.com/mail/u/0/">markmatabang930@gmail.com</a></p>
             </div>
           </div>
+
           <div class="col-lg-7">
             <div class="container">
               <div class="form">
-                <?php if ($error) { ?>
-                  <div class="errorWrap"><strong>ERROR</strong>:<?php echo htmlentities($error); ?> </div>
-                <?php } else if ($msg) { ?>
-                    <div class="succWrap"><strong>SUCCESS</strong>:<?php echo htmlentities($msg); ?> </div><?php } ?>
+                <?php if (isset($error) && $error) { ?>
+                  <div class="alert alert-danger" role="alert"><strong>ERROR</strong>:<?php echo htmlentities($error); ?> </div>
+                <?php }
+                // Display success message if redirected after submission
+                else if (isset($_GET['success']) && $_GET['success'] == 1) { ?>
+                  <div class="alert alert-success" role="alert"><strong>SUCCESS:</strong> Email Sent. Kindly check your email, we will contact you shortly.</div>
+                <?php } ?>
+
                 <!-- Form itself -->
                 <div class="contact_form gray-bg">
                   <form method="post" style="font-family:'Tahoma',sans-serif">
@@ -130,16 +189,18 @@ if (isset($_POST['send'])) {
                       <label class="control-label" style="margin-left:  -85%;">Message <span>*</span></label>
                       <textarea class="form-control white_bg" name="message" rows="4" required></textarea>
                     </div>
+
+                    <!-- TODO: Prevent button to submit simultaneously  -->
                     <div class="form-group">
-                      <button class="btn" type="submit" name="send" type="submit">Send Message <span
+                      <button class="btn" type="submit" name="send" type="submit">Send Email <span
                           class="angle_arrow"><i class="fa fa-angle-right" aria-hidden="true"></i></span></button>
                     </div>
                   </form>
                 </div>
               </div>
-
             </div>
           </div>
+
         </div>
       </div>
 
