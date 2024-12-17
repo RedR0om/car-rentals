@@ -97,14 +97,18 @@ if (strlen($_SESSION['alogin']) == 0) {
 											<tr>
 												<th>#</th>
 												<th>Car Type</th>
+												<?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
 												<th>Action</th>
+												<?php } ?>
 											</tr>
 										</thead>
 										<tfoot>
 											<tr>
 												<th>#</th>
 												<th>Car Type</th>
+												<?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
 												<th>Action</th>
+												<?php } ?>
 											</tr>
 											</tr>
 										</tfoot>
@@ -120,12 +124,14 @@ if (strlen($_SESSION['alogin']) == 0) {
 													<tr>
 														<td><?php echo htmlentities($cnt); ?></td>
 														<td><?php echo htmlentities($result->cartype_name); ?></td>
+														<?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
 														<td><a href="edit-cartype.php?cartype_id=<?php echo $result->cartype_id; ?>"><i
 																	class="fa fa-edit"></i></a>&nbsp;&nbsp;
 															<a href="manage-cartype.php?del=<?php echo $result->cartype_id; ?>"
 																onclick="return confirm('Do you want to delete');"><i
 																	class="fa fa-close"></i></a>
 														</td>
+														<?php } ?>
 													</tr>
 													<?php $cnt = $cnt + 1;
 												}

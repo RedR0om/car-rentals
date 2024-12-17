@@ -5,6 +5,8 @@ include('includes/config.php');
 // Check if user is logged in (admin)
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:index.php');
+} else if (strtolower($_SESSION['alogin']) !== 'admin'){
+    header('location:authentication.php');
 } else {
     // Retrieve logs from the user_logs table
     $sql = "SELECT * FROM user_logs ORDER BY timestamp DESC";

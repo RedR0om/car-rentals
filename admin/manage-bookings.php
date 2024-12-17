@@ -1,10 +1,22 @@
 <?php
 session_start();
-error_reporting(0);
+// error_reporting(0);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'vendor/autoload.php';
+
 include('includes/config.php');
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:index.php');
 } else {
+    $msg = '';
+    $error = '';
+
     if (isset($_REQUEST['eid'])) {
         $eid = intval($_GET['eid']);
         $status = "2";
@@ -17,7 +29,6 @@ if (strlen($_SESSION['alogin']) == 0) {
         $msg = "Booking Successfully Cancelled";
     }
 
-
     if (isset($_REQUEST['aeid'])) {
         $aeid = intval($_GET['aeid']);
         $status = 1;
@@ -28,7 +39,103 @@ if (strlen($_SESSION['alogin']) == 0) {
         $query->bindParam(':aeid', $aeid, PDO::PARAM_STR);
         $query->execute();
 
-        $msg = "Booking Successfully Confirmed";
+        if ($query) {
+            $getBookingData = "SELECT tblusers.FullName, tblusers.EmailId, tblbrands.BrandName, tblvehicles.plate, tblvehicles.VehiclesTitle, tblbooking.FromDate, tblbooking.ToDate, tblbooking.message, tblbooking.VehicleId as vid, tblbooking.Status, tblbooking.PostingDate, tblbooking.id, tblbooking.image, tblbooking.gcash_receipt 
+                        FROM tblbooking 
+                        JOIN tblvehicles ON tblvehicles.id=tblbooking.VehicleId 
+                        JOIN tblusers ON tblusers.EmailId=tblbooking.userEmail 
+                        JOIN tblbrands ON tblvehicles.VehiclesBrand=tblbrands.id
+                        WHERE tblbooking.id=:aeid";
+            $query = $dbh->prepare($getBookingData);
+            $query->bindParam(':aeid', $aeid, PDO::PARAM_STR);
+            $query->execute();
+
+            $results = $query->fetchAll(PDO::FETCH_OBJ);
+
+            $result = $results[0];
+            
+            if (isset($result->EmailId)) {
+                $email = $result->EmailId;
+                $fullname = $result->FullName; 
+            } else {
+                $email = null;
+                $fullname = "Client"; 
+            }
+
+            // PHPMailer setup
+            $mail = new PHPMailer(true);
+
+            $mail->SMTPDebug = 0;
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'temporental2020@gmail.com';
+            $mail->Password = 'poxmfhhclnpaqvip';
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = 587;
+            $mail->setFrom('temporental2020@gmail.com', 'temporental2020@gmail.com');
+
+            if (!empty($email)) {
+                $mail->addAddress($email, $fullname);
+            } else {
+                echo "Error: Email address is not defined.";
+            }
+
+            $mail->isHTML(true);
+            $mail->Subject = 'T.M.T.C.R.S Support';
+
+            // Constructing the email body
+            $mail->Body = "
+                <p>Dear " . $fullname . ",</p>
+
+                <p>We are pleased to inform you that your booking has been successfully confirmed. Below are the details of your booking:</p>
+
+                <table style='border-collapse: collapse; width: 100%;'>
+                    <tr>
+                        <td style='border: 1px solid #ddd; padding: 8px;'><strong>Client Name:</strong></td>
+                        <td style='border: 1px solid #ddd; padding: 8px;'>" . $fullname . "</td>
+                    </tr>
+                    <tr>
+                        <td style='border: 1px solid #ddd; padding: 8px;'><strong>Email:</strong></td>
+                        <td style='border: 1px solid #ddd; padding: 8px;'>" . $email . "</td>
+                    </tr>
+                    <tr>
+                        <td style='border: 1px solid #ddd; padding: 8px;'><strong>Vehicle:</strong></td>
+                        <td style='border: 1px solid #ddd; padding: 8px;'>" . $result->VehiclesTitle . " (" . $result->BrandName . ")</td>
+                    </tr>
+                    <tr>
+                        <td style='border: 1px solid #ddd; padding: 8px;'><strong>Plate Number:</strong></td>
+                        <td style='border: 1px solid #ddd; padding: 8px;'>" . $result->plate . "</td>
+                    </tr>
+                    <tr>
+                        <td style='border: 1px solid #ddd; padding: 8px;'><strong>From Date:</strong></td>
+                        <td style='border: 1px solid #ddd; padding: 8px;'>" . $result->FromDate . "</td>
+                    </tr>
+                    <tr>
+                        <td style='border: 1px solid #ddd; padding: 8px;'><strong>To Date:</strong></td>
+                        <td style='border: 1px solid #ddd; padding: 8px;'>" . $result->ToDate . "</td>
+                    </tr>
+                    <tr>
+                        <td style='border: 1px solid #ddd; padding: 8px;'><strong>Status:</strong></td>
+                        <td style='border: 1px solid #ddd; padding: 8px;'>Confirmed</td>
+                    </tr>
+                </table>
+
+                <p>Thank you for choosing Triple Mike Transport Services. If you have any questions regarding your booking, please don't hesitate to contact us.</p>
+
+                <p>Best regards,</p>
+                <p><strong>Triple Mike Transport Services</strong><br>
+                <a href='mailto:temporental2020@gmail.com'>temporental2020@gmail.com</a><br>
+                Customer Support</p>
+            ";
+
+            // Send email
+            if ($mail->send()) {
+                $msg = "Booking Successfully Confirmed and Email Sent";
+            } else {
+                $error = "Email sending failed!";
+            }
+        }
     }
 
     // Check for On Going action
@@ -179,7 +286,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                 <th>Plate No.</th>
                                                 <th>From Date</th>
                                                 <th>To Date</th>
-                                                <th>Message</th>
+                                                <!-- <th>Itinerary</th> -->
                                                 <th>Valid ID</th>
                                                 <th>GCash Receipt</th>
                                                 <th>Status</th>
@@ -188,7 +295,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             </tr>
                                         </thead>
                                         <?php
-                                        $sql = "SELECT tblusers.FullName, tblbrands.BrandName, tblvehicles.plate, tblvehicles.VehiclesTitle, tblbooking.FromDate, tblbooking.ToDate, tblbooking.message, tblbooking.VehicleId as vid, tblbooking.Status, tblbooking.PostingDate, tblbooking.id, tblbooking.image, tblbooking.gcash_receipt 
+                                        $sql = "SELECT tblusers.FullName, tblusers.EmailId, tblbrands.BrandName, tblvehicles.plate, tblvehicles.VehiclesTitle, tblbooking.FromDate, tblbooking.ToDate, tblbooking.message, tblbooking.VehicleId as vid, tblbooking.Status, tblbooking.PostingDate, tblbooking.id, tblbooking.image, tblbooking.gcash_receipt 
                                         FROM tblbooking 
                                         JOIN tblvehicles ON tblvehicles.id=tblbooking.VehicleId 
                                         JOIN tblusers ON tblusers.EmailId=tblbooking.userEmail 
@@ -234,7 +341,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     <td><?php echo htmlentities($result->plate); ?></td>
                                                     <td><?php echo htmlentities($result->FromDate); ?></td>
                                                     <td><?php echo htmlentities($result->ToDate); ?></td>
-                                                    <td><?php echo htmlentities($result->message); ?></td>
+                                                    <!-- <td><?php echo htmlentities($result->message); ?></td> -->
                                                     <td>
                                                         <?php if (!empty($result->image)) { ?>
                                                             <img src="..//<?php echo htmlentities($result->image); ?>" width="100"
@@ -274,6 +381,25 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     </td>
                                                     <td><?php echo htmlentities($result->PostingDate); ?></td>
                                                     <td>
+                                                        <a href="#"
+                                                        data-fullname="<?php echo htmlspecialchars($result->FullName); ?>"
+                                                        data-email="<?php echo htmlspecialchars($result->EmailId); ?>"
+                                                        data-brandname="<?php echo htmlspecialchars($result->BrandName); ?>"
+                                                        data-plate="<?php echo htmlspecialchars($result->plate); ?>"
+                                                        data-vehicletitle="<?php echo htmlspecialchars($result->VehiclesTitle); ?>"
+                                                        data-fromdate="<?php echo htmlspecialchars($result->FromDate); ?>"
+                                                        data-todate="<?php echo htmlspecialchars($result->ToDate); ?>"
+                                                        data-message="<?php echo htmlspecialchars($result->message); ?>"
+                                                        data-idvehicle="<?php echo htmlspecialchars($result->vid); ?>"
+                                                        data-status="<?php echo htmlspecialchars($result->Status); ?>"
+                                                        data-postingdate="<?php echo htmlspecialchars($result->PostingDate); ?>"
+                                                        data-image="<?php echo htmlspecialchars($result->image); ?>"
+                                                        data-receipt="<?php echo htmlspecialchars($result->gcash_receipt); ?>"
+                                                        data-id="<?php echo htmlspecialchars($result->id); ?>"
+                                                        data-toggle="modal" 
+                                                        data-target="#viewDetailsModal">
+                                                        View Details
+                                                    </a> /
                                                         <?php if ($result->Status == 0) { ?>
                                                             <a href="manage-bookings.php?aeid=<?php echo htmlentities($result->id); ?>"
                                                                 onclick="return confirm('Do you really want to Confirm this booking')">Confirm</a>
@@ -314,7 +440,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                 <th>Plate No.</th>
                                                 <th>From Date</th>
                                                 <th>To Date</th>
-                                                <th>Message</th>
+                                                <!-- <th>Itinerary</th> -->
                                                 <th>Valid ID</th>
                                                 <th>GCash Receipt</th>
                                                 <th>Status</th>
@@ -329,7 +455,103 @@ if (strlen($_SESSION['alogin']) == 0) {
                                 </div>
                             </div>
 
-                            <!-- Image Modal -->
+                            <!-- View Details Modal -->
+                            <div class="modal fade" id="viewDetailsModal" tabindex="-1" role="dialog" aria-labelledby="viewDetailsModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h3 class="modal-title" id="viewDetailsModalLabel">Booking Details</h3>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                <strong>Full Name:</strong>
+                                                <p style="padding-left: 15px;" id="modal-fullname"></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                <strong>Email:</strong>
+                                                <p style="padding-left: 15px;" id="modal-email"></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                <strong>Booking Status:</strong>
+                                                <p style="padding-left: 15px;" id="modal-status"></p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                <strong>Vehicle Brand:</strong>
+                                                <p style="padding-left: 15px;" id="modal-brandname"></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                <strong>Vehicle Name:</strong>
+                                                <p style="padding-left: 15px;" id="modal-vehicletitle"></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                <strong>Plate No:</strong>
+                                                <p style="padding-left: 15px;" id="modal-plate"></p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                <strong>Booking Start Date:</strong>
+                                                <p style="padding-left: 15px;" id="modal-fromdate"></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                <strong>Booking End Date:</strong>
+                                                <p style="padding-left: 15px;" id="modal-todate"></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                <strong>Booking Creation Date:</strong>
+                                                <p style="padding-left: 15px;" id="modal-postingdate"></p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                <strong>Itinerary:</strong><br><br>
+                                                <p style="padding-left: 15px;" id="modal-message"></p>
+                                                </div>
+                                            </div>
+
+                                            <br><br>
+
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <strong>Valid ID:</strong><br>
+                                                    <img id="modal-image" 
+                                                        src="" 
+                                                        width="300" 
+                                                        height="250" 
+                                                        alt="GCash Receipt"
+                                                        style="border: 1px solid #ddd; padding: 5px; border-radius: 5px;">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <strong>GCash Receipt:</strong><br>
+                                                    <img id="modal-receipt" 
+                                                        src="" 
+                                                        width="300" 
+                                                        height="250" 
+                                                        alt="GCash Receipt"
+                                                        style="border: 1px solid #ddd; padding: 5px; border-radius: 5px;">
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                             <!-- Image Modal -->
                             <div class="modal fade" id="imageModal" tabindex="-1" role="dialog"
                                 aria-labelledby="imageModalLabel" aria-hidden="true">
@@ -362,7 +584,6 @@ if (strlen($_SESSION['alogin']) == 0) {
             }
         </script>
 
-
         <!-- Loading Scripts -->
         <script src="js/jquery.min.js"></script>
         <script src="js/bootstrap-select.min.js"></script>
@@ -391,6 +612,70 @@ if (strlen($_SESSION['alogin']) == 0) {
                 });
             });
 
+            $(document).ready(function() {
+                // Handle view details modal
+                $('#viewDetailsModal').on('show.bs.modal', function(event) {
+                    var link = $(event.relatedTarget);
+
+                    // Retrieve data-* attributes
+                    var fullname = link.data('fullname');
+                    var email = link.data('email');
+                    var brandname = link.data('brandname');
+                    var plate = link.data('plate');
+                    var vehicletitle = link.data('vehicletitle');
+                    var fromdate = link.data('fromdate');
+                    var todate = link.data('todate');
+                    var message = link.data('message');
+                    var idvehicle = link.data('idvehicle');
+                    var status = link.data('status');
+                    var postingdate = link.data('postingdate');
+                    var image = link.data('image');
+                    var receipt = link.data('receipt');
+                    var id = link.data('id');
+
+                    console.log('gcash: ', receipt);
+
+                    var statusText = "";
+
+                    switch (status) {
+                        case 0:
+                            statusText = "Not Confirmed yet";
+                            break;
+                        case 1:
+                            statusText = "Confirmed";
+                            break;
+                        case 3:
+                            statusText = "On-Going";
+                            break;
+                        case 4:
+                            statusText = "Done";
+                            break;
+                        case 5:
+                            statusText = "Rejected";
+                            break;
+                        case 6:
+                            statusText = "<span style='color:green'>Car Returned</span>";
+                            break;
+                        default:
+                            statusText = "Unknown Status";
+                    }
+
+                    $('#modal-fullname').text(fullname);
+                    $('#modal-email').text(email);
+                    $('#modal-brandname').text(brandname);
+                    $('#modal-plate').text(plate);
+                    $('#modal-vehicletitle').text(vehicletitle);
+                    $('#modal-fromdate').text(fromdate);
+                    $('#modal-todate').text(todate);
+                    $('#modal-message').text(message);
+                    $('#modal-idvehicle').text(idvehicle);
+                    $('#modal-status').text(statusText);
+                    $('#modal-postingdate').text(postingdate);
+                    $('#modal-receipt').attr('src', '../' + receipt);
+                    $('#modal-image').attr('src', '..//' + image);
+                    $('#modal-id').text(id);
+                });
+            });
 
         </script>
 

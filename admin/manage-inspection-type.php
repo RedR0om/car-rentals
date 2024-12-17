@@ -112,7 +112,9 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             <tr>
                                                 <th>#</th>
                                                 <th>Inspection Type</th>
+                                                <?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
                                                 <th>Action</th>
+                                                <?php } ?>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -127,6 +129,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     <tr>
                                                         <td><?php echo htmlentities($cnt); ?></td>
                                                         <td><?php echo htmlentities($result->inspectiontype_name); ?></td>
+                                                        <?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
                                                         <td>
                                                             <a href="#"
                                                                 onclick="editType(<?php echo $result->inspectiontype_id; ?>, '<?php echo htmlentities($result->inspectiontype_name); ?>')"
@@ -137,7 +140,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                                 onclick="return confirm('Do you want to delete');"
                                                                 class="btn btn-danger">Delete</a>
                                                         </td>
-
+                                                        <?php } ?>
                                                     </tr>
                                                     <?php $cnt++;
                                                 }

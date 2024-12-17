@@ -141,7 +141,9 @@ if (strlen($_SESSION['alogin']) == 0) {
 												<th>Price Per day</th>
 												<th>Fuel Type</th>
 												<th>Model Year</th>
+												<?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
 												<th>Action</th>
+												<?php } ?>
 											</tr>
 										</thead>
 										<tfoot>
@@ -153,7 +155,9 @@ if (strlen($_SESSION['alogin']) == 0) {
 												<th>Price Per day</th>
 												<th>Fuel Type</th>
 												<th>Model Year</th>
+												<?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
 												<th>Action</th>
+												<?php } ?>
 											</tr>
 											</tr>
 										</tfoot>
@@ -174,11 +178,14 @@ if (strlen($_SESSION['alogin']) == 0) {
 														<td>₱<?php echo htmlentities($result->PricePerDay); ?></td>
 														<td><?php echo htmlentities($result->FuelType); ?></td>
 														<td><?php echo htmlentities($result->ModelYear); ?></td>
+
+														<?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
 														<td><a href="edit-vehicle.php?id=<?php echo $result->id; ?>"
 																class="btn btn-primary">Edit</a>&nbsp;&nbsp;
 															<a href="#" onclick="openDeleteModal(<?php echo $result->id; ?>)"
 																class="btn btn-danger">Delete</a>
 														</td>
+														<?php } ?>
 													</tr>
 													<?php $cnt = $cnt + 1;
 												}

@@ -6,6 +6,8 @@ include('includes/config.php');
 // Check if user is logged in
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:index.php');
+} else if (strtolower($_SESSION['alogin']) !== 'admin'){
+    header('location:authentication.php');
 } else {
     // Add new staff member logic
     if (isset($_POST['submit'])) {

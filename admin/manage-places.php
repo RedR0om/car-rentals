@@ -164,7 +164,9 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             <th>Price</th>
                                             <th>Depo Name</th>
                                             <th>Depo Address</th>
+                                            <?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
                                             <th>Action</th>
+                                            <?php } ?>
                                         </tr>
                                     </thead>
                                     <tfoot>
@@ -176,7 +178,9 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             <th>Price</th>
                                             <th>Depo Name</th>
                                             <th>Depo Address</th>
+                                            <?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
                                             <th>Action</th>
+                                            <?php } ?>
                                         </tr>
                                     </tfoot>
                                     <tbody>
@@ -196,6 +200,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     <td><?php echo htmlentities($result->Price); ?></td>
                                                     <td><?php echo htmlentities($result->DepoName); ?></td>
                                                     <td><?php echo htmlentities($result->DepoAddress); ?></td>
+                                                    <?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
                                                     <td>
                                                         <a href="edit-places.php?place_id=<?php echo $result->place_id; ?>"
                                                             class="btn btn-primary">Edit</a>&nbsp;&nbsp;
@@ -203,6 +208,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                             onclick="return confirm('Do you want to delete');"
                                                             class="btn btn-danger">Delete</a>
                                                     </td>
+                                                    <?php } ?>
                                                 </tr>
                                                 <?php $cnt = $cnt + 1;
                                             }

@@ -5,7 +5,9 @@ include('includes/config.php');
 if(strlen($_SESSION['alogin'])==0)
 	{	
 header('location:index.php');
-}
+	} else if (strtolower($_SESSION['alogin']) !== 'admin'){
+    header('location:authentication.php');
+} 
 else{
 if(isset($_GET['del']))
 {

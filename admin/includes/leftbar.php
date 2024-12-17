@@ -1,9 +1,19 @@
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+$username = isset($_SESSION['alogin']) ? $_SESSION['alogin'] : 'Admin';
+?>
+
 <nav class="ts-sidebar">
 	<ul class="ts-sidebar-menu" style=" font-family: Arial, sans-serif;">
 
 		<li class="ts-label">Home</li>
 
 		<li><a href="dashboard.php"></i>Dashboard</a></li>
+
+		<?php if (strtolower($username) === 'admin') { ?>
 		<li><a href="#">User Management</a>
 			<ul>
 				<li><a href="manage-staff.php"></i>Manage Staffs</a></li>
@@ -11,6 +21,8 @@
 				<li><a href="manage-userlogs.php">Logged History</a></li>
 			</ul>
 		</li>
+		<?php }?>
+
 		<li class="ts-label">Business Management</li>
 
 		<li><a href="#">Driver</a>
@@ -69,6 +81,7 @@
 
 	<li class="ts-label">System Settings</li>
 
+	<?php if (strtolower($username) === 'admin') { ?>
 	<li><a href="#">Settings</a>
 		<ul>
 			<li><a href="#"></i>Contact Info</a>
@@ -98,6 +111,7 @@
 
 		</ul>
 	</li>
+	<?php } ?>
 	<li><a href="#"></i>Report</a>
 		<ul>
 			<li><a href="reportbooking.php">Booking History</a></li>

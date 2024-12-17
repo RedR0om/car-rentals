@@ -225,6 +225,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                 <td><?php echo htmlentities($result->IssueDate); ?></td>
                                                 <td><?php echo htmlentities($result->ExpirationDate); ?></td>
                                                 <td>
+                                                    <?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
                                                     <a href="#" class="btn btn-primary edit-btn" data-toggle="modal"
                                                         data-target="#editDriverModal"
                                                         data-id="<?php echo htmlentities($result->DriverID); ?>"
@@ -241,6 +242,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         data-reference="<?php echo htmlentities($result->Reference); ?>"
                                                         data-notes="<?php echo htmlentities($result->Notes); ?>">Edit</a>
                                                     |
+                                                    <?php }?>
                                                     <a href="#" class="btn btn-info view-btn" data-toggle="modal"
                                                         data-target="#viewDriverModal"
                                                         data-id="<?php echo htmlentities($result->DriverID); ?>"
@@ -256,10 +258,12 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         data-expiration_date="<?php echo htmlentities($result->ExpirationDate); ?>"
                                                         data-reference="<?php echo htmlentities($result->Reference); ?>"
                                                         data-notes="<?php echo htmlentities($result->Notes); ?>">View</a>
+                                                    <?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
                                                     |
                                                     <a href="manage-drivers.php?del=<?php echo htmlentities($result->DriverID); ?>"
                                                         onclick="return confirm('Do you really want to delete this driver?');"
                                                         class="btn btn-danger">Delete</a>
+                                                    <?php }?>
                                                 </td>
                                             </tr>
                                         <?php }

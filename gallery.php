@@ -61,8 +61,8 @@ error_reporting(0);
           foreach ($stmt as $img) {
             ?>
             <div class="gallery-item">
-              <a href="<?= $img['img_path']; ?>" class="image-popup">
-                <img class="gallery-img" data-caption="<?= $img['img_title']; ?>" src="<?= $img['img_path']; ?>"
+              <a href="../admin/<?= $img['img_path']; ?>" class="image-popup">
+                <img class="gallery-img" data-caption="<?= $img['img_title']; ?>" src="../admin/<?= $img['img_path']; ?>"
                   alt="<?= $img['img_title']; ?>">
               </a>
               <div class="img-title"><?= $img['img_title']; ?></div>

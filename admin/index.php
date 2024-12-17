@@ -12,6 +12,14 @@ if (isset($_POST['login'])) {
   $query->execute();
   $result = $query->fetch(PDO::FETCH_OBJ);
 
+  if (!$result) {
+    $sql = "SELECT UserName, Password, Name FROM tblstaff WHERE UserName=:username";
+    $query = $dbh->prepare($sql);
+    $query->bindParam(':username', $username, PDO::PARAM_STR);
+    $query->execute();
+    $result = $query->fetch(PDO::FETCH_OBJ);
+  }
+
   // Check if user exists and password matches
   if ($result && password_verify($password, $result->Password)) {
     $_SESSION['alogin'] = $_POST['username'];
@@ -118,7 +126,7 @@ if (isset($_POST['login'])) {
   <div class="login-page">
     <div class="form-content">
       <img src="logo.png" alt="Logo" class="logo"> <!-- Add your logo here -->
-      <h1 class="text-center">Admin Login</h1>
+      <h1 class="text-center">Login</h1>
       <form method="post">
         <div class="form-group">
           <label for="username" class="text-uppercase">Username</label>

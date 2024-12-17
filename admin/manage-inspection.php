@@ -196,18 +196,22 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     </td>
 
                                                     <td>
+                                                        <?php if (strtolower($_SESSION['alogin']) === 'admin') {?>
                                                         <a href="edit-inspection.php?id=<?php echo htmlentities($inspection->id); ?>"
                                                             class="btn btn-primary">Edit</a>
+                                                        <?php } ?>
+
                                                         <a href="javascript:void(0);"
                                                             onclick="viewInspection(<?php echo htmlspecialchars(json_encode($inspection), ENT_QUOTES, 'UTF-8'); ?>)"
                                                             class="btn btn-info">View</a>
 
-
+                                                        <?php if (strtolower($_SESSION['alogin']) === 'admin') {?>    
                                                         <a href="manage-inspection.php?del=<?php echo htmlentities($inspection->id); ?>"
                                                             class="btn btn-danger"
                                                             onclick="return confirm('Are you sure you want to delete this inspection?');">
                                                             Delete
                                                         </a>
+                                                        <?php } ?>
 
                                                 </tr>
                                                 <?php $cnt++;

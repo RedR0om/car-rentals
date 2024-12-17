@@ -1,3 +1,8 @@
+<?php
+session_start();
+$username = isset($_SESSION['alogin']) ? $_SESSION['alogin'] : 'Admin';
+?>
+
 <div class="brand clearfix">
 	<div class="logo">
 		<img src="img/logo.png" alt="">
@@ -7,7 +12,9 @@
 		<ul class="ts-profile-nav">
 			
 			<li class="ts-account">
-				<a href="#"><img src="admin.jpg" class="ts-avatar hidden-side" alt=""> Admin <i class="fa fa-angle-down hidden-side"></i></a>
+				<a href="#"><img src="admin.jpg" class="ts-avatar hidden-side" alt="">
+				<?php echo htmlspecialchars($username); ?> 
+				<i class="fa fa-angle-down hidden-side"></i></a>
 				<ul>
 					<li><a href="logout.php">Logout</a></li>
 				</ul>
