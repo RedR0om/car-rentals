@@ -289,13 +289,19 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                 <!-- <th>Itinerary</th> -->
                                                 <th>Valid ID</th>
                                                 <th>GCash Receipt</th>
+                                                <th>Payment Option</th>
                                                 <th>Status</th>
                                                 <th>Posting date</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                         <?php
-                                        $sql = "SELECT tblusers.FullName, tblusers.EmailId, tblbrands.BrandName, tblvehicles.plate, tblvehicles.VehiclesTitle, tblbooking.FromDate, tblbooking.ToDate, tblbooking.message, tblbooking.VehicleId as vid, tblbooking.Status, tblbooking.PostingDate, tblbooking.id, tblbooking.image, tblbooking.gcash_receipt 
+                                        $sql = "SELECT tblusers.FullName, tblusers.EmailId, tblbrands.BrandName, tblvehicles.plate, tblvehicles.VehiclesTitle, tblbooking.FromDate,
+                                        tblbooking.ToDate, tblbooking.message, tblbooking.VehicleId as vid, tblbooking.Status, tblbooking.PostingDate, tblbooking.id, tblbooking.image,
+                                        tblbooking.gcash_receipt, tblbooking.payment_option, tblbooking.account_name, tblbooking.account_number, tblbooking.reference_number,
+                                        (SELECT CONCAT(tblplace.PlaceName, tblplace.City) FROM tblplace WHERE tblplace.PlaceID = tblbooking.pickup_location) as pickup_location,
+                                        (SELECT CONCAT(tblplace.PlaceName, tblplace.City) FROM tblplace WHERE tblplace.PlaceID = tblbooking.dropoff_location) as dropoff_location,
+                                        tblbooking.is_metro_manila
                                         FROM tblbooking 
                                         JOIN tblvehicles ON tblvehicles.id=tblbooking.VehicleId 
                                         JOIN tblusers ON tblusers.EmailId=tblbooking.userEmail 
@@ -362,6 +368,8 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         <?php } ?>
                                                     </td>
 
+                                                    <td><?php echo $result->payment_option ? htmlentities($result->payment_option) : 'No Payment Option'; ?></td>
+
                                                     <td>
                                                         <?php
                                                         if ($result->Status == 0) {
@@ -395,6 +403,13 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         data-postingdate="<?php echo htmlspecialchars($result->PostingDate); ?>"
                                                         data-image="<?php echo htmlspecialchars($result->image); ?>"
                                                         data-receipt="<?php echo htmlspecialchars($result->gcash_receipt); ?>"
+                                                        data-paymentoption="<?php echo $result->payment_option; ?>"
+                                                        data-accountname="<?php echo $result->account_name; ?>"
+                                                        data-accountnumber="<?php echo $result->account_number; ?>"
+                                                        data-referencenumber="<?php echo $result->reference_number; ?>"
+                                                        data-pickuplocation="<?php echo $result->pickup_location; ?>"
+                                                        data-dropofflocation="<?php echo $result->dropoff_location; ?>"
+                                                        data-ismetromanila="<?php echo $result->is_metro_manila; ?>"
                                                         data-id="<?php echo htmlspecialchars($result->id); ?>"
                                                         data-toggle="modal" 
                                                         data-target="#viewDetailsModal">
@@ -443,6 +458,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                 <!-- <th>Itinerary</th> -->
                                                 <th>Valid ID</th>
                                                 <th>GCash Receipt</th>
+                                                <th>Payment Option</th>
                                                 <th>Status</th>
                                                 <th>Posting date</th>
                                                 <th>Action</th>
@@ -513,9 +529,45 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             </div>
 
                                             <div class="row">
+                                                <div class="col-md-4">
+                                                <strong>Pick-up Location:</strong>
+                                                <p style="padding-left: 15px;" id="modal-pickuplocation"></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                <strong>Drop-off Location:</strong>
+                                                <p style="padding-left: 15px;" id="modal-dropofflocation"></p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                <strong>Is Within Metro Manila?</strong>
+                                                <p style="padding-left: 15px;" id="modal-ismetromanila"></p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
                                                 <div class="col-md-12">
                                                 <strong>Itinerary:</strong><br><br>
                                                 <p style="padding-left: 15px;" id="modal-message"></p>
+                                                </div>
+                                            </div>
+
+                                            <br><br>
+
+                                            <div class="row payment-details">
+                                                <div class="col-md-3">
+                                                <strong>Payment Option:</strong>
+                                                <p style="padding-left: 15px;" id="modal-paymentoption"></p>
+                                                </div>
+                                                <div class="col-md-3">
+                                                <strong>Account Name:</strong>
+                                                <p style="padding-left: 15px;" id="modal-accountname"></p>
+                                                </div>
+                                                <div class="col-md-3">
+                                                <strong>Account Number:</strong>
+                                                <p style="padding-left: 15px;" id="modal-accountnumber"></p>
+                                                </div>
+                                                <div class="col-md-3">
+                                                <strong>Reference Number:</strong>
+                                                <p style="padding-left: 15px;" id="modal-referencenumber"></p>
                                                 </div>
                                             </div>
 
@@ -631,6 +683,13 @@ if (strlen($_SESSION['alogin']) == 0) {
                     var postingdate = link.data('postingdate');
                     var image = link.data('image');
                     var receipt = link.data('receipt');
+                    var paymentoption = link.data('paymentoption');
+                    var accountname = link.data('accountname');
+                    var accountnumber = link.data('accountnumber');
+                    var referencenumber = link.data('referencenumber');
+                    var pickuplocation = link.data('pickuplocation');
+                    var dropofflocation = link.data('dropofflocation');
+                    var ismetromanila = link.data('ismetromanila') === 1 ? 'Yes' : 'No';
                     var id = link.data('id');
 
                     console.log('gcash: ', receipt);
@@ -660,6 +719,13 @@ if (strlen($_SESSION['alogin']) == 0) {
                             statusText = "Unknown Status";
                     }
 
+                    // Toggle payment details
+                    if (paymentoption === 'cash' || !paymentoption || paymentoption === '' || paymentoption === null) {
+                        $('.payment-details').css('display', 'none'); // Hide
+                    } else {
+                        $('.payment-details').css('display', 'block'); // Show
+                    }
+
                     $('#modal-fullname').text(fullname);
                     $('#modal-email').text(email);
                     $('#modal-brandname').text(brandname);
@@ -673,6 +739,13 @@ if (strlen($_SESSION['alogin']) == 0) {
                     $('#modal-postingdate').text(postingdate);
                     $('#modal-receipt').attr('src', '../' + receipt);
                     $('#modal-image').attr('src', '..//' + image);
+                    $('#modal-paymentoption').text(paymentoption);
+                    $('#modal-accountname').text(accountname);
+                    $('#modal-accountnumber').text(accountnumber);
+                    $('#modal-referencenumber').text(referencenumber);
+                    $('#modal-pickuplocation').text(pickuplocation);
+                    $('#modal-dropofflocation').text(dropofflocation);
+                    $('#modal-ismetromanila').text(ismetromanila);
                     $('#modal-id').text(id);
                 });
             });

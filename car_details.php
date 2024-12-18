@@ -14,6 +14,7 @@ if (isset($_POST['submit'])) {
   $message = $_POST['message'];
   $pickup_location = $_POST['pickup_location'];
   $dropoff_location = $_POST['dropoff_location'];
+  $is_metro_manila = $_POST['is_metro_manila'];
   $useremail = $_SESSION['login'];
   $status = 0;
   $vhid = $_GET['vhid'];
@@ -43,6 +44,7 @@ if (isset($_POST['submit'])) {
   // Initialize Account details
   $account_number = isset($_POST['account_number']) ? $_POST['account_number'] : null;
   $account_name = isset($_POST['account_name']) ? $_POST['account_name'] : null;
+  $reference_number = isset($_POST['reference_number']) ? $_POST['reference_number'] : null;
 
   $sql = "SELECT * FROM tblbooking WHERE 
                 (:fromdatetime BETWEEN FromDate AND ToDate 
@@ -74,12 +76,12 @@ if (isset($_POST['submit'])) {
       $gcash_target_folder = "gcash_receipts/";
       $gcash_target_file = $gcash_target_folder . $gcash_random_name;
 
-      if ($payment == 2 && !move_uploaded_file($gcash_receipt, $gcash_target_file)) {
+      if ($payment != 1 && !move_uploaded_file($gcash_receipt, $gcash_target_file)) {
         echo "<script>alert('Error uploading GCash receipt.');</script>";
       } else {
         // Insert booking into the database
-        $sql = "INSERT INTO tblbooking(userEmail, VehicleId, FromDate, ToDate, message, Status, payment, image, BookingNumber, gcash_receipt, payment_option, account_number, account_name, pickup_location, dropoff_location) 
-        VALUES(:useremail, :vhid, :fromdatetime, :todatetime, :message, :status, :payment, :image, :bookingno, :gcash_receipt, :payment_option, :account_number, :account_name, :pickup_location, :dropoff_location)";
+        $sql = "INSERT INTO tblbooking(userEmail, VehicleId, FromDate, ToDate, message, Status, payment, image, BookingNumber, gcash_receipt, payment_option, account_number, account_name, reference_number, pickup_location, dropoff_location, is_metro_manila) 
+        VALUES(:useremail, :vhid, :fromdatetime, :todatetime, :message, :status, :payment, :image, :bookingno, :gcash_receipt, :payment_option, :account_number, :account_name, :reference_number, :pickup_location, :dropoff_location, :is_metro_manila)";
         $query = $dbh->prepare($sql);
         $query->bindParam(':pickup_location', $pickup_location, PDO::PARAM_STR);
         $query->bindParam(':dropoff_location', $dropoff_location, PDO::PARAM_STR);
@@ -96,6 +98,8 @@ if (isset($_POST['submit'])) {
         $query->bindParam(':payment_option', $paymentOption, PDO::PARAM_STR);
         $query->bindParam(':account_number', $account_number, PDO::PARAM_STR);
         $query->bindParam(':account_name', $account_name, PDO::PARAM_STR);
+        $query->bindParam(':reference_number', $reference_number, PDO::PARAM_STR);
+        $query->bindParam(':is_metro_manila', $is_metro_manila, PDO::PARAM_STR);
 
         if ($query->execute()) {
         echo "<script>alert('Booking successful!');</script>";
@@ -617,6 +621,18 @@ if (isset($_POST['submit'])) {
                             </select>
                           </div>
 
+                          <div class="form-group">
+                              <label for="is-metro-manila" class="control-label">Is within Metro Manila?</label>
+                              <div class="form-check">
+                                  <input class="form-check-input" type="radio" name="is_metro_manila" id="metro-manila-yes" value="1" required>
+                                  <label class="form-check-label" for="metro-manila-yes">Yes</label>
+                              </div>
+                              <div class="form-check">
+                                  <input class="form-check-input" type="radio" name="is_metro_manila" id="metro-manila-no" value="0">
+                                  <label class="form-check-label" for="metro-manila-no">No</label>
+                              </div>
+                          </div>
+
                           <!-- Date and Time Fields -->
                           <div class="form-group">
                             <label class="control-label">From Date and Time:</label>
@@ -663,6 +679,11 @@ if (isset($_POST['submit'])) {
                             <div class="form-group">
                               <label for="account_number" class="control-label">Account Number:</label>
                               <input type="number" class="form-control" id="account_number" name="account_number" placeholder="Enter Account Number" required>
+                            </div>
+
+                            <div class="form-group">
+                              <label for="reference_number" class="control-label">Reference Number:</label>
+                              <input type="text" class="form-control" id="reference_number" name="reference_number" placeholder="Enter Reference Number" required>
                             </div>
 
                             <div class="form-group">
@@ -739,12 +760,14 @@ if (isset($_POST['submit'])) {
                       document.getElementById('account_name').setAttribute('required', 'required');
                       document.getElementById('account_number').setAttribute('required', 'required');
                       document.getElementById('gcash_receipt').setAttribute('required', 'required');
+                      document.getElementById('reference_number').setAttribute('required', 'required');
                     } else {
                       gcashFields.style.display = "none";
 
                       document.getElementById('account_name').removeAttribute('required');
                       document.getElementById('account_number').removeAttribute('required');
                       document.getElementById('gcash_receipt').removeAttribute('required');
+                      document.getElementById('reference_number').removeAttribute('required');
                     }
                   }
 
