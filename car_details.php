@@ -20,7 +20,7 @@ if (isset($_POST['submit'])) {
   $vhid = $_GET['vhid'];
   $bookingno = mt_rand(100000000, 999999999);
 
-  
+
   if ($payment === 'cash') {
     $payment = 1;
   }
@@ -102,9 +102,9 @@ if (isset($_POST['submit'])) {
         $query->bindParam(':is_metro_manila', $is_metro_manila, PDO::PARAM_STR);
 
         if ($query->execute()) {
-        echo "<script>alert('Booking successful!');</script>";
+          echo "<script>alert('Booking successful!');</script>";
         } else {
-        echo "<script>alert('Error in booking.');</script>";
+          echo "<script>alert('Error in booking.');</script>";
         }
 
       }
@@ -113,7 +113,9 @@ if (isset($_POST['submit'])) {
       echo "<script>alert('Error uploading valid ID.');</script>";
     }
   } else {
-    echo "<script>alert('The selected dates are already booked.');</script>";
+    echo "<script>alert('The selected dates are already booked from " . $fromdatetime . " to " . $todatetime . " for Vehicle ID: " . $vhid . "');</script>";
+
+
   }
 }
 
@@ -458,13 +460,15 @@ if (isset($_POST['submit'])) {
                 </button>
 
                 <!-- Terms and Conditions Modal -->
-                <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel" aria-hidden="true">
+                <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel"
+                  aria-hidden="true">
                   <div class="modal-dialog" role="document">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h5 class="modal-title text-center" id="termsModalLabel">Terms and Conditions for Car Rental Service</h5>
+                        <h5 class="modal-title text-center" id="termsModalLabel">Terms and Conditions for Car Rental
+                          Service</h5>
                       </div>
-                      <div class="modal-body">
+                      <div class="modal-body" style="max-height: 700px; overflow-y: auto; flex-grow: 1;">
                         <ol>
                           <li><strong>Personal Information</strong>
                             <ul>
@@ -478,8 +482,9 @@ if (isset($_POST['submit'])) {
                           <li><strong>General Terms</strong>
                             <ul>
                               <li>
-                                Rental Agreement- By renting a vehicle from Triple Mike Transport and Car Rental Services, 
-                                you agree to all terms and conditions stated herein, as well as any terms outlined in your rental contract.
+                                Rental Agreement- By renting a vehicle from Triple Mike Transport and Car Rental Services,
+                                you agree to all terms and conditions stated herein, as well as any terms outlined in your
+                                rental contract.
                               </li>
                             </ul>
                           </li>
@@ -487,12 +492,15 @@ if (isset($_POST['submit'])) {
                           <li><strong>Rental Period</strong>
                             <ul>
                               <li>
-                                Duration - The rental period is specified in the rental agreement. Extensions must be requested 
+                                Duration - The rental period is specified in the rental agreement. Extensions must be
+                                requested
                                 and approved in advance, and additional fees may apply.
                               </li>
                               <li>
-                                Late Return- Late returns may incur additional charges. If a vehicle is returned later than the scheduled
-                                time without prior approval, you may be charged an hourly or daily rate for the excess time.
+                                Late Return- Late returns may incur additional charges. If a vehicle is returned later
+                                than the scheduled
+                                time without prior approval, you may be charged an hourly or daily rate for the excess
+                                time.
                               </li>
                             </ul>
                           </li>
@@ -500,14 +508,18 @@ if (isset($_POST['submit'])) {
                           <li><strong>Payments and Deposits</strong>
                             <ul>
                               <li>
-                                Reservation - the client are required to pay 50% of total booking  fee.( To be paid and upload the proof of 
-                                payment in the booking tab). The remaining balance will be paid through cash given to the  driver or online transactions.
+                                Reservation - the client are required to pay 50% of total booking fee.( To be paid and
+                                upload the proof of
+                                payment in the booking tab). The remaining balance will be paid through cash given to the
+                                driver or online transactions.
                               </li>
                               <li>
-                                Rental Fees - The rental fees are calculated based on the agreed-upon rate, rental period, and any additional options selected.
+                                Rental Fees - The rental fees are calculated based on the agreed-upon rate, rental period,
+                                and any additional options selected.
                               </li>
                               <li>
-                                Payment Method - All payments are due at the start of the rental period. Payment processing is manual, 
+                                Payment Method - All payments are due at the start of the rental period. Payment
+                                processing is manual,
                                 as per the business agreement between the owner and customer.
                               </li>
                             </ul>
@@ -516,10 +528,12 @@ if (isset($_POST['submit'])) {
                           <li><strong>Vehicle Use and Restrictions</strong>
                             <ul>
                               <li>
-                                Permitted Use - The vehicle is to be used only as a passenger vehicle, operated by authorized drivers.
+                                Permitted Use - The vehicle is to be used only as a passenger vehicle, operated by
+                                authorized drivers.
                               </li>
                               <li>
-                                Geographic Limitations - Vehicles are restricted to specific geographical areas book by client.
+                                Geographic Limitations - Vehicles are restricted to specific geographical areas book by
+                                client.
                               </li>
                             </ul>
                           </li>
@@ -527,7 +541,8 @@ if (isset($_POST['submit'])) {
                           <li><strong>Insurance</strong>
                             <ul>
                               <li>
-                                Liability - Triple Mike  Transport and Car Rental Services is not responsible for any injuries, 
+                                Liability - Triple Mike Transport and Car Rental Services is not responsible for any
+                                injuries,
                                 damage, or losses incurred during the rental period.
                               </li>
                             </ul>
@@ -536,13 +551,15 @@ if (isset($_POST['submit'])) {
                           <li><strong>Cancellations and No-Shows</strong>
                             <ul>
                               <li>
-                                Cancellation Policy -  strictly no cancellation and no refund.
+                                Cancellation Policy - strictly no cancellation and no refund.
                               </li>
                               <li>
                                 Reschedule - is allowed 3 days prior to date of booking.
                               <li>
-                                No-Show Policy - If the renter fails to pick up the vehicle at the scheduled time without prior 
-                                notification, Triple Mike Transport and Car Rental Services reserves the right to cancel the 
+                                No-Show Policy - If the renter fails to pick up the vehicle at the scheduled time without
+                                prior
+                                notification, Triple Mike Transport and Car Rental Services reserves the right to cancel
+                                the
                                 reservation, and reservation fee will not be refunded.
                               </li>
                             </ul>
@@ -551,7 +568,7 @@ if (isset($_POST['submit'])) {
                           <li><strong>Agreement and Acceptance</strong>
                             <ul>
                               <li>
-                                By agreeing  to the rental agreement or receiving a vehicle from Triple Mike Transport and 
+                                By agreeing to the rental agreement or receiving a vehicle from Triple Mike Transport and
                                 Car Rental Services, the renter acknowledges and accepts all terms and conditions stated
                               </li>
                             </ul>
@@ -559,14 +576,15 @@ if (isset($_POST['submit'])) {
                         </ol>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#bookingModal" onclick="checkTermsCheckbox()">Accept</button>
+                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#bookingModal"
+                          onclick="checkTermsCheckbox()">Accept</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- Modal -->
+                <!-- Booking Modal -->
                 <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel"
                   aria-hidden="true">
                   <div class="modal-dialog" role="document">
@@ -580,13 +598,13 @@ if (isset($_POST['submit'])) {
                       </div>
                       <div class="modal-body">
                         <form method="post" enctype="multipart/form-data" id="bookingForm">
-                                        <?php
-                                        // Fetch places from tblplace table
-                                        $sql = "SELECT PlaceID, PlaceName FROM tblplace";
-                                        $query = $dbh->prepare($sql);
-                                        $query->execute();
-                                        $places = $query->fetchAll(PDO::FETCH_OBJ);
-                                        ?>
+                          <?php
+                          // Fetch places from tblplace table
+                          $sql = "SELECT PlaceID, PlaceName FROM tblplace";
+                          $query = $dbh->prepare($sql);
+                          $query->execute();
+                          $places = $query->fetchAll(PDO::FETCH_OBJ);
+                          ?>
 
                           <!-- Hidden field to check if form is already submitted -->
                           <input type="hidden" name="form_submitted" id="form_submitted" value="0">
@@ -597,11 +615,11 @@ if (isset($_POST['submit'])) {
                             <select class="form-control" name="pickup_location" required
                               style="height: calc(3.25rem + 2px);">
                               <option value="">Select Pickup Location</option>
-                                            <?php foreach ($places as $place) { ?>
+                              <?php foreach ($places as $place) { ?>
                                 <option value="<?php echo $place->PlaceID; ?>">
-                                                <?php echo htmlentities($place->PlaceName); ?>
+                                  <?php echo htmlentities($place->PlaceName); ?>
                                 </option>
-                                      
+
                               <?php } ?>
                             </select>
                           </div>
@@ -612,39 +630,56 @@ if (isset($_POST['submit'])) {
                             <select class="form-control" name="dropoff_location" required
                               style="height: calc(3.25rem + 2px);">
                               <option value="">Select Venue Location</option>
-                                            <?php foreach ($places as $place) { ?>
+                              <?php foreach ($places as $place) { ?>
                                 <option value="<?php echo $place->PlaceID; ?>">
-                                                <?php echo htmlentities($place->PlaceName); ?>
+                                  <?php echo htmlentities($place->PlaceName); ?>
                                 </option>
-                                      
+
                               <?php } ?>
                             </select>
                           </div>
 
                           <div class="form-group">
-                              <label for="is-metro-manila" class="control-label">Is within Metro Manila?</label>
-                              <div class="form-check">
-                                  <input class="form-check-input" type="radio" name="is_metro_manila" id="metro-manila-yes" value="1" required>
-                                  <label class="form-check-label" for="metro-manila-yes">Yes</label>
-                              </div>
-                              <div class="form-check">
-                                  <input class="form-check-input" type="radio" name="is_metro_manila" id="metro-manila-no" value="0">
-                                  <label class="form-check-label" for="metro-manila-no">No</label>
-                              </div>
+                            <label for="is-metro-manila" class="control-label">Is within Metro Manila?</label>
+                            <div class="form-check">
+                              <input class="form-check-input" type="radio" name="is_metro_manila" id="metro-manila-yes"
+                                value="1" required>
+                              <label class="form-check-label" for="metro-manila-yes">Yes</label>
+                            </div>
+                            <div class="form-check">
+                              <input class="form-check-input" type="radio" name="is_metro_manila" id="metro-manila-no"
+                                value="0">
+                              <label class="form-check-label" for="metro-manila-no">No</label>
+                            </div>
                           </div>
 
                           <!-- Date and Time Fields -->
-                          <div class="form-group">
+                          <div class="form-group" id="fromDateField">
                             <label class="control-label">From Date and Time:</label>
-                            <input type="datetime-local" class="form-control" name="fromdatetime"
+                            <input type="datetime-local" class="form-control" id="fromdatetime" name="fromdatetime"
                               placeholder="From Date and Time" min="<?php echo date('Y-m-d\TH:i'); ?>" required
-                              style="height: calc(3.25rem + 2px);">
+                              style="height: calc(3.25rem + 2px);" onchange="calculateEstimatedCost()">
                           </div>
-                          <div class="form-group">
+
+                          <div class="form-group" id="toDateField">
                             <label class="control-label">To Date and Time:</label>
-                            <input type="datetime-local" class="form-control" name="todatetime"
-                              placeholder="To Date and Time" min="<?php echo date('Y-m-d\TH:i'); ?>"
-                              onchange="validateDateTime(this)" required style="height: calc(3.25rem + 2px);">
+                            <input type="datetime-local" class="form-control" id="todatetime" name="todatetime"
+                              placeholder="To Date and Time" min="<?php echo date('Y-m-d\TH:i'); ?>" required
+                              style="height: calc(3.25rem + 2px);" onchange="calculateEstimatedCost()">
+                          </div>
+
+                          <!-- Within the Day Checkbox -->
+                          <div class="form-group">
+                            <label>
+                              <input type="checkbox" id="withinDayCheckbox" onchange="toggleDateFields()"> Within the Day
+                            </label>
+                          </div>
+
+                          <!-- Estimated Cost -->
+                          <div class="form-group">
+                            <label class="control-label">Estimated Cost</label>
+                            <input type="text" class="form-control" id="estimatedCost" value="₱ 0.00" readonly
+                              style="height: calc(3.25rem + 2px);">
                           </div>
 
                           <!-- Message -->
@@ -669,32 +704,37 @@ if (isset($_POST['submit'])) {
 
                           <!-- GCash Payment Fields -->
                           <div id="gcash-fields" style="display: none;">
-                            <p>Send it to this <span id="payment-type">Gcash</span> Account: <span id="account-number">0909584666</span></p>
+                            <p>Send it to this <span id="payment-type">Gcash</span> Account: <span
+                                id="account-number">0909584666</span></p>
 
                             <div class="form-group">
                               <label for="account_name" class="control-label">Account Name:</label>
-                              <input type="text" class="form-control" id="account_name" name="account_name" placeholder="Enter Account Name" required>
+                              <input type="text" class="form-control" id="account_name" name="account_name"
+                                placeholder="Enter Account Name" required>
                             </div>
 
                             <div class="form-group">
                               <label for="account_number" class="control-label">Account Number:</label>
-                              <input type="number" class="form-control" id="account_number" name="account_number" placeholder="Enter Account Number" required>
+                              <input type="number" class="form-control" id="account_number" name="account_number"
+                                placeholder="Enter Account Number" required>
                             </div>
 
                             <div class="form-group">
                               <label for="reference_number" class="control-label">Reference Number:</label>
-                              <input type="text" class="form-control" id="reference_number" name="reference_number" placeholder="Enter Reference Number" required>
+                              <input type="text" class="form-control" id="reference_number" name="reference_number"
+                                placeholder="Enter Reference Number" required>
                             </div>
 
                             <div class="form-group">
                               <label class="control-label">Upload Payment Receipt</label><br>
-                              <input type="file" class="form-control-file" id="gcash_receipt" name="gcash_receipt" required>
+                              <input type="file" class="form-control-file" id="gcash_receipt" name="gcash_receipt"
+                                required>
                             </div>
                           </div>
 
 
                           <!-- Upload Valid ID -->
-                                        <?php if ($_SESSION['login']) { ?>
+                          <?php if ($_SESSION['login']) { ?>
                             <div class="form-group">
                               <label class="control-label">Upload Valid ID</label><br>
                               <input type="file" class="form-control-file" id="image" name="image" required>
@@ -703,25 +743,29 @@ if (isset($_POST['submit'])) {
                             <div class="form-check">
                               <input class="form-check-input" type="checkbox" value="" id="termsCheckbox" required>
                               <label class="form-check-label" for="termsCheckbox">
-                                I agree to the <a href="#" data-toggle="modal" data-target="#termsModal">Terms and Conditions</a>.
+                                I agree to the <a href="#" data-toggle="modal" data-target="#termsModal">Terms and
+                                  Conditions</a>.
                               </label>
                             </div>
 
-                            <div class="form-group mt-2" style="display: flex; justify-content: center; align-items: center;">
+                            <div class="form-group mt-2"
+                              style="display: flex; justify-content: center; align-items: center;">
                               <input type="submit" class="btn" name="submit" value="Book Now" style="background: #ff0000;"
                                 id="submit-btn">
                             </div>
-                            
-                                        <?php } else { ?>
+
+                          <?php } else { ?>
                             <a href="#loginform" class="btn btn-xs uppercase" data-toggle="modal" data-dismiss="modal">Login
                               For Book</a>
-                                  
+
                           <?php } ?>
                         </form>
                       </div>
                     </div>
                   </div>
                 </div>
+
+ 
 
                 <script>
                   // Disable form submission after it's already been submitted
@@ -738,6 +782,53 @@ if (isset($_POST['submit'])) {
                 </script>
 
                 <script>
+                  function toggleDateFields() {
+                    const checkbox = document.getElementById("withinDayCheckbox");
+                    const toDateField = document.getElementById("toDateField");
+
+                    // Toggle visibility of "To Date and Time" field
+                    if (checkbox.checked) {
+                      toDateField.style.display = "none";
+                      calculateEstimatedCost(true);  // Use daily price only
+                    } else {
+                      toDateField.style.display = "block";
+                      calculateEstimatedCost(false); // Calculate based on date range
+                    }
+                  }
+
+                  function calculateEstimatedCost(withinDay = false) {
+                    const dailyPrice = parseFloat("<?php echo number_format(htmlentities($result->PricePerDay), 2, '.', ''); ?>");
+                    const estimatedCost = document.getElementById("estimatedCost");
+
+                    const fromDateInput = document.getElementById("fromdatetime").value;
+                    const toDateInput = document.getElementById("todatetime").value;
+
+                    if (!fromDateInput || (toDateInput === "" && !withinDay)) {
+                      estimatedCost.value = "₱ 0.00";
+                      return;
+                    }
+
+                    const fromDate = new Date(fromDateInput);
+
+                    if (withinDay) {
+                      estimatedCost.value = `₱ ${dailyPrice.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+                    } else {
+                      const toDate = new Date(toDateInput);
+
+                      if (toDate > fromDate) {
+                        const diffInTime = toDate - fromDate;
+                        const diffInDays = Math.ceil(diffInTime / (1000 * 60 * 60 * 24));
+                        const totalCost = diffInDays * dailyPrice;
+
+                        estimatedCost.value = `₱ ${totalCost.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+                      } else {
+                        estimatedCost.value = "₱ 0.00";
+                      }
+                    }
+                  }
+
+
+
                   function showPaymentFields() {
                     var paymentOption = document.getElementById("payment-option").value;
                     var gcashFields = document.getElementById("gcash-fields");
@@ -777,8 +868,9 @@ if (isset($_POST['submit'])) {
                       termsCheckbox.checked = true;
                     }
                   }
-                </script>
+                  
 
+                </script>
 
               </div>
             </aside>
