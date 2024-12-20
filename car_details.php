@@ -765,18 +765,50 @@ if (isset($_POST['submit'])) {
                   </div>
                 </div>
 
+
+                <!-- Availability Modal -->
+                <div class="modal fade" id="availabilityModal" tabindex="-1" role="dialog" aria-labelledby="availabilityModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="availabilityModalLabel">Booking Unavailable</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body" id="availabilityModalBody">
+                        <!-- Message from server -->
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
  
 
                 <script>
-                  // Disable form submission after it's already been submitted
-                  document.getElementById('bookingForm').addEventListener('submit', function (event) {
-                    // Check if the form has already been submitted
-                    if (document.getElementById('form_submitted').value == '1') {
-                      event.preventDefault();  // Prevent form submission
-                      alert('This booking cannot be edited after submission.');
-                    } else {
-                      // Mark the form as submitted
-                      document.getElementById('form_submitted').value = '1';
+                  document.addEventListener('DOMContentLoaded', () => {
+                    const submitBtn = document.getElementById('submit-btn');
+                    let isSubmitting = false;
+
+                    submitBtn.addEventListener('click', (event) => {
+                      event.preventDefault(); // Prevent default form submission
+                        validateAndCheckAvailability();
+                 
+                    });
+
+                    function validateAndCheckAvailability() {
+                      showAvailabilityModal('Please fill all the fields.');
+                      console.log('Modal should now show.');
+                    }
+
+                    function showAvailabilityModal(message) {
+                      const modalBody = document.getElementById('availabilityModalBody');
+                      modalBody.textContent = message;
+
+                      $('#availabilityModal').modal('show');
                     }
                   });
                 </script>
@@ -1014,7 +1046,9 @@ if (isset($_POST['submit'])) {
 
   <script src="lib/jquery/jquery.min.js"></script>
   <script src="lib/jquery/jquery-migrate.min.js"></script>
+
   <script src="lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+
   <script src="lib/easing/easing.min.js"></script>
   <script src="lib/superfish/hoverIntent.js"></script>
   <script src="lib/superfish/superfish.min.js"></script>
@@ -1022,11 +1056,14 @@ if (isset($_POST['submit'])) {
   <script src="lib/owlcarousel/owl.carousel.min.js"></script>
   <script src="lib/magnific-popup/magnific-popup.min.js"></script>
   <script src="lib/sticky/sticky.js"></script>
+
   <script src="contact/jqBootstrapValidation.js"></script>
   <script src="contact/contact_me.js"></script>
+
   <script src="js/main.js"></script><!-- Scripts -->
-  <script src="assets/js/jquery.min.js"></script>
-  <script src="assets/js/bootstrap.min.js"></script>
+
+  <!-- <script src="assets/js/jquery.min.js"></script> -->
+  <!-- <script src="assets/js/bootstrap.min.js"></script> -->
   <script src="assets/js/interface.js"></script>
   <!--Switcher-->
   <script src="assets/switcher/js/switcher.js"></script>
