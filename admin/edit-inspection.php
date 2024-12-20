@@ -1,6 +1,7 @@
 <?php
 session_start();
 error_reporting(0);
+
 include('includes/config.php');
 
 if (strlen($_SESSION['alogin']) == 0) {
@@ -24,6 +25,20 @@ if (strlen($_SESSION['alogin']) == 0) {
         $incoming_fuel = $_POST['incoming_fuel'];
         $checklist = $_POST['checklist'];
 
+        $oil_level_status = $_POST['oil_level_status'];
+        $tire_pressure_status = $_POST['tire_pressure_status'];
+        $coolant_level_status = $_POST['coolant_level_status'];
+        $windshield_wipers_status = $_POST['windshield_wipers_status'];
+        $engine_oil_filter_status = $_POST['engine_oil_filter_status'];
+        $inspect_battery_status = $_POST['inspect_battery_status'];
+        $examine_lights_status = $_POST['examine_lights_status'];
+        $belts_hoses_status = $_POST['belts_hoses_status'];
+        $air_filter_status = $_POST['air_filter_status'];
+        $break_pads_status = $_POST['break_pads_status'];
+        $fluid_status = $_POST['fluid_status'];
+        $suspension_alignment_status = $_POST['suspension_alignment_status'];
+        $comprehensive_inspection_status = $_POST['comprehensive_inspection_status'];
+
         $sql = "UPDATE tblinspections SET 
             vehicle = :vehicle, 
             inspector = :inspector, 
@@ -39,7 +54,20 @@ if (strlen($_SESSION['alogin']) == 0) {
             incoming_time = :incoming_time, 
             incoming_meter = :incoming_meter, 
             incoming_fuel = :incoming_fuel, 
-            checklist = :checklist 
+            checklist = :checklist,
+            oil_level_status = :oil_level_status,
+            tire_pressure_status = :tire_pressure_status,
+            coolant_level_status = :coolant_level_status,
+            windshield_wipers_status = :windshield_wipers_status,
+            engine_oil_filter_status = :engine_oil_filter_status,
+            inspect_battery_status = :inspect_battery_status,
+            examine_lights_status = :examine_lights_status,
+            belts_hoses_status = :belts_hoses_status,
+            air_filter_status = :air_filter_status,
+            break_pads_status = :break_pads_status,
+            fluid_status = :fluid_status,
+            suspension_alignment_status = :suspension_alignment_status,
+            comprehensive_inspection_status = :comprehensive_inspection_status
             WHERE id = :id";
 
         $query = $dbh->prepare($sql);
@@ -58,6 +86,19 @@ if (strlen($_SESSION['alogin']) == 0) {
         $query->bindParam(':incoming_meter', $incoming_meter, PDO::PARAM_STR);
         $query->bindParam(':incoming_fuel', $incoming_fuel, PDO::PARAM_STR);
         $query->bindParam(':checklist', json_encode($checklist), PDO::PARAM_STR);
+        $query->bindParam(':oil_level_status', $oil_level_status, PDO::PARAM_STR);
+        $query->bindParam(':tire_pressure_status', $tire_pressure_status, PDO::PARAM_STR);
+        $query->bindParam(':coolant_level_status', $coolant_level_status, PDO::PARAM_STR);
+        $query->bindParam(':windshield_wipers_status', $windshield_wipers_status, PDO::PARAM_STR);
+        $query->bindParam(':engine_oil_filter_status', $engine_oil_filter_status, PDO::PARAM_STR);
+        $query->bindParam(':inspect_battery_status', $inspect_battery_status, PDO::PARAM_STR);
+        $query->bindParam(':examine_lights_status', $examine_lights_status, PDO::PARAM_STR);
+        $query->bindParam(':belts_hoses_status', $belts_hoses_status, PDO::PARAM_STR);
+        $query->bindParam(':air_filter_status', $air_filter_status, PDO::PARAM_STR);
+        $query->bindParam(':break_pads_status', $break_pads_status, PDO::PARAM_STR);
+        $query->bindParam(':fluid_status', $fluid_status, PDO::PARAM_STR);
+        $query->bindParam(':suspension_alignment_status', $suspension_alignment_status, PDO::PARAM_STR);
+        $query->bindParam(':comprehensive_inspection_status', $comprehensive_inspection_status, PDO::PARAM_STR);
         $query->bindParam(':id', $id, PDO::PARAM_INT);
         $query->execute();
 
@@ -367,7 +408,228 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             </div>
                                         </div>
 
-                                        <h4>Outgoing Details</h4>
+                                        <hr style="border: 1px solid #ccc; margin-top: 50px;">
+
+                                        <h3>Car Maintenance Checklist</h3>
+                                        <h4> * Monthly Maintenance</h4>
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Oil Level</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-done" value="done"
+                                                        <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="oil-level-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
+                                                        <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="oil-level-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                         
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Tire Pressure</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="tire_pressure_status" id="tire-pressure-done" value="done"
+                                                        <?php echo ($inspection->tire_pressure_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="tire-pressure-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="tire_pressure_status" id="tire-pressure-pending" value="pending"
+                                                        <?php echo ($inspection->tire_pressure_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="tire-pressure-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Coolant Level</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="coolant_level_status" id="coolant-level-done" value="done"
+                                                        <?php echo ($inspection->coolant_level_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="coolant-level-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="coolant_level_status" id="coolant-level-pending" value="pending"
+                                                        <?php echo ($inspection->coolant_level_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="coolant-level-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                 
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Windshield & Wipers</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="windshield_wipers_status" id="windshield-wipers-done" value="done"
+                                                        <?php echo ($inspection->windshield_wipers_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="windshield-wipers-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="windshield_wipers_status" id="windshield-wipers-pending" value="pending"
+                                                        <?php echo ($inspection->windshield_wipers_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="windshield-wipers-pending">Pending</label>
+                                                </div>
+                                                <div class="col-sm-8"></div>
+                                            </div>
+                                        </div>
+
+                                        <hr style="border: 0.5px solid #ccc; margin-top: 1px;">
+
+                                        <h4> * Quarterly Maintenance</h4>
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Change Engine Oil & Filter</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="engine_oil_filter_status" id="engine-oil-filter-done" value="done"
+                                                        <?php echo ($inspection->engine_oil_filter_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="engine-oil-filter-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="engine_oil_filter_status" id="engine-oil-filter-pending" value="pending"
+                                                        <?php echo ($inspection->engine_oil_filter_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="engine-oil-filter-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                      
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Inspect Battery</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="inspect_battery_status" id="inspect-battery-done" value="done"
+                                                        <?php echo ($inspection->inspect_battery_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="inspect-battery-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="inspect_battery_status" id="inspect-battery-pending" value="pending"
+                                                        <?php echo ($inspection->inspect_battery_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="inspect-battery-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Examine Lights</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="examine_lights_status" id="examine-lights-done" value="done"
+                                                        <?php echo ($inspection->examine_lights_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="examine-lights-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="examine_lights_status" id="examine-lights-pending" value="pending"
+                                                        <?php echo ($inspection->examine_lights_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="examine-lights-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                      
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Inspect Belts & Hoses</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="belts_hoses_status" id="belts-hoses-done" value="done"
+                                                        <?php echo ($inspection->belts_hoses_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="oil-level-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="belts_hoses_status" id="belts-hoses-pending" value="pending"
+                                                        <?php echo ($inspection->belts_hoses_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="belts-hoses-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <hr style="border: 0.5px solid #ccc; margin-top: 1px;">
+
+                                        <h4> * Annual Maintenance</h4>
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Replace Air Filter</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="air_filter_status" id="air-filter-done" value="done"
+                                                        <?php echo ($inspection->air_filter_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="air-filter-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="air_filter_status" id="air-filter-pending" value="pending"
+                                                        <?php echo ($inspection->air_filter_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="air-filter-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                      
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Replace Break Pads</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="break_pads_status" id="break-pads-done" value="done"
+                                                        <?php echo ($inspection->break_pads_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="break-pads-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="break_pads_status" id="break-pads-pending" value="pending"
+                                                        <?php echo ($inspection->break_pads_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="break-pads-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                     
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Replace Fluids</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="fluid_status" id="fluid-done" value="done"
+                                                        <?php echo ($inspection->fluid_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="fluid-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="fluid_status" id="fluid-pending" value="pending"
+                                                        <?php echo ($inspection->fluid_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="fluid-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Inspect Suspension & Alignment</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="suspension_alignment_status" id="suspension-alignment-done" value="done"
+                                                        <?php echo ($inspection->suspension_alignment_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="suspension-alignment-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="suspension_alignment_status" id="suspension-alignment-pending" value="pending"
+                                                        <?php echo ($inspection->suspension_alignment_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="suspension-alignment-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                 
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Perform a Comprehensive Inspection</label>
+                                            <div class="col-sm-10">
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="comprehensive_inspection_status" id="comprehensive-inspection-done" value="done"
+                                                        <?php echo ($inspection->comprehensive_inspection_status === 'done') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="comprehensive-inspection-done">Done</label>
+                                                </div>
+                                                <div class="form-check form-check-inline col-sm-1">
+                                                    <input class="form-check-input" type="radio" name="comprehensive_inspection_status" id="comprehensive-inspection-pending" value="pending"
+                                                        <?php echo ($inspection->comprehensive_inspection_status === 'pending') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label" for="comprehensive-inspection-pending">Pending</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <hr style="border: 1px solid #ccc; margin-top: 50px;">
+
+                                        <h3>Outgoing Details</h3>
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Outgoing Date</label>
                                             <div class="col-sm-10">
@@ -400,7 +662,9 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             </div>
                                         </div>
 
-                                        <h4>Incoming Details</h4>
+                                        <hr style="border: 1px solid #ccc; margin-top: 50px;">
+                                        
+                                        <h3>Incoming Details</h3>
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Incoming Date</label>
                                             <div class="col-sm-10">
@@ -433,7 +697,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             </div>
                                         </div>
 
-
+                                        <hr style="border: 1px solid #ccc; margin-top: 50px;">
 
                                         <div class="section-title">Inspections Checklist</div>
                                         <div class="row">
@@ -444,19 +708,24 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         <label><?php echo htmlentities($item->inspectiontype_name); ?></label>
                                                         <label class="switch">
                                                             <input type="checkbox" name="checklist[<?php echo $item->id; ?>]"
-                                                                value="<?php echo htmlentities($item->inspectiontype_name); ?>">
-                                                            <?php echo (in_array($item->id, json_decode($inspection->checklist, true))) ? 'checked' : ''; ?>>
+                                                                value="<?php echo htmlentities($item->inspectiontype_name); ?>"
+                                                                <?php 
+                                                                $checklistArray = json_decode($inspection->checklist, true);
+
+                                                                if (!empty($checklistArray) && is_array($checklistArray)) {
+                                                                    echo (in_array($item->inspectiontype_name, $checklistArray)) ? 'checked' : '';
+                                                                } else {
+                                                                    echo '';
+                                                                }
+                                                                ?>>
                                                             <span class="slider round"></span>
                                                         </label>
-                                                        <textarea name="checklist_notes[<?php echo $item->id; ?>]"
+                                                        <textarea name="checklist_notes[<?php echo $item->inspectiontype_id; ?>]"
                                                             class="form-control" placeholder="Enter notes"></textarea>
                                                     </div>
                                                 </div>
                                             <?php } ?>
                                         </div>
-
-
-
 
                                         <div class="form-group row">
                                             <div class="col-sm-10 offset-sm-2">
