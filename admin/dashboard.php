@@ -58,27 +58,6 @@ if (strlen($_SESSION['alogin']) == 0) {
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="panel panel-default">
-                                                <div class="panel-body bk-primary text-light">
-                                                    <div class="stat-panel text-center">
-                                                        <?php
-                                                        $sql = "SELECT user_id from users ";
-                                                        $query = $dbh->prepare($sql);
-                                                        $query->execute();
-                                                        $results = $query->fetchAll(PDO::FETCH_OBJ);
-                                                        $regusers = $query->rowCount();
-                                                        ?>
-                                                        <div class="stat-panel-number h1 ">
-                                                            <?php echo htmlentities($regusers); ?>
-                                                        </div>
-                                                        <div class="stat-panel-title text-uppercase">Chat Users</div>
-                                                    </div>
-                                                </div>
-                                                <a href="chat-user.php" class="block-anchor panel-footer">Full Detail <i
-                                                        class="fa fa-arrow-right"></i></a>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="panel panel-default">
                                                 <div class="panel-body bk-success text-light">
                                                     <div class="stat-panel text-center">
 
@@ -141,6 +120,31 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     </div>
                                                 </div>
                                                 <a href="manage-brands.php"
+                                                    class="block-anchor panel-footer text-center">Full Detail &nbsp; <i
+                                                        class="fa fa-arrow-right"></i></a>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <div class="panel panel-default">
+                                                <div class="panel-body bk-info text-light">
+                                                    <div class="stat-panel text-center">
+                                                        <?php
+                                                        $sql6 = "SELECT id from tblbooking WHERE Status='3' ";
+                                                        $query6 = $dbh->prepare($sql6);
+                                                        $query6->execute();
+                                                        $results6 = $query6->fetchAll(PDO::FETCH_OBJ);
+                                                        $ongoing = $query6->rowCount();
+                                                        ?>
+
+                                                        <div class="stat-panel-number h1 ">
+                                                            <?php echo htmlentities($ongoing); ?>
+                                                        </div>
+                                                        <div class="stat-panel-title text-uppercase">On-Going Cars</div>
+                                                    </div>
+                                                </div>
+                                                <a href="manage-bookings.php"
                                                     class="block-anchor panel-footer text-center">Full Detail &nbsp; <i
                                                         class="fa fa-arrow-right"></i></a>
 
@@ -247,31 +251,6 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     </div>
                                                 </div>
                                                 <a href="testimonials.php"
-                                                    class="block-anchor panel-footer text-center">Full Detail &nbsp; <i
-                                                        class="fa fa-arrow-right"></i></a>
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-3">
-                                            <div class="panel panel-default">
-                                                <div class="panel-body bk-info text-light">
-                                                    <div class="stat-panel text-center">
-                                                        <?php
-                                                        $sql6 = "SELECT id from tblbooking WHERE Status='3' ";
-                                                        $query6 = $dbh->prepare($sql6);
-                                                        $query6->execute();
-                                                        $results6 = $query6->fetchAll(PDO::FETCH_OBJ);
-                                                        $ongoing = $query6->rowCount();
-                                                        ?>
-
-                                                        <div class="stat-panel-number h1 ">
-                                                            <?php echo htmlentities($ongoing); ?>
-                                                        </div>
-                                                        <div class="stat-panel-title text-uppercase">On-Going Cars</div>
-                                                    </div>
-                                                </div>
-                                                <a href="manage-bookings.php"
                                                     class="block-anchor panel-footer text-center">Full Detail &nbsp; <i
                                                         class="fa fa-arrow-right"></i></a>
 

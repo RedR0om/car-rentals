@@ -1,6 +1,7 @@
 <?php
 session_start();
 error_reporting(0);
+
 include('includes/config.php');
 
 if (strlen($_SESSION['alogin']) == 0) {
@@ -9,8 +10,6 @@ if (strlen($_SESSION['alogin']) == 0) {
     if (isset($_POST['submit'])) {
         $vehicle = $_POST['vehicle'];
         $inspector = $_POST['inspector'];
-        $inspection_date = $_POST['inspection_date'];
-        $inspection_status = $_POST['inspection_status'];
         $repair_status = $_POST['repair_status'];
         $notes = $_POST['notes'];
         $outgoing_date = $_POST['outgoing_date'];
@@ -26,17 +25,15 @@ if (strlen($_SESSION['alogin']) == 0) {
 
 
         $sql = "INSERT INTO tblinspections 
-            (vehicle, inspector, inspection_date, inspection_status, repair_status, notes, 
+            (vehicle, inspector, repair_status, notes, 
             outgoing_date, outgoing_time, outgoing_meter, outgoing_fuel, 
             incoming_date, incoming_time, incoming_meter, incoming_fuel, checklist, checklist_notes) 
-            VALUES (:vehicle, :inspector, :inspection_date, :inspection_status, :repair_status, :notes, 
+            VALUES (:vehicle, :inspector, :repair_status, :notes, 
             :outgoing_date, :outgoing_time, :outgoing_meter, :outgoing_fuel, 
             :incoming_date, :incoming_time, :incoming_meter, :incoming_fuel, :checklist, :checklist_notes )";
         $query = $dbh->prepare($sql);
         $query->bindParam(':vehicle', $vehicle, PDO::PARAM_STR);
         $query->bindParam(':inspector', $inspector, PDO::PARAM_STR);
-        $query->bindParam(':inspection_date', $inspection_date, PDO::PARAM_STR);
-        $query->bindParam(':inspection_status', $inspection_status, PDO::PARAM_STR);
         $query->bindParam(':repair_status', $repair_status, PDO::PARAM_STR);
         $query->bindParam(':notes', $notes, PDO::PARAM_STR);
         $query->bindParam(':outgoing_date', $outgoing_date, PDO::PARAM_STR);
@@ -297,26 +294,6 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             </div>
                                         </div>
 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Inspection Date</label>
-                                            <div class="col-sm-10">
-                                                <input type="date" name="inspection_date" class="form-control" required>
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Inspection Status</label>
-                                            <div class="col-sm-10">
-                                                <select name="inspection_status" class="form-control">
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="Completed">Completed</option>
-                                                    <option value="In Progress">In Progress</option>
-                                                    <option value="Reject">Reject</option>
-                                                    <option value="Conditional Pass">Conditional Pass</option>
-                                                    <option value="On Hold">On Hold</option>
-                                                </select>
-                                            </div>
-                                        </div>
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Repair Status</label>
                                             <div class="col-sm-10">
