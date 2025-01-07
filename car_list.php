@@ -315,7 +315,7 @@ error_reporting(0);
                                 <div class="col-md-4 mb-4">
                                     <div class="car-card">
                                         <div class="car-image">
-                                            <img src="admin/img/vehicleimages/<?php echo !empty($result->Vimage1) ? htmlentities($result->Vimage1) : '1audiq8.jpg'; ?>"
+                                            <img src="admin/img/vehicleimages/<?php echo !empty($result->Vimage1) ? htmlentities($result->Vimage1) : 'Civicside.jpg'; ?>"
                                                 alt="image" style="width: 254px; height: 142px;">
                                         </div>
                                         <div class="car-details">
