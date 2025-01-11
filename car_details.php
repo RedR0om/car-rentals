@@ -6,6 +6,11 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+/*
+
+
+$existingReservation = false;
+
 if (isset($_POST['submit'])) {
   $payment = $_POST['payment'];
   $paymentOption = $_POST['payment'];
@@ -15,6 +20,7 @@ if (isset($_POST['submit'])) {
   $pickup_location = $_POST['pickup_location'];
   $dropoff_location = $_POST['dropoff_location'];
   $is_metro_manila = $_POST['is_metro_manila'];
+  $estimated_cost = $_POST['estimated_cost'];
   $useremail = $_SESSION['login'];
   $status = 0;
   $vhid = $_GET['vhid'];
@@ -59,6 +65,7 @@ if (isset($_POST['submit'])) {
   $query->execute();
 
   if ($query->rowCount() == 0) {
+    $existingReservation = false;
     // Handle Valid ID Upload
     $image = $_FILES['image']['tmp_name'];
     $image_name = $_FILES['image']['name'];
@@ -80,8 +87,8 @@ if (isset($_POST['submit'])) {
         echo "<script>alert('Error uploading GCash receipt.');</script>";
       } else {
         // Insert booking into the database
-        $sql = "INSERT INTO tblbooking(userEmail, VehicleId, FromDate, ToDate, message, Status, payment, image, BookingNumber, gcash_receipt, payment_option, account_number, account_name, reference_number, pickup_location, dropoff_location, is_metro_manila) 
-        VALUES(:useremail, :vhid, :fromdatetime, :todatetime, :message, :status, :payment, :image, :bookingno, :gcash_receipt, :payment_option, :account_number, :account_name, :reference_number, :pickup_location, :dropoff_location, :is_metro_manila)";
+        $sql = "INSERT INTO tblbooking(userEmail, VehicleId, FromDate, ToDate, message, Status, payment, image, BookingNumber, gcash_receipt, payment_option, account_number, account_name, reference_number, pickup_location, dropoff_location, is_metro_manila, estimated_cost) 
+        VALUES(:useremail, :vhid, :fromdatetime, :todatetime, :message, :status, :payment, :image, :bookingno, :gcash_receipt, :payment_option, :account_number, :account_name, :reference_number, :pickup_location, :dropoff_location, :is_metro_manila, :estimated_cost)";
         $query = $dbh->prepare($sql);
         $query->bindParam(':pickup_location', $pickup_location, PDO::PARAM_STR);
         $query->bindParam(':dropoff_location', $dropoff_location, PDO::PARAM_STR);
@@ -100,6 +107,7 @@ if (isset($_POST['submit'])) {
         $query->bindParam(':account_name', $account_name, PDO::PARAM_STR);
         $query->bindParam(':reference_number', $reference_number, PDO::PARAM_STR);
         $query->bindParam(':is_metro_manila', $is_metro_manila, PDO::PARAM_STR);
+        $query->bindParam(':estimated_cost', $estimated_cost, PDO::PARAM_STR);
 
         if ($query->execute()) {
           echo "<script>alert('Booking successful!');</script>";
@@ -113,13 +121,14 @@ if (isset($_POST['submit'])) {
       echo "<script>alert('Error uploading valid ID.');</script>";
     }
   } else {
+    $existingReservation = true;
     echo "<script>alert('The selected dates are already booked from " . $fromdatetime . " to " . $todatetime . " for Vehicle ID: " . $vhid . "');</script>";
 
 
   }
 }
 
-
+*/
 ?>
 
 
@@ -193,7 +202,7 @@ if (isset($_POST['submit'])) {
             $_SESSION['brndid'] = $result->bid;
 
             // Define default image path
-            $defaultImage = '1audiq8.jpg';
+            $defaultImage = 'civicfront.jpg';
             ?>
             <div class="owl-carousel clients-carousel">
               <img
@@ -216,25 +225,32 @@ if (isset($_POST['submit'])) {
         <!--Listing-detail-->
         <section class="listing-detail">
           <div class="container">
-            <div class="listing_detail_head row">
-              <div class="col-md-9">
-                <h2><?php echo htmlentities($result->BrandName); ?> , <?php echo htmlentities($result->VehiclesTitle); ?>
+            <div class="listing_detail_head" style="margin-top: 100px;">
+            <div class="row">
+              <!-- Left Container -->
+              <div class="col-md-8">
+                <h2>
+                  <?php echo htmlentities($result->BrandName); ?> , 
+                  <?php echo htmlentities($result->VehiclesTitle); ?>
                 </h2>
-                <h6><a href="" style="color:red">NOTE:</a> the seat capacity of this vehicle don't depends on with driver or
-                  without </h3>
+                <h6>
+                  <a href="" style="color:red">NOTE:</a> the seat capacity of this vehicle doesn't depend on 
+                  whether with driver or without.
+                </h6>
               </div>
-              <div class="col-md-3">
+
+              <!-- Right Container -->
+              <div class="col-md-4 text-md-end">
                 <div class="price_info">
                   <p>₱ <?php echo number_format(htmlentities($result->PricePerDay), 2); ?> </p>Per Day
-
                 </div>
               </div>
+            </div>
             </div>
             <div class="row">
               <div class="col-md-9">
                 <div class="main_features">
                   <ul>
-
                     <li> <i class="fa fa-calendar" aria-hidden="true"></i>
                       <h5><?php echo htmlentities($result->ModelYear ?? ''); ?></h5>
                       <p>Reg.Year</p>
@@ -465,7 +481,7 @@ if (isset($_POST['submit'])) {
                   <div class="modal-dialog" role="document">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h5 class="modal-title text-center" id="termsModalLabel">Terms and Conditions for Car Rental
+                        <h5 class="modal-title text-center" style="color: white;margin-left: 0px;" id="termsModalLabel">Terms and Conditions for Car Rental
                           Service</h5>
                       </div>
                       <div class="modal-body" style="max-height: 700px; overflow-y: auto; flex-grow: 1;">
@@ -597,7 +613,7 @@ if (isset($_POST['submit'])) {
                         </button>
                       </div>
                       <div class="modal-body">
-                        <form method="post" enctype="multipart/form-data" id="bookingForm">
+                        <form method="post" enctype="multipart/form-data" id="bookingForm" onsubmit="submitForm(event)">
                           <?php
                           // Fetch places from tblplace table
                           $sql = "SELECT PlaceID, PlaceName FROM tblplace";
@@ -639,25 +655,25 @@ if (isset($_POST['submit'])) {
                             </select>
                           </div>
 
+                          <!-- Is Metro Manila Fields Only one Required! -->
                           <div class="form-group">
                             <label for="is-metro-manila" class="control-label">Is within Metro Manila?</label>
                             <div class="form-check">
-                              <input class="form-check-input" type="radio" name="is_metro_manila" id="metro-manila-yes"
-                                value="1" required>
+                              <input class="form-check-input" type="radio" name="is_metro_manila" id="metro-manila-yes" value="1" required>
                               <label class="form-check-label" for="metro-manila-yes">Yes</label>
                             </div>
                             <div class="form-check">
-                              <input class="form-check-input" type="radio" name="is_metro_manila" id="metro-manila-no"
-                                value="0">
+                              <input class="form-check-input" type="radio" name="is_metro_manila" id="metro-manila-no" value="0">
                               <label class="form-check-label" for="metro-manila-no">No</label>
                             </div>
                           </div>
+
 
                           <!-- Date and Time Fields -->
                           <div class="form-group" id="fromDateField">
                             <label class="control-label">From Date and Time:</label>
                             <input type="datetime-local" class="form-control" id="fromdatetime" name="fromdatetime"
-                              placeholder="From Date and Time" min="<?php echo date('Y-m-d\TH:i'); ?>" required
+                              placeholder="From Date and Time" min="<?php echo date(format: 'Y-m-d\TH:i'); ?>" required
                               style="height: calc(3.25rem + 2px);" onchange="calculateEstimatedCost()">
                           </div>
 
@@ -678,7 +694,7 @@ if (isset($_POST['submit'])) {
                           <!-- Estimated Cost -->
                           <div class="form-group">
                             <label class="control-label">Estimated Cost</label>
-                            <input type="text" class="form-control" id="estimatedCost" value="₱ 0.00" readonly
+                            <input type="text" class="form-control" id="estimatedCost" name="estimated_cost" value="₱ 0.00" readonly
                               style="height: calc(3.25rem + 2px);">
                           </div>
 
@@ -750,8 +766,7 @@ if (isset($_POST['submit'])) {
 
                             <div class="form-group mt-2"
                               style="display: flex; justify-content: center; align-items: center;">
-                              <input type="submit" class="btn" name="submit" value="Book Now" style="background: #ff0000;"
-                                id="submit-btn">
+                              <input type="submit" class="btn" name="submit" value="Book Now" style="background: #ff0000;" id="submit-btn">
                             </div>
 
                           <?php } else { ?>
@@ -768,52 +783,293 @@ if (isset($_POST['submit'])) {
 
                 <!-- Availability Modal -->
                 <div class="modal fade" id="availabilityModal" tabindex="-1" role="dialog" aria-labelledby="availabilityModalLabel" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
+                  <div class="modal-dialog modal-lg" role="document">
                     <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title" id="availabilityModalLabel">Booking Unavailable</h5>
+                      <div class="modal-header" style="background-color: #ff0000; color: white;">
+                        <h5 class="modal-title" id="availabilityModalLabel" style="color: white; margin-left: 0px;">Available Vehicles</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                           <span aria-hidden="true">&times;</span>
                         </button>
                       </div>
                       <div class="modal-body" id="availabilityModalBody">
-                        <!-- Message from server -->
+                        <!-- Dynamic message and content will be injected here -->
+                        <div id="reservationMessage" class="mb-3 text-danger" style="font-size: 1.2rem;"></div>
+                        
+                        <!-- Vehicle Grid -->
+                        <div class="row" id="vehicleGrid"></div>
+
+                        <!-- Estimated Cost -->
+                        <div class="form-group mt-4">
+                          <label class="control-label">Estimated Cost</label>
+                          <input type="text" class="form-control" id="newEstimatedCost" name="new_estimated_cost" value="₱ 0.00" readonly
+                            style="height: calc(3.25rem + 2px);">
+                        </div>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary" onclick="reSubmitForm()">Submit</button>
                       </div>
                     </div>
                   </div>
                 </div>
 
- 
+
+
 
                 <script>
-                  document.addEventListener('DOMContentLoaded', () => {
-                    const submitBtn = document.getElementById('submit-btn');
-                    let isSubmitting = false;
+                  function submitForm(event) {
+                    // Prevent the default form submission
+                    event.preventDefault();
 
-                    submitBtn.addEventListener('click', (event) => {
-                      event.preventDefault(); // Prevent default form submission
-                        validateAndCheckAvailability();
-                 
-                    });
+                    // Create FormData object
+                    const formData = new FormData(document.getElementById('bookingForm'));
 
-                    function validateAndCheckAvailability() {
-                      showAvailabilityModal('Please fill all the fields.');
-                      console.log('Modal should now show.');
+                    // Extract the vehicle ID (vhid) from the URL
+                    const vehicleId = new URLSearchParams(window.location.search).get('vhid');
+
+                    // Add vhid to the FormData
+                    if (vehicleId) {
+                      formData.append('vhid', vehicleId);
+                    } else {
+                      alert('Vehicle ID is missing in the URL.');
+                      return; // Stop submission if vhid is missing
                     }
 
-                    function showAvailabilityModal(message) {
-                      const modalBody = document.getElementById('availabilityModalBody');
-                      modalBody.textContent = message;
-
-                      $('#availabilityModal').modal('show');
+                    console.log("Form Data Contents:");
+                    for (const [key, value] of formData.entries()) {
+                      console.log(`${key}: ${value}`);
                     }
-                  });
+                    
+
+                    // Send the data to the server
+                    fetch('car_occupied.php', {
+                      method: 'POST',
+                      body: formData
+                    })
+                      .then(response => response.json()) // Parse the server's JSON response
+                      .then(data => {
+                        if (data.existingReservation) {
+                          //alert('The reservation already exists!'); // For Debug: Optional
+                          showAvailabilityModal('The car is already booked on the selected dates showing alternative Vehicles.', formData);
+                        } else {
+                          alert('The reservation is available.');
+                          // Call function to post data to car_reserving.php
+                          reserveCar(formData);
+                        }
+                        console.log('Response from server:', data);
+                      })
+                      .catch(error => {
+                        console.error('Error:', error);
+                        alert('There was an error submitting the request.');
+                      });
+                  }
+
+
+                  function reserveCar(formData) {
+                    fetch('car_reserving.php', {
+                      method: 'POST',
+                      body: formData
+                    })
+                      .then(response => response.json())
+                      .then(data => {
+                        if (data.success) {
+                          alert('Car reservation successfully completed!');
+                        } else {
+                          alert('Error during car reservation: ' + data.message);
+                        }
+                        console.log('Car Reserving Response:', data);
+                        window.history.back(); // Go back to the previous page
+                        setTimeout(function() {
+                          window.location.reload(true); // Refresh the page after navigating back
+                        }, 100); // Small delay to ensure the back action happens first
+                      })
+                      .catch(error => {
+                        console.error('Error:', error);
+                        alert('There was an error completing the car reservation.');
+                        window.history.back(); // Go back to the previous page
+                        setTimeout(function() {
+                          window.location.reload(true); // Refresh the page after navigating back
+                        }, 100); // Small delay to ensure the back action happens first
+                      });
+                  }
+
+                  function showAvailabilityModal(message, formData) {
+                    fetch('car_availability.php', {
+                      method: 'POST',
+                      body: formData,
+                    })
+                      .then(response => {
+                        if (!response.ok) {
+                          throw new Error('Network response was not ok.');
+                        }
+                        return response.json();
+                      })
+                      .then(data => {
+                        console.log('Response:', data);
+
+                        if (data.success) {
+                          const reservationMessage = document.getElementById('reservationMessage');
+                          const modalBody = document.getElementById('vehicleGrid');
+
+                          // Get the values from the datetime inputs
+                          const fromDateTime = document.getElementById("fromdatetime").value;
+                          const toDateTime = document.getElementById("todatetime").value;
+
+                          // Ensure both values are present
+                          if (fromDateTime && toDateTime) {
+                            // Convert ISO datetime string to a more readable format
+                            const formatDateTime = (datetime) => {
+                              const options = { 
+                                year: "numeric", 
+                                month: "long", 
+                                day: "numeric", 
+                                hour: "2-digit", 
+                                minute: "2-digit", 
+                                hour12: true 
+                              };
+                              return new Date(datetime).toLocaleString(undefined, options);
+                            };
+
+                            const formattedFromDateTime = formatDateTime(fromDateTime);
+                            const formattedToDateTime = formatDateTime(toDateTime);
+
+                            // Update the reservation message with formatted values
+                            reservationMessage.textContent = `Sorry, the car you have selected is already reserved from ${formattedFromDateTime} to ${formattedToDateTime}. Here are some alternatives based on your selections.`;
+                          }
+
+                          // Clear previous content
+                          modalBody.innerHTML = '';
+
+                          if (data.vehicles && data.vehicles.length > 0) {
+                            // Loop through vehicles and create cards
+                            data.vehicles.forEach(vehicle => {
+                              const vehicleCard = `
+                                <div class="col-md-4 mb-4">
+                                  <div class="card h-100">
+                                    <img 
+                                      src="${vehicle.Vimage1 ? 'admin/img/vehicleimages/' + vehicle.Vimage1 : 'img/bmw-x5-1.jpg'}" 
+                                      class="card-img-top" 
+                                      alt="${vehicle.VehiclesTitle}">
+                                    <div class="card-body">
+                                      <h5 class="card-title">${vehicle.BrandName}, ${vehicle.VehiclesTitle}</h5>
+                                      <p class="card-text">
+                                        <strong>Price:</strong> ₱${Number(vehicle.PricePerDay).toLocaleString()} Per Day<br>
+                                        <strong>Rating:</strong> ${vehicle.avg_rating.toFixed(1)}/5 <i class="fa fa-star"></i>
+                                      </p>
+                                    </div>
+                                    <div class="card-footer text-center">
+                                      <button class="btn btn-primary btn-block" onclick="handleVehicleSelection(${vehicle.id}, ${vehicle.PricePerDay})">Select</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              `;
+                              modalBody.insertAdjacentHTML('beforeend', vehicleCard);
+                            });
+
+                            // Show the availability modal
+                            $('#bookingModal').modal('hide');
+                            $('#availabilityModal').modal('show');
+                          } else {
+                            reservationMessage.textContent = 'Sorry, the car you selected is already reserved, and no alternatives are available at this time.';
+                          }
+                        } else {
+                          alert(`Error: ${data.message}`);
+                        }
+                      })
+                      .catch(error => {
+                        console.error('Error:', error);
+                        alert('There was an error checking vehicle availability.');
+                      });
+                  }
                 </script>
-
+              
                 <script>
+                  let selectedVehicleId = null;
+                  let selectedPricePerDay = null;
+
+                  function handleVehicleSelection(vehicleId, pricePerDay) {
+                    selectedVehicleId = vehicleId;
+                    selectedPricePerDay = pricePerDay;
+
+                    //console.log(`Selected Vehicle ID: ${selectedVehicleId}, Price Per Day: ₱${selectedPricePerDay.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`);
+
+                    // Trigger cost calculation with the new price
+                    calculateEstimatedCost();
+
+                    //Add a true condition for the submit button...
+                      
+                  }
+
+                  function reSubmitForm() {
+                    console.log('Reservation is resubmitted');
+
+                    // Reinitialize the FormData object with updated vehicle ID
+                    const formData = new FormData(document.getElementById('bookingForm'));
+
+                    
+                    // Add vhid to the FormData
+                    if (selectedVehicleId) {
+                      formData.append('vhid', selectedVehicleId);
+                    } else {
+                      alert('Vehicle ID is missing in the URL.');
+                      return;
+                    }
+
+                    console.log("Form Data Contents:");
+                    for (const [key, value] of formData.entries()) {
+                      console.log(`${key}: ${value}`);
+                    }
+                    
+                    // Send the data to the server
+                    fetch('car_occupied.php', {
+                      method: 'POST',
+                      body: formData
+                    })
+                      .then(response => response.json()) // Parse the server's JSON response
+                      .then(data => {
+                        if (data.existingReservation) {
+                          alert('The reservation already exists!');
+                        } else {
+                          alert('The reservation is available.');
+                          // Call function to post data to car_reserving.php
+                          reReserveCar(formData);
+                        }
+                        console.log('Response from server:', data);
+                      })
+                      .catch(error => {
+                        console.error('Error:', error);
+                        alert('There was an error submitting the request.');
+                      });
+                  }
+
+
+                  function reReserveCar(formData) {
+                    fetch('car_reserving.php', {
+                      method: 'POST',
+                      body: formData
+                    })
+                      .then(response => response.json())
+                      .then(data => {
+                        if (data.success) {
+                          alert('Car reservation successfully completed!');
+                        } else {
+                          alert('Error during car reservation: ' + data.message);
+                        }
+                        console.log('Car Reserving Response:', data);
+                        window.history.back(); // Go back to the previous page
+                        setTimeout(function() {
+                          window.location.reload(true); // Refresh the page after navigating back
+                        }, 100); // Small delay to ensure the back action happens first
+                      })
+                      .catch(error => {
+                        console.error('Error:', error);
+                        alert('There was an error completing the car reservation.');
+                        window.history.back(); // Go back to the previous page
+                        setTimeout(function() {
+                          window.location.reload(true); // Refresh the page after navigating back
+                        }, 100); // Small delay to ensure the back action happens first
+                      });
+                  }
+
                   function toggleDateFields() {
                     const checkbox = document.getElementById("withinDayCheckbox");
                     const toDateField = document.getElementById("toDateField");
@@ -829,8 +1085,9 @@ if (isset($_POST['submit'])) {
                   }
 
                   function calculateEstimatedCost(withinDay = false) {
-                    const dailyPrice = parseFloat("<?php echo number_format(htmlentities($result->PricePerDay), 2, '.', ''); ?>");
+                    const dailyPrice = selectedPricePerDay || parseFloat("<?php echo number_format(htmlentities($result->PricePerDay), 2, '.', ''); ?>");
                     const estimatedCost = document.getElementById("estimatedCost");
+                    const newEstimatedCost = document.getElementById("newEstimatedCost");
 
                     const fromDateInput = document.getElementById("fromdatetime").value;
                     const toDateInput = document.getElementById("todatetime").value;
@@ -844,6 +1101,7 @@ if (isset($_POST['submit'])) {
 
                     if (withinDay) {
                       estimatedCost.value = `₱ ${dailyPrice.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+                      newEstimatedCost.value = `₱ ${dailyPrice.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
                     } else {
                       const toDate = new Date(toDateInput);
 
@@ -853,14 +1111,16 @@ if (isset($_POST['submit'])) {
                         const totalCost = diffInDays * dailyPrice;
 
                         estimatedCost.value = `₱ ${totalCost.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+                        newEstimatedCost.value = `₱ ${totalCost.toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+                        console.log("Total Cost Calculated:", totalCost);
                       } else {
                         estimatedCost.value = "₱ 0.00";
+                        newEstimatedCost.value = "₱ 0.00";
                       }
                     }
                   }
 
-
-
+                
                   function showPaymentFields() {
                     var paymentOption = document.getElementById("payment-option").value;
                     var gcashFields = document.getElementById("gcash-fields");
@@ -900,10 +1160,9 @@ if (isset($_POST['submit'])) {
                       termsCheckbox.checked = true;
                     }
                   }
-                  
 
                 </script>
-
+         
               </div>
             </aside>
             <!--/Side-Bar-->
