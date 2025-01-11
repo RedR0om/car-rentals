@@ -21,6 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Sanitize inputs
+    $account_number = isset($_POST['account_number']) ? htmlspecialchars($_POST['account_number']) : null;
+    $account_name = isset($_POST['account_name']) ? htmlspecialchars($_POST['account_name']) : null;
+    $reference_number = isset($_POST['reference_number']) ? htmlspecialchars($_POST['reference_number']) : null;
     $payment = htmlspecialchars($_POST['payment']);
     $paymentOption = htmlspecialchars($_POST['payment']);
     $fromdatetime = date('Y-m-d H:i:s', strtotime($_POST['fromdatetime']));
@@ -71,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         throw new Exception('Valid ID is required.');
     }
 
-    // Handle GCash Receipt Upload (if payment is GCash)
+    // Handle Receipt Upload (if payment is not cash)
     $gcash_target_file = null;
     if ($payment != 1 && isset($_FILES['gcash_receipt']) && $_FILES['gcash_receipt']['error'] === UPLOAD_ERR_OK) {
         $gcash_receipt = $_FILES['gcash_receipt']['tmp_name'];
@@ -87,8 +90,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Insert data into the database
-    $sql = "INSERT INTO tblbooking (userEmail, VehicleId, FromDate, ToDate, message, Status, payment, payment_option, BookingNumber, pickup_location, dropoff_location, is_metro_manila, estimated_cost, image, gcash_receipt) 
-            VALUES (:useremail, :vhid, :fromdatetime, :todatetime, :message, :status, :payment, :payment_option, :bookingno, :pickup_location, :dropoff_location, :is_metro_manila, :estimated_cost, :image, :gcash_receipt)";
+    $sql = "INSERT INTO tblbooking (userEmail, VehicleId, FromDate, ToDate, message, Status, payment, payment_option, BookingNumber, pickup_location, dropoff_location, is_metro_manila, estimated_cost, image, gcash_receipt, account_number, account_name, reference_number) 
+            VALUES (:useremail, :vhid, :fromdatetime, :todatetime, :message, :status, :payment, :payment_option, :bookingno, :pickup_location, :dropoff_location, :is_metro_manila, :estimated_cost, :image, :gcash_receipt, :account_number, :account_name, :reference_number)";
     $query = $dbh->prepare($sql);
     $query->bindParam(':useremail', $useremail, PDO::PARAM_STR);
     $query->bindParam(':vhid', $vhid, PDO::PARAM_STR);
@@ -105,6 +108,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $query->bindParam(':estimated_cost', $estimated_cost, PDO::PARAM_STR);
     $query->bindParam(':image', $target_file, PDO::PARAM_STR);
     $query->bindParam(':gcash_receipt', $gcash_target_file, PDO::PARAM_STR);
+    $query->bindParam(':account_number', $account_number, PDO::PARAM_STR);
+    $query->bindParam(':account_name', $account_name, PDO::PARAM_STR);
+    $query->bindParam(':reference_number', $reference_number, PDO::PARAM_STR);
 
     if ($query->execute()) {
         echo json_encode(['success' => true, 'message' => 'Booking successful']);

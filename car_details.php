@@ -907,69 +907,80 @@ if (isset($_POST['submit'])) {
                         console.log('Response:', data);
 
                         if (data.success) {
-                          const reservationMessage = document.getElementById('reservationMessage');
-                          const modalBody = document.getElementById('vehicleGrid');
+                          if (data.vehicles.length > 0)
+                          {
+                            const reservationMessage = document.getElementById('reservationMessage');
+                            const modalBody = document.getElementById('vehicleGrid');
 
-                          // Get the values from the datetime inputs
-                          const fromDateTime = document.getElementById("fromdatetime").value;
-                          const toDateTime = document.getElementById("todatetime").value;
+                            // Get the values from the datetime inputs
+                            const fromDateTime = document.getElementById("fromdatetime").value;
+                            const toDateTime = document.getElementById("todatetime").value;
 
-                          // Ensure both values are present
-                          if (fromDateTime && toDateTime) {
-                            // Convert ISO datetime string to a more readable format
-                            const formatDateTime = (datetime) => {
-                              const options = { 
-                                year: "numeric", 
-                                month: "long", 
-                                day: "numeric", 
-                                hour: "2-digit", 
-                                minute: "2-digit", 
-                                hour12: true 
+                            // Ensure both values are present
+                            if (fromDateTime && toDateTime) {
+                              // Convert ISO datetime string to a more readable format
+                              const formatDateTime = (datetime) => {
+                                const options = { 
+                                  year: "numeric", 
+                                  month: "long", 
+                                  day: "numeric", 
+                                  hour: "2-digit", 
+                                  minute: "2-digit", 
+                                  hour12: true 
+                                };
+                                return new Date(datetime).toLocaleString(undefined, options);
                               };
-                              return new Date(datetime).toLocaleString(undefined, options);
-                            };
 
-                            const formattedFromDateTime = formatDateTime(fromDateTime);
-                            const formattedToDateTime = formatDateTime(toDateTime);
+                              const formattedFromDateTime = formatDateTime(fromDateTime);
+                              const formattedToDateTime = formatDateTime(toDateTime);
 
-                            // Update the reservation message with formatted values
-                            reservationMessage.textContent = `Sorry, the car you have selected is already reserved from ${formattedFromDateTime} to ${formattedToDateTime}. Here are some alternatives based on your selections.`;
-                          }
+                              // Update the reservation message with formatted values
+                              reservationMessage.textContent = `Sorry, the car you have selected is already reserved from ${formattedFromDateTime} to ${formattedToDateTime}. Here are some alternatives based on your selections.`;
+                            }
 
-                          // Clear previous content
-                          modalBody.innerHTML = '';
+                            // Clear previous content
+                            modalBody.innerHTML = '';
 
-                          if (data.vehicles && data.vehicles.length > 0) {
-                            // Loop through vehicles and create cards
-                            data.vehicles.forEach(vehicle => {
-                              const vehicleCard = `
-                                <div class="col-md-4 mb-4">
-                                  <div class="card h-100">
-                                    <img 
-                                      src="${vehicle.Vimage1 ? 'admin/img/vehicleimages/' + vehicle.Vimage1 : 'img/bmw-x5-1.jpg'}" 
-                                      class="card-img-top" 
-                                      alt="${vehicle.VehiclesTitle}">
-                                    <div class="card-body">
-                                      <h5 class="card-title">${vehicle.BrandName}, ${vehicle.VehiclesTitle}</h5>
-                                      <p class="card-text">
-                                        <strong>Price:</strong> ₱${Number(vehicle.PricePerDay).toLocaleString()} Per Day<br>
-                                        <strong>Rating:</strong> ${vehicle.avg_rating.toFixed(1)}/5 <i class="fa fa-star"></i>
-                                      </p>
-                                    </div>
-                                    <div class="card-footer text-center">
-                                      <button class="btn btn-primary btn-block" onclick="handleVehicleSelection(${vehicle.id}, ${vehicle.PricePerDay})">Select</button>
+                            if (data.vehicles && data.vehicles.length > 0) {
+                              // Loop through vehicles and create cards
+                              data.vehicles.forEach(vehicle => {
+                                const vehicleCard = `
+                                  <div class="col-md-4 mb-4">
+                                    <div class="card h-100">
+                                      <img 
+                                        src="${vehicle.Vimage1 ? 'admin/img/vehicleimages/' + vehicle.Vimage1 : 'img/bmw-x5-1.jpg'}" 
+                                        class="card-img-top" 
+                                        alt="${vehicle.VehiclesTitle}">
+                                      <div class="card-body">
+                                        <h5 class="card-title">${vehicle.BrandName}, ${vehicle.VehiclesTitle}</h5>
+                                        <p class="card-text">
+                                          <strong>Price:</strong> ₱${Number(vehicle.PricePerDay).toLocaleString()} Per Day<br>
+                                          <strong>Rating:</strong> ${vehicle.avg_rating.toFixed(1)}/5 <i class="fa fa-star"></i>
+                                        </p>
+                                      </div>
+                                      <div class="card-footer text-center">
+                                        <button class="btn btn-primary btn-block" onclick="handleVehicleSelection(${vehicle.id}, ${vehicle.PricePerDay})">Select</button>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              `;
-                              modalBody.insertAdjacentHTML('beforeend', vehicleCard);
-                            });
+                                `;
+                                modalBody.insertAdjacentHTML('beforeend', vehicleCard);
+                              });
 
-                            // Show the availability modal
-                            $('#bookingModal').modal('hide');
-                            $('#availabilityModal').modal('show');
-                          } else {
-                            reservationMessage.textContent = 'Sorry, the car you selected is already reserved, and no alternatives are available at this time.';
+                              // Show the availability modal
+                              $('#bookingModal').modal('hide');
+                              $('#availabilityModal').modal('show');
+                            } else {
+                              reservationMessage.textContent = 'Sorry, the car you selected is already reserved, and no alternatives are available at this time.';
+                            }
+                          }
+                          else{
+                            alert('Sorry, the car you selected is already reserved, and no alternatives are available at this time.');
+                            
+                            window.history.back(); // Go back to the previous page
+                            setTimeout(function() {
+                              window.location.reload(true); // Refresh the page after navigating back
+                            }, 100); // Small delay to ensure the back action happens first
                           }
                         } else {
                           alert(`Error: ${data.message}`);
@@ -1073,16 +1084,33 @@ if (isset($_POST['submit'])) {
                   function toggleDateFields() {
                     const checkbox = document.getElementById("withinDayCheckbox");
                     const toDateField = document.getElementById("toDateField");
+                    const fromDateInput = document.getElementById("fromdatetime");
+                    const toDateInput = document.getElementById("todatetime");
 
-                    // Toggle visibility of "To Date and Time" field
                     if (checkbox.checked) {
+                      // Hide "To Date and Time" field and set its value to the end of the same date as "From Date and Time"
                       toDateField.style.display = "none";
-                      calculateEstimatedCost(true);  // Use daily price only
+
+                      // Extract the date portion from fromDateInput and set to 23:59
+                      if (fromDateInput.value) {
+                        const [datePart] = fromDateInput.value.split("T"); // Split into date and time
+                        toDateInput.value = `${datePart}T23:59`;
+                      } else {
+                        console.warn("fromDateInput value is empty or invalid.");
+                      }
+
+                      console.log("ToDateField hidden. ToDateInput value set to:", toDateInput.value); // Log new value of toDateInput
+
+                      calculateEstimatedCost(true); // Use daily price only
                     } else {
+                      // Show "To Date and Time" field
                       toDateField.style.display = "block";
+                      console.log("ToDateField shown. FromDateInput value:", fromDateInput.value, "ToDateInput value:", toDateInput.value); // Log both values
                       calculateEstimatedCost(false); // Calculate based on date range
                     }
                   }
+
+
 
                   function calculateEstimatedCost(withinDay = false) {
                     const dailyPrice = selectedPricePerDay || parseFloat("<?php echo number_format(htmlentities($result->PricePerDay), 2, '.', ''); ?>");
