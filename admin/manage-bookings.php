@@ -306,7 +306,10 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         JOIN tblvehicles ON tblvehicles.id=tblbooking.VehicleId 
                                         JOIN tblusers ON tblusers.EmailId=tblbooking.userEmail 
                                         JOIN tblbrands ON tblvehicles.VehiclesBrand=tblbrands.id
-                                        WHERE tblbooking.Status != 2 AND tblbooking.Status != 6";  // Exclude Rejected and Car Returned statuses
+                                        WHERE tblbooking.Status != 2 AND tblbooking.Status != 6
+                                        ORDER BY
+                                        tblbooking.Status ASC,
+                                        tblbooking.PostingDate DESC";  // Exclude Rejected and Car Returned statuses
                                     
                                         if (isset($_GET['sort_by_date'])) {
                                             $from_date = $_GET['from_date'];

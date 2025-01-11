@@ -100,10 +100,10 @@ $_SESSION['brndid']=$result->bid;
 ?>  
 
 <section id="listing_img_slider">
-  <div><img src="admin/img/vehicleimages/<?php echo htmlentities($result->Vimage1);?>" class="img-responsive" alt="image" width="900" height="560"></div>
-  <div><img src="admin/img/vehicleimages/<?php echo htmlentities($result->Vimage2);?>" class="img-responsive" alt="image" width="900" height="560"></div>
-  <div><img src="admin/img/vehicleimages/<?php echo htmlentities($result->Vimage3);?>" class="img-responsive" alt="image" width="900" height="560"></div>
-  <div><img src="admin/img/vehicleimages/<?php echo htmlentities($result->Vimage4);?>" class="img-responsive"  alt="image" width="900" height="560"></div>
+  <div><img src="admin/img/vehicleimages/<?php echo !empty($result->Vimage1) ? htmlentities($result->Vimage1) : 'civicfront.jpg'; ?>" class="img-responsive" alt="image" width="900" height="560"></div>
+  <div><img src="admin/img/vehicleimages/<?php echo !empty($result->Vimage2) ? htmlentities($result->Vimage2) : 'civicfront.jpg'; ?>" class="img-responsive" alt="image" width="900" height="560"></div>
+  <div><img src="admin/img/vehicleimages/<?php echo !empty($result->Vimage3) ? htmlentities($result->Vimage3) : 'civicfront.jpg'; ?>" class="img-responsive" alt="image" width="900" height="560"></div>
+  <div><img src="admin/img/vehicleimages/<?php echo !empty($result->Vimage4) ? htmlentities($result->Vimage4) : 'civicfront.jpg'; ?>" class="img-responsive"  alt="image" width="900" height="560"></div>
   <?php if($result->Vimage5=="")
 {
 
