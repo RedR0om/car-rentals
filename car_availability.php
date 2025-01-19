@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $todatetime = date('Y-m-d H:i:s', strtotime($_POST['todatetime']));
     $vhid = $_POST['vhid'];
 
-    $stmt = $dbh->prepare("SELECT PricePerDay, SeatingCapacity, CarType, Segment FROM tblvehicles WHERE id = :vhid");
+    $stmt = $dbh->prepare("SELECT PricePerDay, SeatingCapacity, CarType, Segment FROM tblvehicles WHERE id = :vhid AND status = 1");
     $stmt->execute([':vhid' => $vhid]);
     $vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $maxPrice = $selectedPrice * 2;
 
     function findVehicles($dbh, $minPrice, $maxPrice, $seatingRange = null, $carType = null, $segment = null) {
-        $sql = "SELECT id FROM tblvehicles WHERE PricePerDay BETWEEN :minPrice AND :maxPrice";
+        $sql = "SELECT id FROM tblvehicles WHERE PricePerDay BETWEEN :minPrice AND :maxPrice AND status = 1";
         if ($seatingRange !== null) {
             $sql .= " AND SeatingCapacity BETWEEN :minSeating AND :maxSeating";
         }

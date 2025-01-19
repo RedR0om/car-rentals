@@ -612,7 +612,7 @@ if (isset($_POST['submit'])) {
                           <span aria-hidden="true">&times;</span>
                         </button>
                       </div>
-                      <div class="modal-body">
+                      <div class="modal-body" style="max-height: 800px; overflow-y: auto;">
                         <form method="post" enctype="multipart/form-data" id="bookingForm" onsubmit="submitForm(event)">
                           <?php
                           // Fetch places from tblplace table
@@ -791,7 +791,7 @@ if (isset($_POST['submit'])) {
                           <span aria-hidden="true">&times;</span>
                         </button>
                       </div>
-                      <div class="modal-body" id="availabilityModalBody">
+                      <div class="modal-body" style="max-height: 800px; overflow-y: auto;" id="availabilityModalBody">
                         <!-- Dynamic message and content will be injected here -->
                         <div id="reservationMessage" class="mb-3 text-danger" style="font-size: 1.2rem;"></div>
                         
