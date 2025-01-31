@@ -298,6 +298,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             <label class="col-sm-2 col-form-label">Repair Status</label>
                                             <div class="col-sm-10">
                                                 <select name="repair_status" class="form-control">
+                                                    <option value="New">New</option>
                                                     <option value="Needs Repair">Needs Repair</option>
                                                     <option value="Pending">Pending</option>
                                                     <option value="Completed">Completed</option>
@@ -315,7 +316,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <div class="section-title">Outgoing Details</div>
+                                                <div class="section-title">Inspection Details</div>
                                                 <div class="form-group row">
                                                     <label class="col-sm-4 col-form-label">Date</label>
                                                     <div class="col-sm-8">
@@ -382,6 +383,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
 
                                         <div class="section-title">Inspections Checklist</div>
+                                        <p class="subheader">Please toggle the parts that needs to be repaired.</p>
                                         <div class="row">
                                             <?php foreach ($checklistItems as $item) { ?>
                                                 <div class="col-md-6">
