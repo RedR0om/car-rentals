@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_reporting(0);
+error_reporting(1);
 
 include('includes/config.php');
 
@@ -16,21 +16,13 @@ if (strlen($_SESSION['alogin']) == 0) {
         $outgoing_time = $_POST['outgoing_time'];
         $outgoing_meter = $_POST['outgoing_meter'];
         $outgoing_fuel = $_POST['outgoing_fuel'];
-        $incoming_date = $_POST['incoming_date'];
-        $incoming_time = $_POST['incoming_time'];
-        $incoming_meter = $_POST['incoming_meter'];
-        $incoming_fuel = $_POST['incoming_fuel'];
-        $checklist = $_POST['checklist'];
-        $checklistNotes = $_POST['checklist_notes'];
 
 
         $sql = "INSERT INTO tblinspections 
             (vehicle, inspector, repair_status, notes, 
-            outgoing_date, outgoing_time, outgoing_meter, outgoing_fuel, 
-            incoming_date, incoming_time, incoming_meter, incoming_fuel, checklist, checklist_notes) 
+            outgoing_date, outgoing_time, outgoing_meter, outgoing_fuel) 
             VALUES (:vehicle, :inspector, :repair_status, :notes, 
-            :outgoing_date, :outgoing_time, :outgoing_meter, :outgoing_fuel, 
-            :incoming_date, :incoming_time, :incoming_meter, :incoming_fuel, :checklist, :checklist_notes )";
+            :outgoing_date, :outgoing_time, :outgoing_meter, :outgoing_fuel )";
         $query = $dbh->prepare($sql);
         $query->bindParam(':vehicle', $vehicle, PDO::PARAM_STR);
         $query->bindParam(':inspector', $inspector, PDO::PARAM_STR);
@@ -40,12 +32,6 @@ if (strlen($_SESSION['alogin']) == 0) {
         $query->bindParam(':outgoing_time', $outgoing_time, PDO::PARAM_STR);
         $query->bindParam(':outgoing_meter', $outgoing_meter, PDO::PARAM_STR);
         $query->bindParam(':outgoing_fuel', $outgoing_fuel, PDO::PARAM_STR);
-        $query->bindParam(':incoming_date', $incoming_date, PDO::PARAM_STR);
-        $query->bindParam(':incoming_time', $incoming_time, PDO::PARAM_STR);
-        $query->bindParam(':incoming_meter', $incoming_meter, PDO::PARAM_STR);
-        $query->bindParam(':incoming_fuel', $incoming_fuel, PDO::PARAM_STR);
-        $query->bindParam(':checklist', json_encode($checklist), PDO::PARAM_STR);
-        $query->bindParam(':checklist_notes', json_encode($checklist_notes), PDO::PARAM_STR);
         $query->execute();
 
         $lastInsertId = $dbh->lastInsertId();
@@ -347,62 +333,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                <div class="section-title">Incoming Details</div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-4 col-form-label">Date</label>
-                                                    <div class="col-sm-8">
-                                                        <input type="date" name="incoming_date" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-4 col-form-label">Time</label>
-                                                    <div class="col-sm-8">
-                                                        <input type="time" name="incoming_time" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-4 col-form-label">Meter Reading (Km)</label>
-                                                    <div class="col-sm-8">
-                                                        <input type="number" name="incoming_meter" class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-4 col-form-label">Fuel Level</label>
-                                                    <div class="col-sm-8">
-                                                        <select name="incoming_fuel" class="form-control">
-                                                            <option value="1/4">1/4</option>
-                                                            <option value="1/2">1/2</option>
-                                                            <option value="3/4">3/4</option>
-                                                            <option value="Full">Full</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
-
-
-                                        <div class="section-title">Inspections Checklist</div>
-                                        <p class="subheader">Please toggle the parts that needs to be repaired.</p>
-                                        <div class="row">
-                                            <?php foreach ($checklistItems as $item) { ?>
-                                                <div class="col-md-6">
-                                                    <div class="form-group checklist-item"
-                                                        style="margin-left: 10px; margin-right: 10px;">
-                                                        <label><?php echo htmlentities($item->inspectiontype_name); ?></label>
-                                                        <label class="switch">
-                                                            <input type="checkbox" name="checklist[<?php echo $item->id; ?>]"
-                                                                value="<?php echo htmlentities($item->inspectiontype_name); ?>">
-                                                            <span class="slider round"></span>
-                                                        </label>
-                                                        <textarea name="checklist_notes[<?php echo $item->id; ?>]"
-                                                            class="form-control" placeholder="Enter notes"></textarea>
-                                                    </div>
-                                                </div>
-                                            <?php } ?>
-                                        </div>
-
-
 
                                         <div class="form-group text-center mt-4">
                                             <button type="submit" name="submit" class="btn btn-primary btn-lg">Submit

@@ -5,7 +5,7 @@ include('includes/config.php');
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:index.php');
 } else {
-    ?>
+?>
     <!doctype html>
     <html lang="en" class="no-js">
 
@@ -80,12 +80,11 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </div>
                                         <div class="col-md-3">
                                             <div class="panel panel-default">
-                                                <div class="panel-body bk-success text-light">
+                                                <div class="panel-body bk-info text-light">
                                                     <div class="stat-panel text-center">
                                                         <?php
                                                         $sql1 = "SELECT id from tblvehicles ";
-                                                        $query1 = $dbh->prepare($sql1);
-                                                        ;
+                                                        $query1 = $dbh->prepare($sql1);;
                                                         $query1->execute();
                                                         $results1 = $query1->fetchAll(PDO::FETCH_OBJ);
                                                         $totalvehicle = $query1->rowCount();
@@ -128,7 +127,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
                                         <div class="col-md-3">
                                             <div class="panel panel-default">
-                                                <div class="panel-body bk-info text-light">
+                                                <div class="panel-body bk-primary text-light">
                                                     <div class="stat-panel text-center">
                                                         <?php
                                                         $sql6 = "SELECT id from tblbooking WHERE Status='3' ";
@@ -167,7 +166,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="panel panel-default">
-                                                <div class="panel-body bk-info text-light">
+                                                <div class="panel-body bk-primary text-light">
                                                     <div class="stat-panel text-center">
                                                         <?php
                                                         $sql2 = "SELECT id from tblbooking ";
@@ -190,7 +189,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </div>
                                         <div class="col-md-3">
                                             <div class="panel panel-default">
-                                                <div class="panel-body bk-primary text-light">
+                                                <div class="panel-body bk-warning text-light">
                                                     <div class="stat-panel text-center">
                                                         <?php
                                                         $sql4 = "SELECT id from tblsubscribers ";
@@ -205,18 +204,17 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         <div class="stat-panel-title text-uppercase">Subscibers</div>
                                                     </div>
                                                 </div>
-                                                <a href="manage-subscribers.php" class="block-anchor panel-footer">Full
+                                                <a href="manage-subscribers.php" class="block-anchor panel-footer text-center">Full
                                                     Detail <i class="fa fa-arrow-right"></i></a>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="panel panel-default">
-                                                <div class="panel-body bk-success text-light">
+                                                <div class="panel-body bk-info text-light">
                                                     <div class="stat-panel text-center">
                                                         <?php
                                                         $sql6 = "SELECT id from tblcontactusquery ";
-                                                        $query6 = $dbh->prepare($sql6);
-                                                        ;
+                                                        $query6 = $dbh->prepare($sql6);;
                                                         $query6->execute();
                                                         $results6 = $query6->fetchAll(PDO::FETCH_OBJ);
                                                         $query = $query6->rowCount();
@@ -234,7 +232,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </div>
                                         <div class="col-md-3">
                                             <div class="panel panel-default">
-                                                <div class="panel-body bk-info text-light">
+                                                <div class="panel-body bk-success text-light">
                                                     <div class="stat-panel text-center">
                                                         <?php
                                                         $sql5 = "SELECT id from tbltestimonial ";
@@ -259,182 +257,217 @@ if (strlen($_SESSION['alogin']) == 0) {
 
                                     </div>
                                 </div>
-                                <?php
-                                $con = mysqli_connect("localhost", "root", "", "carrental");
-                                if (!$con) {
-                                    # code...
-                                    echo "Problem in database connection! Contact administrator!" . mysqli_error();
-                                } else {
-                                    $sql = "SELECT COUNT(*) VehiclesBrand FROM tblvehicles GROUP BY VehiclesBrand";
-                                    $result = mysqli_query($con, $sql);
-                                    $chart_data = "";
-                                    while ($row = mysqli_fetch_array($result)) {
-                                        $userid[] = $row['VehiclesBrand'];
-                                    }
-                                    $sql = "SELECT * FROM tblbrands";
-                                    $result = mysqli_query($con, $sql);
-                                    $chart_data = "";
-                                    while ($row = mysqli_fetch_array($result)) {
+                            </div>
 
-                                        $names[] = $row['BrandName'];
-                                    }
+                            <!-- TODO: Encode the item in this algo -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="panel panel-default">
+                                                <div class="panel-body bk-success text-light">
+                                                    <div class="stat-panel text-center">
+                                                        <div class="stat-panel-number h1 ">
+                                                           April 30, 2025
+                                                        </div>
+                                                        <div class="stat-panel-title text-uppercase">Predicted Inspection</div>
+                                                    </div>
+                                                </div>
+                                                <a href="#"
+                                                    class="block-anchor panel-footer text-center">Full Detail &nbsp; <i
+                                                        class="fa fa-arrow-right"></i></a>
+                                            </div>
+                                        </div>
 
-
+                                        <div class="col-md-3">
+                                            <div class="panel panel-default">
+                                                <div class="panel-body bk-info text-light">
+                                                    <div class="stat-panel text-center">
+                                                        <div class="stat-panel-number h1 ">
+                                                           7.35
+                                                        </div>
+                                                        <div class="stat-panel-title text-uppercase">Predicted Sales per Car</div>
+                                                    </div>
+                                                </div>
+                                                <a href="#"
+                                                    class="block-anchor panel-footer text-center">Full Detail &nbsp; <i
+                                                        class="fa fa-arrow-right"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                            $con = mysqli_connect("localhost", "root", "", "carrental");
+                            if (!$con) {
+                                # code...
+                                echo "Problem in database connection! Contact administrator!" . mysqli_error($con);
+                            } else {
+                                $sql = "SELECT COUNT(*) VehiclesBrand FROM tblvehicles GROUP BY VehiclesBrand";
+                                $result = mysqli_query($con, $sql);
+                                $chart_data = "";
+                                while ($row = mysqli_fetch_array($result)) {
+                                    $userid[] = $row['VehiclesBrand'];
                                 }
-                                ?>
+                                $sql = "SELECT * FROM tblbrands";
+                                $result = mysqli_query($con, $sql);
+                                $chart_data = "";
+                                while ($row = mysqli_fetch_array($result)) {
+
+                                    $names[] = $row['BrandName'];
+                                }
+                            }
+                            ?>
 
 
-                                <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"> </script>
-                                <script>
-                                    var ctx = document.getElementById("chartjs_bar").getContext('2d');
-                                    var myChart = new Chart(ctx, {
-                                        type: 'bar',
-                                        data: {
-                                            labels: <?php echo json_encode($names); ?>,
-                                            datasets: [{
-                                                backgroundColor: [
-                                                    "#5969ff",
-                                                    "#ff407b",
-                                                    "#25d5f2",
-                                                    "#ffc750",
-                                                    "#2ec551",
-                                                    "#7040fa",
-                                                    "#ff004e"
-                                                ],
-                                                data: <?php echo json_encode($userid); ?>,
-                                            }]
+                            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"> </script>
+                            <script>
+                                var ctx = document.getElementById("chartjs_bar").getContext('2d');
+                                var myChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: <?php echo json_encode($names); ?>,
+                                        datasets: [{
+                                            backgroundColor: [
+                                                "#5969ff",
+                                                "#ff407b",
+                                                "#25d5f2",
+                                                "#ffc750",
+                                                "#2ec551",
+                                                "#7040fa",
+                                                "#ff004e"
+                                            ],
+                                            data: <?php echo json_encode($userid); ?>,
+                                        }]
+                                    },
+                                    options: {
+                                        legend: {
+                                            display: false
                                         },
-                                        options: {
-                                            legend: {
-                                                display: false
-                                            },
-                                            title: {
-                                                display: true,
-                                                text: "Vehicles brands"
-                                            }
+                                        title: {
+                                            display: true,
+                                            text: "Vehicles brands"
                                         }
-                                    });
-                                </script>
-
-                                <?php
-                                $con = mysqli_connect("localhost", "root", "", "carrental");
-                                if (!$con) {
-                                    echo "Problem in database connection! Contact administrator!" . mysqli_error($con);
-                                } else {
-                                    // Existing code for counting bookings and fetching brands...
-                            
-                                    // Get the current year and previous year
-                                    $currentYear = date('Y');
-                                    $previousYear = $currentYear - 3;
-
-                                    // Prepare array of years for dropdown (last 5 years)
-                                    $years = [];
-                                    for ($i = $currentYear; $i >= $previousYear; $i--) {
-                                        $years[] = $i;
                                     }
+                                });
+                            </script>
 
-                                    // Default query for the current year
-                                    $yearToQuery = $currentYear; // Default to current year
-                                    $monthlyBookingsQuery = "SELECT MONTH(PostingDate) AS month, COUNT(*) AS totalBookings 
+                            <?php
+                            $con = mysqli_connect("localhost", "root", "", "carrental");
+                            if (!$con) {
+                                echo "Problem in database connection! Contact administrator!" . mysqli_error($con);
+                            } else {
+                                // Existing code for counting bookings and fetching brands...
+
+                                // Get the current year and previous year
+                                $currentYear = date('Y');
+                                $previousYear = $currentYear - 3;
+
+                                // Prepare array of years for dropdown (last 5 years)
+                                $years = [];
+                                for ($i = $currentYear; $i >= $previousYear; $i--) {
+                                    $years[] = $i;
+                                }
+
+                                // Default query for the current year
+                                $yearToQuery = $currentYear; // Default to current year
+                                $monthlyBookingsQuery = "SELECT MONTH(PostingDate) AS month, COUNT(*) AS totalBookings 
                              FROM tblbooking 
                              WHERE YEAR(PostingDate) = $yearToQuery 
                              GROUP BY MONTH(PostingDate)";
 
-                                    $monthlyBookingsResult = mysqli_query($con, $monthlyBookingsQuery);
+                                $monthlyBookingsResult = mysqli_query($con, $monthlyBookingsQuery);
 
-                                    // Prepare an array for months and initialize monthly data
-                                    $months = [
-                                        'January',
-                                        'February',
-                                        'March',
-                                        'April',
-                                        'May',
-                                        'June',
-                                        'July',
-                                        'August',
-                                        'September',
-                                        'October',
-                                        'November',
-                                        'December'
-                                    ];
-                                    $monthlyData = array_fill(0, 12, 0); // Initialize all months to zero
-                            
-                                    // Fill monthly data from query
-                                    while ($row = mysqli_fetch_assoc($monthlyBookingsResult)) {
-                                        $monthlyData[$row['month'] - 1] = $row['totalBookings']; // -1 for zero-index
-                                    }
+                                // Prepare an array for months and initialize monthly data
+                                $months = [
+                                    'January',
+                                    'February',
+                                    'March',
+                                    'April',
+                                    'May',
+                                    'June',
+                                    'July',
+                                    'August',
+                                    'September',
+                                    'October',
+                                    'November',
+                                    'December'
+                                ];
+                                $monthlyData = array_fill(0, 12, 0); // Initialize all months to zero
+
+                                // Fill monthly data from query
+                                while ($row = mysqli_fetch_assoc($monthlyBookingsResult)) {
+                                    $monthlyData[$row['month'] - 1] = $row['totalBookings']; // -1 for zero-index
                                 }
-                                ?>
+                            }
+                            ?>
 
-                                <div class="col-md-6">
-                                    <div class="panel panel-default" style="width: 990px;">
-                                        <div class="panel-heading">Monthly Bookings</div>
-                                        <div class="panel-body">
-                                            <label for="yearSelect">Select Year:</label>
-                                            <select id="yearSelect" class="form-control"
-                                                style="width: auto; display: inline-block;">
-                                                <?php foreach ($years as $year): ?>
-                                                    <option value="<?php echo $year; ?>" <?php if ($year == $yearToQuery)
-                                                           echo 'selected'; ?>><?php echo $year; ?></option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            <canvas id="monthlyBookingsChart"></canvas>
-                                        </div>
+                            <div class="col-md-6">
+                                <div class="panel panel-default" style="width: 990px;">
+                                    <div class="panel-heading">Monthly Bookings</div>
+                                    <div class="panel-body">
+                                        <label for="yearSelect">Select Year:</label>
+                                        <select id="yearSelect" class="form-control"
+                                            style="width: auto; display: inline-block;">
+                                            <?php foreach ($years as $year): ?>
+                                                <option value="<?php echo $year; ?>" <?php if ($year == $yearToQuery)
+                                                                                            echo 'selected'; ?>><?php echo $year; ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <canvas id="monthlyBookingsChart"></canvas>
                                     </div>
                                 </div>
-
-                                <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-                                <script>
-                                    var monthlyData = <?php echo json_encode($monthlyData); ?>;
-                                    var months = <?php echo json_encode($months); ?>;
-
-                                    // Define an array of colors for each month
-                                    var colors = [
-                                        "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0",
-                                        "#9966FF", "#FF9F40", "#FF5733", "#33FF57",
-                                        "#3357FF", "#9D33FF", "#FF33C4", "#33FFC4"
-                                    ];
-
-                                    var ctx = document.getElementById("monthlyBookingsChart").getContext('2d');
-                                    var monthlyBookingsChart = new Chart(ctx, {
-                                        type: 'bar',
-                                        data: {
-                                            labels: months,
-                                            datasets: [{
-                                                label: 'Monthly Bookings',
-                                                backgroundColor: colors, // Assign different colors for each month
-                                                data: monthlyData
-                                            }]
-                                        },
-                                        options: {
-                                            legend: {
-                                                display: true
-                                            },
-                                            title: {
-                                                display: true,
-                                                text: "Monthly Bookings for the Year <?php echo $yearToQuery; ?>"
-                                            }
-                                        }
-                                    });
-
-                                    // Update chart when year is changed
-                                    document.getElementById('yearSelect').addEventListener('change', function () {
-                                        var selectedYear = this.value;
-
-                                        // Fetch monthly bookings for the selected year via AJAX
-                                        fetch('controller/fetch_monthly_bookings.php?year=' + selectedYear)
-                                            .then(response => response.json())
-                                            .then(data => {
-                                                // Update the chart
-                                                monthlyBookingsChart.data.datasets[0].data = data.monthlyData;
-                                                monthlyBookingsChart.options.title.text = "Monthly Bookings for the Year " + selectedYear;
-                                                monthlyBookingsChart.update();
-                                            });
-                                    });
-                                </script>
-
-
                             </div>
+
+                            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+                            <script>
+                                var monthlyData = <?php echo json_encode($monthlyData); ?>;
+                                var months = <?php echo json_encode($months); ?>;
+
+                                // Define an array of colors for each month
+                                var colors = [
+                                    "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0",
+                                    "#9966FF", "#FF9F40", "#FF5733", "#33FF57",
+                                    "#3357FF", "#9D33FF", "#FF33C4", "#33FFC4"
+                                ];
+
+                                var ctx = document.getElementById("monthlyBookingsChart").getContext('2d');
+                                var monthlyBookingsChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: months,
+                                        datasets: [{
+                                            label: 'Monthly Bookings',
+                                            backgroundColor: colors, // Assign different colors for each month
+                                            data: monthlyData
+                                        }]
+                                    },
+                                    options: {
+                                        legend: {
+                                            display: true
+                                        },
+                                        title: {
+                                            display: true,
+                                            text: "Monthly Bookings for the Year <?php echo $yearToQuery; ?>"
+                                        }
+                                    }
+                                });
+
+                                // Update chart when year is changed
+                                document.getElementById('yearSelect').addEventListener('change', function() {
+                                    var selectedYear = this.value;
+
+                                    // Fetch monthly bookings for the selected year via AJAX
+                                    fetch('controller/fetch_monthly_bookings.php?year=' + selectedYear)
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            // Update the chart
+                                            monthlyBookingsChart.data.datasets[0].data = data.monthlyData;
+                                            monthlyBookingsChart.options.title.text = "Monthly Bookings for the Year " + selectedYear;
+                                            monthlyBookingsChart.update();
+                                        });
+                                });
+                            </script>
                         </div>
 
                         <!-- Loading Scripts -->
