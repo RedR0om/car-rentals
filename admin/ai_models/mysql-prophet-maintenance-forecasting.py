@@ -4,6 +4,7 @@ from prophet import Prophet
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
+import json
 
 # Database connection
 db_config = {
@@ -48,19 +49,22 @@ try:
     next_maintenance_date = next_maintenance['ds'].values[0]
     predicted_sales = next_maintenance['yhat'].values[0]
 
-    print(f"Next predicted maintenance date: {next_maintenance_date}")
-    print(f"Predicted sales before maintenance: {predicted_sales:.2f}")
+    # Convert numpy.datetime64 to Python datetime
+    next_maintenance_date = pd.to_datetime(next_maintenance_date)
+
+    # Format the datetime to string for JSON serialization
+    next_maintenance_date_str = next_maintenance_date.strftime('%B %d, %Y')
 
     # Plot forecast
-    fig1 = model.plot(forecast)
-    plt.title("Forecast with Prophet")
-    plt.xlabel("Date")
-    plt.ylabel("Sales")
-    plt.show()
+    #fig1 = model.plot(forecast)
+    #plt.title("Forecast with Prophet")
+    #plt.xlabel("Date")
+    #plt.ylabel("Sales")
+    #plt.show()
 
     # Plot components
-    fig2 = model.plot_components(forecast)
-    plt.show()
+    #fig2 = model.plot_components(forecast)
+    #plt.show()
 
     # Evaluate model accuracy
     forecast_actual = forecast[forecast['ds'].isin(df['ds'])]
@@ -69,10 +73,20 @@ try:
     rmse = np.sqrt(mse)
     r2 = r2_score(df['y'], forecast_actual['yhat'])
 
-    print("MAE:", mae)
-    print("MSE:", mse)
-    print("RMSE:", rmse)
-    print("R-squared:", r2)
+
+    predicted_sales = round(predicted_sales, 2)
+
+    # Return JSON output
+    result = {
+        "next_maintenance_date": next_maintenance_date_str,
+        "predicted_sales": predicted_sales,
+        "mae": mae,
+        "mse": mse,
+        "rmse": rmse,
+        "r2": r2
+    }
+
+    print(json.dumps(result))
 
 except mysql.connector.Error as err:
-    print("Error:", err)
+    print(json.dumps({"error": str(err)}))

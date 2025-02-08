@@ -10,26 +10,22 @@ if (strlen($_SESSION['alogin']) == 0) {
     if (isset($_POST['submit'])) {
         $vehicle = $_POST['vehicle'];
         $inspector = $_POST['inspector'];
-        $repair_status = $_POST['repair_status'];
         $notes = $_POST['notes'];
         $outgoing_date = $_POST['outgoing_date'];
-        $outgoing_time = $_POST['outgoing_time'];
         $outgoing_meter = $_POST['outgoing_meter'];
         $outgoing_fuel = $_POST['outgoing_fuel'];
 
 
         $sql = "INSERT INTO tblinspections 
-            (vehicle, inspector, repair_status, notes, 
-            outgoing_date, outgoing_time, outgoing_meter, outgoing_fuel) 
-            VALUES (:vehicle, :inspector, :repair_status, :notes, 
-            :outgoing_date, :outgoing_time, :outgoing_meter, :outgoing_fuel )";
+            (vehicle, inspector, notes, 
+            outgoing_date, outgoing_meter, outgoing_fuel) 
+            VALUES (:vehicle, :inspector, :notes, 
+            :outgoing_date, :outgoing_meter, :outgoing_fuel )";
         $query = $dbh->prepare($sql);
         $query->bindParam(':vehicle', $vehicle, PDO::PARAM_STR);
         $query->bindParam(':inspector', $inspector, PDO::PARAM_STR);
-        $query->bindParam(':repair_status', $repair_status, PDO::PARAM_STR);
         $query->bindParam(':notes', $notes, PDO::PARAM_STR);
         $query->bindParam(':outgoing_date', $outgoing_date, PDO::PARAM_STR);
-        $query->bindParam(':outgoing_time', $outgoing_time, PDO::PARAM_STR);
         $query->bindParam(':outgoing_meter', $outgoing_meter, PDO::PARAM_STR);
         $query->bindParam(':outgoing_fuel', $outgoing_fuel, PDO::PARAM_STR);
         $query->execute();
@@ -281,19 +277,6 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Repair Status</label>
-                                            <div class="col-sm-10">
-                                                <select name="repair_status" class="form-control">
-                                                    <option value="New">New</option>
-                                                    <option value="Needs Repair">Needs Repair</option>
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="Completed">Completed</option>
-                                                    <option value="In Progress">In Progress</option>
-                                                    <option value="On Hold">On Hold</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Notes</label>
                                             <div class="col-sm-10">
                                                 <textarea name="notes" class="form-control" rows="3"></textarea>
@@ -302,19 +285,13 @@ if (strlen($_SESSION['alogin']) == 0) {
 
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <div class="section-title">Inspection Details</div>
                                                 <div class="form-group row">
                                                     <label class="col-sm-4 col-form-label">Date</label>
                                                     <div class="col-sm-8">
                                                         <input type="date" name="outgoing_date" class="form-control">
                                                     </div>
                                                 </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-4 col-form-label">Time</label>
-                                                    <div class="col-sm-8">
-                                                        <input type="time" name="outgoing_time" class="form-control">
-                                                    </div>
-                                                </div>
+
                                                 <div class="form-group row">
                                                     <label class="col-sm-4 col-form-label">Meter Reading (Km)</label>
                                                     <div class="col-sm-8">

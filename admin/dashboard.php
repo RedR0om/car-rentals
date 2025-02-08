@@ -1,6 +1,7 @@
 <?php
 session_start();
 error_reporting(0);
+
 include('includes/config.php');
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:index.php');
@@ -56,48 +57,58 @@ if (strlen($_SESSION['alogin']) == 0) {
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="row">
-                                        <div class="col-md-3">
+                                    <div class="col-md-3">
                                             <div class="panel panel-default">
                                                 <div class="panel-body bk-success text-light">
                                                     <div class="stat-panel text-center">
-
-                                                        <?php
-                                                        $sql = "SELECT id from tblusers ";
-                                                        $query = $dbh->prepare($sql);
-                                                        $query->execute();
-                                                        $results = $query->fetchAll(PDO::FETCH_OBJ);
-                                                        $regusers = $query->rowCount();
-                                                        ?>
                                                         <div class="stat-panel-number h1 ">
-                                                            <?php echo htmlentities($regusers); ?>
+                                                        <?php
+                                                            // $command = escapeshellcmd("C:\\Python312\\python.exe C:\\xampp\\htdocs\\carrentals\\admin\\ai_models\\mysql-prophet-maintenance-forecasting.py"); 
+                                                            // $output = shell_exec($command);
+
+                                                            $pythonExecutable = escapeshellcmd(PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3');
+                                                            $baseDir = realpath(__DIR__ . '/ai_models'); 
+                                                            $scriptPath = escapeshellarg($baseDir . "/mysql-prophet-maintenance-forecasting.py");
+                                                            $command = "$pythonExecutable $scriptPath";
+
+                                                            // Execute the Python script
+                                                            $output = shell_exec($command);
+
+                                                            $data = json_decode($output, true);
+
+                                                            if (isset($data['next_maintenance_date'])) {
+                                                                echo htmlentities($data['next_maintenance_date']);
+                                                            } else {
+                                                                echo "<span style='color:red;'>Error: Could not retrieve data</span>";
+                                                            }
+                                                        ?>
                                                         </div>
-                                                        <div class="stat-panel-title text-uppercase">Reg Users</div>
+                                                        <div class="stat-panel-title text-uppercase">Predicted Car Inspection</div>
                                                     </div>
                                                 </div>
-                                                <a href="reg-users.php" class="block-anchor panel-footer">Full Detail <i
-                                                        class="fa fa-arrow-right"></i></a>
+                                                <a href="#"
+                                                    class="block-anchor panel-footer text-center"> </a>
                                             </div>
                                         </div>
+
                                         <div class="col-md-3">
                                             <div class="panel panel-default">
                                                 <div class="panel-body bk-info text-light">
                                                     <div class="stat-panel text-center">
-                                                        <?php
-                                                        $sql1 = "SELECT id from tblvehicles ";
-                                                        $query1 = $dbh->prepare($sql1);;
-                                                        $query1->execute();
-                                                        $results1 = $query1->fetchAll(PDO::FETCH_OBJ);
-                                                        $totalvehicle = $query1->rowCount();
-                                                        ?>
                                                         <div class="stat-panel-number h1 ">
-                                                            <?php echo htmlentities($totalvehicle); ?>
+                                                        <?php
+                                                            if (isset($data['predicted_sales'])) {
+                                                                echo htmlentities($data['predicted_sales']);
+                                                            } else {
+                                                                echo "<span style='color:red;'>Error: Could not retrieve data</span>";
+                                                            }
+                                                        ?>
                                                         </div>
-                                                        <div class="stat-panel-title text-uppercase">Listed Vehicles</div>
+                                                        <div class="stat-panel-title text-uppercase">Predicted Sales per Car</div>
                                                     </div>
                                                 </div>
-                                                <a href="manage-vehicles.php"
-                                                    class="block-anchor panel-footer text-center">Full Detail &nbsp; <i
-                                                        class="fa fa-arrow-right"></i></a>
+                                                <a href="#"
+                                                    class="block-anchor panel-footer text-center"></a>
                                             </div>
                                         </div>
 
@@ -263,33 +274,46 @@ if (strlen($_SESSION['alogin']) == 0) {
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="row">
-                                        <div class="col-md-3">
+                                    <div class="col-md-3">
                                             <div class="panel panel-default">
                                                 <div class="panel-body bk-success text-light">
                                                     <div class="stat-panel text-center">
+
+                                                        <?php
+                                                        $sql = "SELECT id from tblusers ";
+                                                        $query = $dbh->prepare($sql);
+                                                        $query->execute();
+                                                        $results = $query->fetchAll(PDO::FETCH_OBJ);
+                                                        $regusers = $query->rowCount();
+                                                        ?>
                                                         <div class="stat-panel-number h1 ">
-                                                           April 30, 2025
+                                                            <?php echo htmlentities($regusers); ?>
                                                         </div>
-                                                        <div class="stat-panel-title text-uppercase">Predicted Inspection</div>
+                                                        <div class="stat-panel-title text-uppercase">Reg Users</div>
                                                     </div>
                                                 </div>
-                                                <a href="#"
-                                                    class="block-anchor panel-footer text-center">Full Detail &nbsp; <i
+                                                <a href="reg-users.php" class="block-anchor panel-footer">Full Detail <i
                                                         class="fa fa-arrow-right"></i></a>
                                             </div>
                                         </div>
-
                                         <div class="col-md-3">
                                             <div class="panel panel-default">
                                                 <div class="panel-body bk-info text-light">
                                                     <div class="stat-panel text-center">
+                                                        <?php
+                                                        $sql1 = "SELECT id from tblvehicles ";
+                                                        $query1 = $dbh->prepare($sql1);;
+                                                        $query1->execute();
+                                                        $results1 = $query1->fetchAll(PDO::FETCH_OBJ);
+                                                        $totalvehicle = $query1->rowCount();
+                                                        ?>
                                                         <div class="stat-panel-number h1 ">
-                                                           7.35
+                                                            <?php echo htmlentities($totalvehicle); ?>
                                                         </div>
-                                                        <div class="stat-panel-title text-uppercase">Predicted Sales per Car</div>
+                                                        <div class="stat-panel-title text-uppercase">Listed Vehicles</div>
                                                     </div>
                                                 </div>
-                                                <a href="#"
+                                                <a href="manage-vehicles.php"
                                                     class="block-anchor panel-footer text-center">Full Detail &nbsp; <i
                                                         class="fa fa-arrow-right"></i></a>
                                             </div>
