@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_reporting(1);
+error_reporting(0);
 
 include('includes/config.php');
 
@@ -14,7 +14,6 @@ if (strlen($_SESSION['alogin']) == 0) {
         $outgoing_date = $_POST['outgoing_date'];
         $outgoing_meter = $_POST['outgoing_meter'];
         $outgoing_fuel = $_POST['outgoing_fuel'];
-
 
         $sql = "INSERT INTO tblinspections 
             (vehicle, inspector, notes, 
@@ -31,6 +30,36 @@ if (strlen($_SESSION['alogin']) == 0) {
         $query->execute();
 
         $lastInsertId = $dbh->lastInsertId();
+
+        // insert in tblvehicle_maintenance
+        $nextScheduledMaintenanceDate = date('Y-m-d', strtotime('+30 days'));
+        $formattedNextScheduledMaintenanceDate = date("m/d/Y", strtotime($nextScheduledMaintenanceDate));
+        $lastMaintenanceDate = date('Y-m-d');
+        $formattedlastMaintenanceDate = date("m/d/Y", strtotime($lastMaintenanceDate));
+        $inspectionType = 'professional_inspections';
+        $remarks = '';
+        $isMaintenance = rand(0,1);
+        $aiIsMaintenance = rand(0,1);
+
+        $sql2 = "INSERT INTO tblvehicle_maintenance 
+        (vehicleId, last_mileage, mileage, inspection_type, remarks, 
+        last_maintenance_date, next_scheduled_maintenance_date, is_maintenance, ai_is_maintenance) 
+        VALUES (:vehicleId, :last_mileage, :mileage, :inspection_type, :remarks, :last_maintenance_date,
+        :next_scheduled_maintenance_date, :is_maintenance, :ai_is_maintenance)";
+
+        $query2 = $dbh->prepare($sql2);
+
+        $query2->bindParam(':vehicleId', $lastInsertId, PDO::PARAM_STR);
+        $query2->bindParam(':last_mileage', $outgoing_meter, PDO::PARAM_STR);
+        $query2->bindParam(':mileage', $outgoing_meter, PDO::PARAM_STR);
+        $query2->bindParam(':inspection_type', $inspectionType, PDO::PARAM_STR);
+        $query2->bindParam(':remarks', $remarks, PDO::PARAM_STR);
+        $query2->bindParam(':last_maintenance_date', $formattedlastMaintenanceDate, PDO::PARAM_STR);
+        $query2->bindParam(':next_scheduled_maintenance_date', $formattedNextScheduledMaintenanceDate, PDO::PARAM_STR);
+        $query2->bindParam(':is_maintenance', $isMaintenance, PDO::PARAM_INT);
+        $query2->bindParam(':ai_is_maintenance', $aiIsMaintenance, PDO::PARAM_INT);
+
+        $query2->execute();
 
         if ($lastInsertId) {
             $msg = "Inspection recorded successfully";

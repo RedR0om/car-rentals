@@ -10,6 +10,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 # Get input values from command-line arguments
 selectedCar_last_maintenance = float(sys.argv[1])  # last maintenance mileage
 selectedCar_current_mileage = float(sys.argv[2])  # current mileage
+vehicleId = int(sys.argv[3])  # vehicle ID
 
 # Recommended mileage gaps based on inspection type (in miles)
 INSPECTION_GAPS = {
@@ -55,6 +56,13 @@ try:
     conn = mysql.connector.connect(**DB_CONFIG)
     cursor = conn.cursor(dictionary=True)
     
+    # Fetch vehicle data
+    vehicle_query = """
+    SELECT * FROM tblinspections WHERE id = %s
+    """
+    cursor.execute(vehicle_query, (vehicleId,))
+    vehicle_data = cursor.fetchone()
+    
     inspection_results = {}
     
     for inspection_type in INSPECTION_GAPS.keys():
@@ -92,15 +100,17 @@ try:
         maintenance_prediction = predict_maintenance(selectedCar_last_maintenance, selectedCar_current_mileage, inspection_type, model)
         
         inspection_results[inspection_type] = {
-            "model_metrics": {
-                "accuracy": f"{accuracy:.2f}",
-                "precision": f"{precision:.2f}",
-                "recall": f"{recall:.2f}",
-                "f1_score": f"{f1:.2f}"
-            },
-            "class_distribution": class_distribution,
             "maintenance_prediction": maintenance_prediction
         }
+        
+        # Merge vehicle_data fields relevant to the inspection type
+        if vehicle_data:
+            for key, value in vehicle_data.items():
+                if key.startswith(inspection_type):
+                    if key.endswith("_remarks"):  # Store remarks properly
+                        inspection_results[inspection_type]["remarks"] = value
+                    else:  # Store status properly
+                        inspection_results[inspection_type]["status"] = value
     
     cursor.close()
     conn.close()
@@ -108,7 +118,8 @@ try:
     result = {
         "selectedCar_last_maintenance": selectedCar_last_maintenance,
         "selectedCar_current_mileage": selectedCar_current_mileage,
-        "inspection_results": inspection_results
+        "inspection_results": inspection_results,
+        "vehicle_data": {"id": vehicle_data["id"], "vehicle": vehicle_data["vehicle"]} if vehicle_data else {}
     }
     
     print(json.dumps(result, indent=4))

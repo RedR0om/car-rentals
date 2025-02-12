@@ -55,24 +55,6 @@ if (strlen($_SESSION['alogin']) == 0) {
     $query = $dbh->prepare($sql);
     $query->execute();
     $inspections = $query->fetchAll(PDO::FETCH_OBJ);
-
-    // Define colors for Repair Status
-    $repairColors = [
-        'Needs Repair' => ['bg' => '#DC3545', 'color' => '#FFFFFF'],
-        'Pending' => ['bg' => '#FFC107', 'color' => '#000000'],
-        'Completed' => ['bg' => '#28A745', 'color' => '#FFFFFF'],
-        'In Progress' => ['bg' => '#17A2B8', 'color' => '#FFFFFF'],
-        'On Hold' => ['bg' => '#6C757D', 'color' => '#FFFFFF'],
-    ];
-
-    // Define colors for statuses of inspections
-    $inspectionStatusColors = [
-        'pending' => ['bg' => '#FFC107', 'color' => '#000000', 'text' => 'Needs Inspection'],
-        'done' => ['bg' => '#28A745', 'color' => '#FFFFFF', 'text' => 'Inspection Completed'],
-        'overdue' => ['bg' => '#DC3545', 'color' => '#FFFFFF', 'text' => 'Inspection Overdue'],
-        'unknown' => ['bg' => '#6C757D', 'color' => '#FFFFFF', 'text' => 'Unknown']
-    ]
-
     ?>
 
     <!doctype html>
@@ -134,6 +116,68 @@ if (strlen($_SESSION['alogin']) == 0) {
                     <div class="row">
                         <div class="col-md-12">
                             <h2 class="page-title">Manage Inspections</h2>
+                            <div class="row">
+                                <div class="col-md-3">
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body bk-success text-light">
+                                            <div class="stat-panel text-center">
+                                                <div class="stat-panel-number h1 ">
+                                                    <?php
+                                                        // $command = escapeshellcmd("C:\\Python312\\python.exe C:\\xampp\\htdocs\\carrentals\\admin\\ai_models\\mysql-prophet-maintenance-forecasting.py"); 
+                                                        // $output = shell_exec($command);
+
+                                                        $pythonExecutable = escapeshellcmd(PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3');
+                                                        $baseDir = realpath(__DIR__ . '/ai_models'); 
+                                                        $scriptPath = escapeshellarg($baseDir . "/mysql-prophet-maintenance-forecasting.py");
+                                                        $command = "$pythonExecutable $scriptPath";
+
+                                                        // Execute the Python script
+                                                        $output = shell_exec($command);
+
+                                                        $data = json_decode($output, true);
+
+                                                        if (isset($data['next_maintenance_date'])) {
+                                                            echo htmlentities($data['next_maintenance_date']);
+                                                        } else {
+                                                            echo "<span style='color:red;'>Error: Could not retrieve data</span>";
+                                                        }
+                                                    ?>
+                                                </div>
+                                                <div class="stat-panel-title text-uppercase">Predicted Car Inspection</div>
+                                            </div>
+                                        </div>
+                                        <a href="#"
+                                            class="block-anchor panel-footer text-center"> </a>
+                                    </div>
+                                </div>
+
+                                <!-- <div class="col-md-3">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body bk-info text-light">
+                                            <div class="stat-panel text-center">
+                                                <div class="stat-panel-number h1 ">
+                                                <?php
+                                                    // if (isset($data['predicted_sales'])) {
+                                                    //     echo htmlentities($data['predicted_sales']);
+                                                    // } else {
+                                                    //     echo "<span style='color:red;'>Error: Could not retrieve data</span>";
+                                                    // }
+                                                ?>
+                                                </div>
+                                                <div class="stat-panel-title text-uppercase">Predicted Sales per Car</div>
+                                            </div>
+                                        </div>
+                                        <a href="#"
+                                            class="block-anchor panel-footer text-center"></a>
+                                    </div>
+                                </div> -->
+                                <div class="col-md-3">
+                                </div>
+                            </div>
+                            
+
                             <div style="margin-bottom: 20px; font-size: 12px;">
                                 <a href="add-inspection.php" class="btn btn-primary">Add Inspection</a>
                             </div>
@@ -146,7 +190,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                     <?php } else if ($msg) { ?>
                                             <div class="succWrap"><strong>SUCCESS</strong>:<?php echo htmlentities($msg); ?> </div>
                                     <?php } ?>
-                                    <table id="inspectionTable"
+                                    <table id="zctb" class="display table table-striped table-bordered table-hover"
                                         class="display table table-striped table-bordered table-hover" cellspacing="0"
                                         width="100%">
                                         <thead>
@@ -154,137 +198,16 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                 <th>#</th>
                                                 <th>Vehicle</th>
                                                 <th>Inspector</th>
-                                                <th>Repair Status</th>
-                                                <th>Monthly Inspection Status</th>
-                                                <th>Quarterly Inspection Status</th>
-                                                <th>Annually Inspection Status</th>
+                                                <th>Last Mileage</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php
-                                            $cnt = 1;
+                                             $cnt = 1;
                                             foreach ($inspections as $inspection) {
-                                                // Get colors based on inspection status
-                                                $inspectionColor = $inspectionColors[$inspection->inspection_status] ?? ['bg' => '#ffffff', 'color' => '#000000'];
-                                                $repairColor = $repairColors[$inspection->repair_status] ?? ['bg' => '#ffffff', 'color' => '#000000'];
-
-                                                // constant variables
-                                                $dateToday = date('Y-m-d');
-                                                $today = new DateTime($dateToday);
-
-                                                $createdAt = new DateTime($inspection->created_at);
-
-                                                // monthly inspection status
-                                                if($inspection->last_monthly_inspection) {
-                                                    
-                                                    $lastMonthDateOfInspection = new DateTime($inspection->last_monthly_inspection);
-                                                    
-                                                    $interval = $lastMonthDateOfInspection->diff($today);
-    
-                                                    $daysPassed = $interval->days;
-
-                                                    if ($daysPassed >= 30 && $daysPassed < 37) {
-                                                        $monthlyInspectionColor = $inspectionStatusColors['pending'];
-                                                    } else if ($daysPassed > 37) {
-                                                        $monthlyInspectionColor = $inspectionStatusColors['overdue'];
-                                                    } else if ($daysPassed < 30) {
-                                                        $monthlyInspectionColor = $inspectionStatusColors['done'];
-                                                    } else {
-                                                        $monthlyInspectionColor = $inspectionStatusColors['unknown'];
-                                                    }
-
-                                                } else {
-                                                    
-                                                    $interval = $createdAt->diff($today);
-    
-                                                    $daysPassed = $interval->days;
-
-                                                    if ($daysPassed >= 30 && $daysPassed < 37) {
-                                                        $monthlyInspectionColor = $inspectionStatusColors['pending'];
-                                                    } else if ($daysPassed > 37) {
-                                                        $monthlyInspectionColor = $inspectionStatusColors['overdue'];
-                                                    } else if ($daysPassed < 30) {
-                                                        $monthlyInspectionColor = $inspectionStatusColors['done'];
-                                                    } else {
-                                                        $monthlyInspectionColor = $inspectionStatusColors['unknown'];
-                                                    }
-                                                }
-
-
-                                                // quarterly inspection status
-                                                if($inspection->last_quarterly_inspection) {
-
-                                                    $lastQuarterlyDateOfInspection = new DateTime($inspection->last_quarterly_inspection);
-    
-                                                    $interval = $lastQuarterlyDateOfInspection->diff($today);
-    
-                                                    $monthsPassed = ($interval->y * 12) + $interval->m;
-
-                                                    if ($monthsPassed >= 3 && $monthsPassed < 4) {
-                                                        $quarterlyInspectionColor = $inspectionStatusColors['pending'];
-                                                    } else if ($monthsPassed > 4) {
-                                                        $quarterlyInspectionColor = $inspectionStatusColors['overdue'];
-                                                    } else if ($monthsPassed < 3) {
-                                                        $quarterlyInspectionColor = $inspectionStatusColors['done'];
-                                                    } else {
-                                                        $quarterlyInspectionColor = $inspectionStatusColors['unknown'];
-                                                    }
-
-                                                } else {
-    
-                                                    $interval = $createdAt->diff($today);
-    
-                                                    $monthsPassed = ($interval->y * 12) + $interval->m;
-
-                                                    if ($monthsPassed >= 3 && $monthsPassed < 5) {
-                                                        $quarterlyInspectionColor = $inspectionStatusColors['pending'];
-                                                    } else if ($monthsPassed > 4) {
-                                                        $quarterlyInspectionColor = $inspectionStatusColors['overdue'];
-                                                    } else if ($monthsPassed < 3) {
-                                                        $quarterlyInspectionColor = $inspectionStatusColors['done'];
-                                                    } else {
-                                                        $quarterlyInspectionColor = $inspectionStatusColors['unknown'];
-                                                    }
-                                                }
-
-
-                                                // annually inspection status
-                                                if ($inspection->last_annual_inspection) {
-                                                    $lastAnnualDateOfInspection = new DateTime($inspection->last_annual_inspection);
-                                                
-                                                    $interval = $lastAnnualDateOfInspection->diff($today);
-                                                
-                                                    $monthsPassed = ($interval->y * 12) + $interval->m;
-                                                
-                                                    if ($monthsPassed >= 12 && $monthsPassed < 15) {
-                                                        $annualInspectionColor = $inspectionStatusColors['pending'];
-                                                    } else if ($monthsPassed >= 15) {
-                                                        $annualInspectionColor = $inspectionStatusColors['overdue'];
-                                                    } else if ($monthsPassed < 12) {
-                                                        $annualInspectionColor = $inspectionStatusColors['done'];
-                                                    } else {
-                                                        $annualInspectionColor = $inspectionStatusColors['unknown'];
-                                                    }
-                                                } else {
-                                                
-                                                    $interval = $createdAt->diff($today);
-                                                
-                                                    $monthsPassed = ($interval->y * 12) + $interval->m;
-                                                
-                                                    if ($monthsPassed >= 12 && $monthsPassed < 15) {
-                                                        $annualInspectionColor = $inspectionStatusColors['pending'];
-                                                    } else if ($monthsPassed >= 15) {
-                                                        $annualInspectionColor = $inspectionStatusColors['overdue'];
-                                                    } else if ($monthsPassed < 12) {
-                                                        $annualInspectionColor = $inspectionStatusColors['done'];
-                                                    } else {
-                                                        $annualInspectionColor = $inspectionStatusColors['unknown'];
-                                                    }
-                                                }
-
+                                               
                                                 ?>
-
                                                 <tr>
                                                     <td><?php echo htmlentities($cnt); ?></td>
                                                     <td>
@@ -294,32 +217,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         <p><?php echo htmlentities($inspection->inspector); ?></p>
                                                     </td>
                                                     <td>
-                                                        <p style="background-color: <?php echo $repairColor['bg']; ?>; color:
-                                                            <?php echo $repairColor['color']; ?>; padding: 10px 15px;
-                                                            border-radius: 5px;">
-                                                            <?php echo htmlentities($inspection->repair_status); ?>
-                                                        </p>
-                                                    </td>
-                                                    <td>
-                                                        <p style="background-color: <?php echo $monthlyInspectionColor['bg']; ?>; color:
-                                                            <?php echo $monthlyInspectionColor['color']; ?>; padding: 10px 15px;
-                                                            border-radius: 5px;">
-                                                            <?php echo htmlentities($monthlyInspectionColor['text']); ?>
-                                                        </p>
-                                                    </td>
-                                                    <td>
-                                                        <p style="background-color: <?php echo $quarterlyInspectionColor['bg']; ?>; color:
-                                                            <?php echo $quarterlyInspectionColor['color']; ?>; padding: 10px 15px;
-                                                            border-radius: 5px;">
-                                                            <?php echo htmlentities($quarterlyInspectionColor['text']); ?>
-                                                        </p>
-                                                    </td>
-                                                    <td>
-                                                        <p style="background-color: <?php echo $annualInspectionColor['bg']; ?>; color:
-                                                            <?php echo $annualInspectionColor['color']; ?>; padding: 10px 15px;
-                                                            border-radius: 5px;">
-                                                            <?php echo htmlentities($annualInspectionColor['text']); ?>
-                                                        </p>
+                                                        <p><?php echo htmlentities($inspection->outgoing_meter); ?></p>
                                                     </td>
                                                     <td>
 

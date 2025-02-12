@@ -1,153 +1,148 @@
 <?php
 session_start();
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+error_reporting(0);
 
 include('includes/config.php');
 
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:index.php');
 } else {
+    $error = ''; 
+    $msg = '';
+
     if (isset($_POST['submit'])) {
-        $id = $_POST['id'];
-        $vehicle = $_POST['vehicle'];
-        $inspector = $_POST['inspector'];
-        $inspection_date = $_POST['inspection_date'];
-        $inspection_status = $_POST['inspection_status'];
-        $notes = $_POST['notes'];
-        $outgoing_date = $_POST['outgoing_date'];
-        $outgoing_time = $_POST['outgoing_time'];
-        $outgoing_meter = $_POST['outgoing_meter'];
-        $outgoing_fuel = $_POST['outgoing_fuel'];
 
-        $oil_level_status = $_POST['oil_level_status'] ?? null;
-        $tire_pressure_status = $_POST['tire_pressure_status'] ?? null;
-        $coolant_level_status = $_POST['coolant_level_status'] ?? null;
-        $windshield_wipers_status = $_POST['windshield_wipers_status'] ?? null;
-        $engine_oil_filter_status = $_POST['engine_oil_filter_status'] ?? null;
-        $inspect_battery_status = $_POST['inspect_battery_status'] ?? null;
-        $examine_lights_status = $_POST['examine_lights_status'] ?? null;
-        $belts_hoses_status = $_POST['belts_hoses_status'] ?? null;
-        $air_filter_status = $_POST['air_filter_status'] ?? null;
-        $break_pads_status = $_POST['break_pads_status'] ?? null;
-        $fluid_status = $_POST['fluid_status'] ?? null;
-        $suspension_alignment_status = $_POST['suspension_alignment_status'] ?? null;
-        $comprehensive_inspection_status = $_POST['comprehensive_inspection_status'] ?? null;
+        if (empty($_POST['current_mileage']) || empty($_POST['inspection_date']) || trim($_POST['inspection_date']) === "dd/mm/yyyy") {
+            $error = 'Please input required fields (inspection date or current mileage)';
+        } else {
 
-        $last_monthly_inspection = null;
-        $last_quarterly_inspection = null;
-        $last_annual_inspection = null;
+            $id = $_POST['id'];
+            $vehicle = $_POST['vehicle'];
+            $inspector = $_POST['inspector'];
+            $inspection_date = $_POST['inspection_date'];
+            $notes = $_POST['notes'];
+            $outgoing_meter = $_POST['current_mileage'];
+            $outgoing_fuel = $_POST['outgoing_fuel'];
 
-        if ($oil_level_status === 'done' && $tire_pressure_status === 'done' && $coolant_level_status === 'done' && $windshield_wipers_status === 'done') {
-            $last_monthly_inspection = date('Y-m-d');
-            
-            $oil_level_status = null;
-            $tire_pressure_status = null;
-            $coolant_level_status = null;
-            $windshield_wipers_status = null;
-        }
+            $engine_fluids_status = $_POST['engine_fluids_status'] === 'done' ? 1 : 0;
+            $engine_fluids_remarks = $_POST['engine_fluids_remarks'];
+            $battery_status = $_POST['battery_status'] === 'done' ? 1 : 0;
+            $battery_remarks = $_POST['battery_remarks'];
+            $tires_status = $_POST['tires_status'] === 'done' ? 1 : 0;
+            $tires_remarks = $_POST['tires_remarks'];
+            $brakes_status = $_POST['brakes_status'] === 'done' ? 1 : 0;
+            $brakes_remarks = $_POST['brakes_remarks'];
+            $lights_electrical_status = $_POST['lights_electrical_status'] === 'done' ? 1 : 0;
+            $lights_electrical_remarks = $_POST['lights_electrical_remarks'];
+            $air_filters_status = $_POST['air_filters_status'] === 'done' ? 1 : 0;
+            $air_filters_remarks = $_POST['air_filters_remarks'];
+            $belts_hoses_status = $_POST['belts_hoses_status'] === 'done' ? 1 : 0;
+            $belts_hoses_remarks = $_POST['belts_hoses_remarks'];
+            $suspension_status = $_POST['suspension_status'] === 'done' ? 1 : 0;
+            $suspension_remarks = $_POST['suspension_remarks'];
+            $exhaust_system_status = $_POST['exhaust_system_status'] === 'done' ? 1 : 0;
+            $exhaust_system_remarks = $_POST['exhaust_system_remarks'];
+            $alignment_suspension_status = $_POST['alignment_suspension_status'] === 'done' ? 1 : 0;
+            $alignment_suspension_remarks = $_POST['alignment_suspension_remarks'];
+            $wipers_windshield_status = $_POST['wipers_windshield_status'] === 'done' ? 1 : 0;
+            $wipers_windshield_remarks = $_POST['wipers_windshield_remarks'];
+            $timing_belt_chain_status = $_POST['timing_belt_chain_status'] === 'done' ? 1 : 0;
+            $timing_belt_chain_remarks = $_POST['timing_belt_chain_remarks'];
+            $air_conditioning_heater_status = $_POST['air_conditioning_heater_status'] === 'done' ? 1 : 0;
+            $air_conditioning_heater_remarks = $_POST['air_conditioning_heater_remarks'];
+            $cabin_exterior_maintenance_status = $_POST['cabin_exterior_maintenance_status'] === 'done' ? 1 : 0;
+            $cabin_exterior_maintenance_remarks = $_POST['cabin_exterior_maintenance_remarks'];
+            $professional_inspections_status = $_POST['professional_inspections_status'] === 'done' ? 1 : 0;
+            $professional_inspections_remarks = $_POST['professional_inspections_remarks'];
 
-        if ($engine_oil_filter_status === 'done' && $inspect_battery_status === 'done' && $examine_lights_status === 'done' && $belts_hoses_status === 'done') {
-            $last_quarterly_inspection = date('Y-m-d');
-            
-            $engine_oil_filter_status = null;
-            $inspect_battery_status = null;
-            $examine_lights_status = null;
-            $belts_hoses_status = null;
-        }
+        
+            $sql = "UPDATE tblinspections SET 
+                vehicle = :vehicle, 
+                inspector = :inspector, 
+                inspection_date = :inspection_date, 
+                notes = :notes, 
+                outgoing_meter = :outgoing_meter, 
+                outgoing_fuel = :outgoing_fuel,
+                engine_fluids = :engine_fluids,
+                engine_fluids_remarks = :engine_fluids_remarks,
+                battery = :battery,
+                battery_remarks = :battery_remarks,
+                tires = :tires,
+                tires_remarks = :tires_remarks,
+                brakes = :brakes,
+                brakes_remarks = :brakes_remarks,
+                lights_electrical = :lights_electrical,
+                lights_electrical_remarks = :lights_electrical_remarks,
+                air_filters = :air_filters,
+                air_filters_remarks = :air_filters_remarks,
+                belts_hoses = :belts_hoses,
+                belts_hoses_remarks = :belts_hoses_remarks,
+                suspension = :suspension,
+                suspension_remarks = :suspension_remarks,
+                exhaust_system = :exhaust_system,
+                exhaust_system_remarks = :exhaust_system_remarks,
+                alignment_suspension = :alignment_suspension,
+                alignment_suspension_remarks = :alignment_suspension_remarks,
+                wipers_windshield = :wipers_windshield,
+                wipers_windshield_remarks = :wipers_windshield_remarks,
+                timing_belt_chain = :timing_belt_chain,
+                timing_belt_chain_remarks = :timing_belt_chain_remarks,
+                air_conditioning_heater = :air_conditioning_heater,
+                air_conditioning_heater_remarks = :air_conditioning_heater_remarks,
+                cabin_exterior_maintenance = :cabin_exterior_maintenance,
+                cabin_exterior_maintenance_remarks = :cabin_exterior_maintenance_remarks,
+                professional_inspections = :professional_inspections,
+                professional_inspections_remarks = :professional_inspections_remarks";
 
-        if ($air_filter_status === 'done' && $break_pads_status === 'done' && $fluid_status === 'done' && $suspension_alignment_status === 'done' && $comprehensive_inspection_status === 'done') {
-            $last_annual_inspection = date('Y-m-d');
-            
-            $air_filter_status = null;
-            $break_pads_status = null;
-            $fluid_status = null;
-            $suspension_alignment_status = null;
-            $comprehensive_inspection_status = null;
-        }
+                $sql .= " WHERE id = :id";
 
+            $query = $dbh->prepare($sql);
+            $query->bindParam(':vehicle', $vehicle, PDO::PARAM_STR);
+            $query->bindParam(':inspector', $inspector, PDO::PARAM_STR);
+            $query->bindParam(':inspection_date', $inspection_date, PDO::PARAM_STR);
+            $query->bindParam(':notes', $notes, PDO::PARAM_STR);
+            $query->bindParam(':outgoing_meter', $outgoing_meter, PDO::PARAM_STR);
+            $query->bindParam(':outgoing_fuel', $outgoing_fuel, PDO::PARAM_STR);
 
-        $sql = "UPDATE tblinspections SET 
-            vehicle = :vehicle, 
-            inspector = :inspector, 
-            inspection_date = :inspection_date, 
-            inspection_status = :inspection_status,
-            notes = :notes, 
-            outgoing_date = :outgoing_date, 
-            outgoing_time = :outgoing_time, 
-            outgoing_meter = :outgoing_meter, 
-            outgoing_fuel = :outgoing_fuel, 
-            oil_level_status = :oil_level_status,
-            tire_pressure_status = :tire_pressure_status,
-            coolant_level_status = :coolant_level_status,
-            windshield_wipers_status = :windshield_wipers_status,
-            engine_oil_filter_status = :engine_oil_filter_status,
-            inspect_battery_status = :inspect_battery_status,
-            examine_lights_status = :examine_lights_status,
-            belts_hoses_status = :belts_hoses_status,
-            air_filter_status = :air_filter_status,
-            break_pads_status = :break_pads_status,
-            fluid_status = :fluid_status,
-            suspension_alignment_status = :suspension_alignment_status,
-            comprehensive_inspection_status = :comprehensive_inspection_status";
+            $query->bindParam(':engine_fluids', $engine_fluids_status, PDO::PARAM_STR);
+            $query->bindParam(':engine_fluids_remarks', $engine_fluids_remarks, PDO::PARAM_STR);
+            $query->bindParam(':battery', $battery_status, PDO::PARAM_STR);
+            $query->bindParam(':battery_remarks', $battery_remarks, PDO::PARAM_STR);
+            $query->bindParam(':tires', $tires_status, PDO::PARAM_STR);
+            $query->bindParam(':tires_remarks', $tires_remarks, PDO::PARAM_STR);
+            $query->bindParam(':brakes', $brakes_status, PDO::PARAM_STR);
+            $query->bindParam(':brakes_remarks', $brakes_remarks, PDO::PARAM_STR);
+            $query->bindParam(':lights_electrical', $lights_electrical_status, PDO::PARAM_STR);
+            $query->bindParam(':lights_electrical_remarks', $lights_electrical_remarks, PDO::PARAM_STR);
+            $query->bindParam(':air_filters', $air_filters_status, PDO::PARAM_STR);
+            $query->bindParam(':air_filters_remarks', $air_filters_remarks, PDO::PARAM_STR);
+            $query->bindParam(':belts_hoses', $belts_hoses_status, PDO::PARAM_STR);
+            $query->bindParam(':belts_hoses_remarks', $belts_hoses_remarks, PDO::PARAM_STR);
+            $query->bindParam(':suspension', $suspension_status, PDO::PARAM_STR);
+            $query->bindParam(':suspension_remarks', $suspension_remarks, PDO::PARAM_STR);
+            $query->bindParam(':exhaust_system', $exhaust_system_status, PDO::PARAM_STR);
+            $query->bindParam(':exhaust_system_remarks', $exhaust_system_remarks, PDO::PARAM_STR);
+            $query->bindParam(':alignment_suspension', $alignment_suspension_status, PDO::PARAM_STR);
+            $query->bindParam(':alignment_suspension_remarks', $alignment_suspension_remarks, PDO::PARAM_STR);
+            $query->bindParam(':wipers_windshield', $wipers_windshield_status, PDO::PARAM_STR);
+            $query->bindParam(':wipers_windshield_remarks', $wipers_windshield_remarks, PDO::PARAM_STR);
+            $query->bindParam(':timing_belt_chain', $timing_belt_chain_status, PDO::PARAM_STR);
+            $query->bindParam(':timing_belt_chain_remarks', $timing_belt_chain_remarks, PDO::PARAM_STR);
+            $query->bindParam(':air_conditioning_heater', $air_conditioning_heater_status, PDO::PARAM_STR);
+            $query->bindParam(':air_conditioning_heater_remarks', $air_conditioning_heater_remarks, PDO::PARAM_STR);
+            $query->bindParam(':cabin_exterior_maintenance', $cabin_exterior_maintenance_status, PDO::PARAM_STR);
+            $query->bindParam(':cabin_exterior_maintenance_remarks', $cabin_exterior_maintenance_remarks, PDO::PARAM_STR);
+            $query->bindParam(':professional_inspections', $professional_inspections_status, PDO::PARAM_STR);
+            $query->bindParam(':professional_inspections_remarks', $professional_inspections_remarks, PDO::PARAM_STR);
 
-            $fields = [];
+            $query->bindParam(':id', $id, PDO::PARAM_INT);
 
-            if ($last_monthly_inspection) {
-                $fields[] = "last_monthly_inspection = :last_monthly_inspection";
+            if ($query->execute()) {
+                $msg = "Inspection updated successfully";
+            } else {
+                $error = "Failed to update record";
             }
-            if ($last_quarterly_inspection) {
-                $fields[] = "last_quarterly_inspection = :last_quarterly_inspection";
-            }
-            if ($last_annual_inspection) {
-                $fields[] = "last_annual_inspection = :last_annual_inspection";
-            }
-
-            if (!empty($fields)) {
-                $sql .= ", " . implode(", ", $fields);
-            }
-
-            $sql .= " WHERE id = :id";
-
-        $query = $dbh->prepare($sql);
-        $query->bindParam(':vehicle', $vehicle, PDO::PARAM_STR);
-        $query->bindParam(':inspector', $inspector, PDO::PARAM_STR);
-        $query->bindParam(':inspection_date', $inspection_date, PDO::PARAM_STR);
-        $query->bindParam(':inspection_status', $inspection_status, PDO::PARAM_STR);
-        $query->bindParam(':notes', $notes, PDO::PARAM_STR);
-        $query->bindParam(':outgoing_date', $outgoing_date, PDO::PARAM_STR);
-        $query->bindParam(':outgoing_time', $outgoing_time, PDO::PARAM_STR);
-        $query->bindParam(':outgoing_meter', $outgoing_meter, PDO::PARAM_STR);
-        $query->bindParam(':outgoing_fuel', $outgoing_fuel, PDO::PARAM_STR);
-        $query->bindParam(':oil_level_status', $oil_level_status, PDO::PARAM_STR);
-        $query->bindParam(':tire_pressure_status', $tire_pressure_status, PDO::PARAM_STR);
-        $query->bindParam(':coolant_level_status', $coolant_level_status, PDO::PARAM_STR);
-        $query->bindParam(':windshield_wipers_status', $windshield_wipers_status, PDO::PARAM_STR);
-        $query->bindParam(':engine_oil_filter_status', $engine_oil_filter_status, PDO::PARAM_STR);
-        $query->bindParam(':inspect_battery_status', $inspect_battery_status, PDO::PARAM_STR);
-        $query->bindParam(':examine_lights_status', $examine_lights_status, PDO::PARAM_STR);
-        $query->bindParam(':belts_hoses_status', $belts_hoses_status, PDO::PARAM_STR);
-        $query->bindParam(':air_filter_status', $air_filter_status, PDO::PARAM_STR);
-        $query->bindParam(':break_pads_status', $break_pads_status, PDO::PARAM_STR);
-        $query->bindParam(':fluid_status', $fluid_status, PDO::PARAM_STR);
-        $query->bindParam(':suspension_alignment_status', $suspension_alignment_status, PDO::PARAM_STR);
-        $query->bindParam(':comprehensive_inspection_status', $comprehensive_inspection_status, PDO::PARAM_STR);
-
-        if ($last_monthly_inspection) {
-            $query->bindParam(':last_monthly_inspection', $last_monthly_inspection, PDO::PARAM_STR);
         }
-        if ($last_quarterly_inspection) {
-            $query->bindParam(':last_quarterly_inspection', $last_quarterly_inspection, PDO::PARAM_STR);
-        }
-        if ($last_annual_inspection) {
-            $query->bindParam(':last_annual_inspection', $last_annual_inspection, PDO::PARAM_STR);
-        }
-
-        $query->bindParam(':id', $id, PDO::PARAM_INT);
-        $query->execute();
-
-        $msg = "Inspection updated successfully";
     }
 
     // Fetch inspection data based on ID from URL
@@ -370,7 +365,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                             <div class="panel panel-default">
                                 <div class="panel-heading">Inspection Details</div>
                                 <div class="panel-body">
-                                    <?php $error = ''; $msg = ''; if ($error) { ?>
+                                    <?php if ($error) { ?>
                                         <div class="alert alert-danger"><strong>ERROR:</strong>
                                             <?php echo htmlentities($error); ?></div>
                                     <?php } else if ($msg) { ?>
@@ -380,7 +375,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
 
                                     <form method="post" class="form-horizontal">
-                                        <input type="hidden" name="id" value="<?php echo htmlentities($inspection->id); ?>">
+                                        <input type="hidden" name="id" id="vehicleId" value="<?php echo htmlentities($inspection->id); ?>">
 
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Vehicle</label>
@@ -407,16 +402,23 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Last Inspection Date</label>
                                             <div class="col-sm-10">
-                                                <input type="date" name="outgoing_date" class="form-control"
-                                                    value="<?php echo htmlentities($inspection->outgoing_date); ?>">
+                                                <input type="date" id="inspection_date" name="inspection_date" class="form-control"
+                                                    value="<?php echo htmlentities($inspection->inspection_date); ?>">
                                             </div>
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Meter</label>
+                                            <label class="col-sm-2 col-form-label">Last Maintanance Mileage</label>
                                             <div class="col-sm-10">
                                                 <input type="text" name="outgoing_meter" class="form-control"
                                                     value="<?php echo htmlentities($inspection->outgoing_meter); ?>">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Current Mileage</label>
+                                            <div class="col-sm-10">
+                                                <input type="text" name="current_mileage" id="current_mileage" class="form-control" placeholder="Enter current mileage..">
                                             </div>
                                         </div>
 
@@ -439,389 +441,11 @@ if (strlen($_SESSION['alogin']) == 0) {
 
                                         <div class="form-group row">
                                             <div class="col-sm-10 offset-sm-2">
-                                                <button type="" name="" class="btn btn-primary"> Calculate Maintenance</button>
+                                                <button type="button" id="calculateMaintenance" class="btn btn-primary"> Calculate Maintenance</button>
                                             </div>
                                         </div>
 
-                                        <hr style="border: 1px solid #ccc; margin-top: 50px;">
-
-                                        <h3>Car Maintenance Checklist</h3>
-
-                                        <div class="form-group row">
-                                            <div class="col-sm-2"> </div>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <h4>AI Suggestions</h4>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <h4>Action</h4>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <h4>Remarks</h4>
-                                                </div>
-                                                
-                                            </div>
-                                        </div>   
-                                            
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Engine Fluids</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div>   
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Battery</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <span class="badge badge-success">Maintenance Completed</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Tires</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Brakes</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Lights Electrical</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                <span class="badge badge-success">Maintenance Completed</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Air Filters</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Belts & hoses</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                <span class="badge badge-success">Maintenance Completed</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Suspension</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Exhaust System</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                <span class="badge badge-success">Maintenance Completed</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Alignment Suspension</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Wipers Windshield</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Timing Belt Chain</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Air Conditioning Heater</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Cabin Exterior Maintenance</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                <span class="badge badge-success">Maintenance Completed</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Professional Inspections</label>
-                                            <div class="col-sm-10">
-                                                <div class="col-sm-2">
-                                                    <span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="done"
-                                                            <?php echo ($inspection->oil_level_status === 'done') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Done</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline col-sm-6">
-                                                        <input class="form-check-input" type="radio" name="oil_level_status" id="oil-level-pending" value="pending"
-                                                            <?php echo ($inspection->oil_level_status === 'pending') ? 'checked' : ''; ?>>
-                                                        <label class="form-check-label" for="oil-level-pending">Pending</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <textarea name="notes" class="form-control">Remarks here!</textarea>
-                                                </div>
-                                            </div>
-                                        </div> 
+                                        <div id="result"></div>
 
                                         <hr style="border: 1px solid #ccc; margin-top: 50px;">
 
@@ -854,6 +478,144 @@ if (strlen($_SESSION['alogin']) == 0) {
         <script src="js/chartData.js"></script>
         <script src="js/main.js"></script>
         <script>
+            $(document).ready(function () {
+                var updateButton = $("button[name='submit']");
+
+                updateButton.hide();
+
+                $("#calculateMaintenance").click(function () {
+                    var vehicleId = $("#vehicleId").val();
+                    var currentMileage = $("#current_mileage").val();
+                    var inspectionDate = $("#inspection_date").val();
+
+                    var resultContainer = $("#result");
+                    resultContainer.html("<div class='alert alert-info'>Calculating...</div>");
+
+                    if (vehicleId && currentMileage && inspectionDate) {
+
+                        console.log(vehicleId);
+                        $.ajax({
+                            url: "run_maintenance.php",
+                            type: "POST",
+                            data: { vehicleId: vehicleId, current_mileage: currentMileage },
+                            dataType: "json",
+                            beforeSend: function () {
+                                resultContainer.html("<div class='alert alert-info'>Calculating...</div>");
+                            },
+                            success: function(response) {
+
+                                if (response.error) {
+                                    resultContainer.html("<div class='alert alert-danger'>" + response.error + "</div>");
+                                    return;
+                                }
+
+                                var output = `
+                                    <hr style="border: 1px solid #ccc; margin-top: 50px;">
+                                    <h3>Car Maintenance Prediction Results</h3>
+                                    <br>
+                                    <h5><strong>Last Maintenance Mileage:</strong> ${response.selectedCar_last_maintenance}</h5>
+                                    <h5><strong>Current Mileage:</strong> ${response.selectedCar_current_mileage}</h5>
+
+                                    <div class="form-group row">
+                                        <div class="col-sm-2"> </div>
+                                        <div class="col-sm-10">
+                                            <div class="col-sm-2">
+                                                <h4>AI Suggestions</h4>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <h4>Maintenance Status</h4>
+                                            </div>
+                                            <div class="col-sm-7">
+                                                <h4>Remarks</h4>
+                                            </div>
+                                            
+                                        </div>
+                                    </div>   
+                                `;
+
+
+                                
+                                console.log('inspection results: ', response);
+                                $.each(response.inspection_results, function(inspection, data) {
+                                    if (data.error) {
+                                        output += `<p style='color:red;'><strong>${inspection.replace(/_/g, " ")}:</strong> ${data.error}</p>`;
+                                    } else {
+                                        let statusBadge = data.maintenance_prediction === "Yes"
+                                            ? `<span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>`
+                                            : `<span class="badge badge-success">Maintenance Completed</span>`;
+
+                                        output += `
+                                            <div class="form-group row">
+                                                <label class="col-sm-2 col-form-label">${inspection.replace(/_/g, ' ')}</label>
+                                                <div class="col-sm-10">
+                                                    <div class="col-sm-2">${statusBadge}</div>
+                                                    <div class="col-sm-3">
+                                                        <div class="form-check form-check-inline col-sm-6">
+                                                            <input class="form-check-input" type="radio" name="${inspection}_status" value="done" ${data.status === 1 ? 'checked' : ''}>
+                                                            <label class="form-check-label">Done</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline col-sm-6">
+                                                            <input class="form-check-input" type="radio" name="${inspection}_status" value="pending" ${data.status === 0 ? 'checked' : ''}>
+                                                            <label class="form-check-label">Pending</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-7">
+                                                        <textarea name="${inspection}_remarks" class="form-control" placeholder="Remarks here..">${data.remarks}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }
+                                });
+
+                                resultContainer.html(output);
+                                updateButton.show();
+                            },
+                            error: function() {
+                                $("#result").html("<p style='color:red;'>Error processing request.</p>");
+                            }
+                        });
+                    } else {
+                        $("#result").html("<p style='color:red;'>Please enter all required fields.</p>");
+                    }
+                });
+
+
+                // Save Maintenance Click Event
+                $("#saveMaintenance").click(function () {
+                    let formData = {};
+
+                    $('input[type=radio]:checked').each(function () {
+                        let name = $(this).attr('name');
+                        let inspection = name.replace('_status', '');
+                        formData[inspection] = formData[inspection] || {};
+                        formData[inspection]['status'] = $(this).val();
+                    });
+
+                    $('textarea[name$="_remarks"]').each(function () {
+                        let name = $(this).attr('name');
+                        let inspection = name.replace('_remarks', '');
+                        formData[inspection] = formData[inspection] || {};
+                        formData[inspection]['remarks'] = $(this).val();
+                    });
+
+                    console.log(formData); // Debugging
+
+                    $.ajax({
+                        url: "save_maintenance.php",
+                        type: "POST",
+                        data: JSON.stringify(formData),
+                        contentType: "application/json",
+                        success: function (response) {
+                            alert("Maintenance results saved successfully!");
+                        },
+                        error: function () {
+                            alert("Error saving maintenance results.");
+                        }
+                    });
+                });
+            });
+
             $(document).ready(function () {
                 $('.select2').select2({
                     placeholder: "Select Vehicle",
