@@ -142,6 +142,7 @@ error_reporting(0);
                             $sql = "SELECT v.id, v.VehiclesTitle, v.PricePerDay, v.Vimage1, b.BrandName
                                     FROM tblvehicles v
                                     JOIN tblbrands b ON b.id = v.VehiclesBrand
+                                    WHERE v.status = 1
                                     ORDER BY v.id DESC
                                     LIMIT 10";
                             $query = $dbh->prepare($sql);
@@ -285,9 +286,10 @@ error_reporting(0);
                             COALESCE((SELECT AVG(rating) FROM tblbooking WHERE VehicleId = v.id), 0) AS avg_rating
                             FROM tblvehicles v
                             JOIN tblbrands b ON b.id = v.VehiclesBrand
-                            WHERE 1=1 $whereSQL
+                            WHERE 1=1 AND v.status = 1 $whereSQL
                             ORDER BY v.id ASC
                             LIMIT :offset, :itemsPerPage";
+                    
 
                             $query = $dbh->prepare($sql);
 

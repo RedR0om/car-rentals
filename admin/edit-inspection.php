@@ -1,6 +1,8 @@
 <?php
 session_start();
-error_reporting(0);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 include('includes/config.php');
 
@@ -23,6 +25,8 @@ if (strlen($_SESSION['alogin']) == 0) {
             $notes = $_POST['notes'];
             $outgoing_meter = $_POST['current_mileage'];
             $outgoing_fuel = $_POST['outgoing_fuel'];
+            $car_availability = ($_POST['car_availability'] == "Available") ? 1 : 0;
+
 
             $engine_fluids_status = $_POST['engine_fluids_status'] === 'done' ? 1 : 0;
             $engine_fluids_remarks = $_POST['engine_fluids_remarks'];
@@ -142,6 +146,14 @@ if (strlen($_SESSION['alogin']) == 0) {
             } else {
                 $error = "Failed to update record";
             }
+
+            // Update `tblvehicles` as per your existing logic (unchanged)
+            $sql1 = "UPDATE tblvehicles SET status = :car_availability WHERE id = :vehicle_id";
+            $query1 = $dbh->prepare($sql1);
+            $query1->bindParam(':car_availability', $car_availability, PDO::PARAM_STR);
+            $query1->bindParam(':vehicle_id', $vehicle, PDO::PARAM_INT);
+            $query1->execute();
+
         }
     }
 
@@ -170,6 +182,16 @@ if (strlen($_SESSION['alogin']) == 0) {
     $query = $dbh->prepare($sql);
     $query->execute();
     $vehicles = $query->fetchAll(PDO::FETCH_OBJ);
+
+    $vhId = $inspection->vehicle;
+
+    // Fetch car status from tblvehicles using the vehicle column (ID)
+    $sql3 = "SELECT status FROM tblvehicles WHERE id = :vehicle_id";
+    $query3 = $dbh->prepare($sql3);  // Use $sql3 instead of $sql
+    $query3->bindParam(':vehicle_id', $vhId, PDO::PARAM_INT);
+    $query3->execute();
+    $car_status = $query3->fetch(PDO::FETCH_OBJ);
+
     ?>
 
     <!DOCTYPE html>
@@ -375,6 +397,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
 
                                     <form method="post" class="form-horizontal">
+                                        <input type="hidden" name="id" value="<?php echo htmlentities($inspection->id); ?>">
                                         <input type="hidden" name="id" id="vehicleId" value="<?php echo htmlentities($inspection->id); ?>">
 
                                         <div class="form-group row">
@@ -398,6 +421,18 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     value="<?php echo htmlentities($inspection->inspector); ?>" required>
                                             </div>
                                         </div>
+
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Car Availability</label>
+                                            <div class="col-sm-10">
+                                                <select name="car_availability" class="form-control" required>
+                                                    <option value="Available" <?php echo (!empty($car_status) && $car_status->status == 1) ? "selected" : ""; ?>>Available</option>
+                                                    <option value="Unavailable" <?php echo (!empty($car_status) && $car_status->status == 0) ? "selected" : ""; ?>>Unavailable</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+
 
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Last Inspection Date</label>
@@ -542,7 +577,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                     } else {
                                         let statusBadge = data.maintenance_prediction === "Yes"
                                             ? `<span class="badge badge-warning" style="background-color: #ffcc00 !important; color: #212529 !important;">Needs Maintenance</span>`
-                                            : `<span class="badge badge-success">Maintenance Completed</span>`;
+                                            : `<span class="badge badge-success">Maintenance Not Required</span>`;
 
                                         output += `
                                             <div class="form-group row">

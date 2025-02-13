@@ -17,9 +17,7 @@ if (isset($_POST['vehicleId']) && isset($_POST['current_mileage'])) {
     $selectedCar_current_mileage = $_POST['current_mileage'];
 
     if (is_numeric($selectedCar_current_mileage) && $selectedCar_current_mileage > 0) {
-        $sql = "SELECT last_mileage FROM tblvehicle_maintenance 
-                WHERE vehicleId = ? 
-                ORDER BY STR_TO_DATE(next_scheduled_maintenance_date, '%m/%d/%Y') DESC 
+        $sql = "SELECT outgoing_meter FROM carrental.tblinspections where id = ?
                 LIMIT 1";
 
         if ($stmt = $conn->prepare($sql)) {
