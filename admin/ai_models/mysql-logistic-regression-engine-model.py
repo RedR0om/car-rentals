@@ -31,6 +31,24 @@ INSPECTION_GAPS = {
     "professional_inspections": 12000
 }
 
+MAX_INSPECTION_GAPS = {
+    "engine_fluids": 10000,
+    "battery": 12000,
+    "tires": 15000,
+    "brakes": 120000,
+    "lights_electrical": 12000,
+    "air_filters": 60000,
+    "belts_hoses": 200000,
+    "suspension": 200000,
+    "exhaust_system": 40000,
+    "alignment_suspension": 40000,
+    "wipers_windshield": 24000,
+    "timing_belt_chain": 200000,
+    "air_conditioning_heater": 48000,
+    "cabin_exterior_maintenance": 12000,
+    "professional_inspections": 24000
+}
+
 # Database connection
 DB_CONFIG = {
     "host": "localhost",
@@ -41,16 +59,25 @@ DB_CONFIG = {
 
 def predict_maintenance(last_maintenance, current_mileage, inspection_type, model):
     recommended_gap = INSPECTION_GAPS.get(inspection_type)
-    if recommended_gap is None:
+    max_gap = MAX_INSPECTION_GAPS.get(inspection_type)
+    
+    if recommended_gap is None or max_gap is None:
         return "Unknown Inspection Type"
     
     mileage_gap = current_mileage - last_maintenance
+    
+    # Check if the mileage gap has reached or exceeded the maximum allowable gap
+    if mileage_gap >= max_gap:
+        return "Yes"  # Automatically return "Yes" if the mileage gap exceeds the max value
+    
+    # Check if the mileage gap is less than the recommended gap
     if mileage_gap < recommended_gap:
         return "No"
     
     input_data = pd.DataFrame([[last_maintenance, current_mileage]], columns=["last_maintenance_mileage", "current_mileage"])
     prediction = model.predict(input_data)[0]
     return "Yes" if prediction == 1 else "No"
+
 
 try:
     conn = mysql.connector.connect(**DB_CONFIG)

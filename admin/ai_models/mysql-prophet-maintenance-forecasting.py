@@ -38,8 +38,8 @@ try:
     model = Prophet()
     model.fit(df)
 
-    # Create future dataframe (next 90 days)
-    future = model.make_future_dataframe(periods=90)
+    # Create future dataframe (next 60 days)
+    future = model.make_future_dataframe(periods=60)
     
     # Get forecast
     forecast = model.predict(future)
