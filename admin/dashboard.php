@@ -6,6 +6,62 @@ include('includes/config.php');
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:index.php');
 } else {
+
+    $pythonExecutable = escapeshellcmd(PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3');
+    $baseDir = realpath(__DIR__ . '/ai_models'); 
+    $scriptPath = escapeshellarg($baseDir . "/mysql-prophet-maintenance-forecasting.py");
+    $command = "$pythonExecutable $scriptPath";
+
+    // Execute the Python script
+    $output = shell_exec($command);
+
+    $data = json_decode($output, true);
+
+    if (!isset($data['next_maintenance_date'])) {
+        echo "<span style='color:red;'>Could not retrieve next maintenance date..</span>";
+    } else {
+        $nextMaintenanceDate = date('Y-m-d', strtotime($data['next_maintenance_date']));
+        $todayDate = date('Y-m-d');
+
+        if ($todayDate >= $nextMaintenanceDate) {
+            // Format today's date for last_ai_inspection_date column (MM/DD/YYYY)
+            $formattedTodayDate = date('m/d/Y');
+        
+            $dbh->beginTransaction();  
+        
+            try {
+                // Update `tblvehicles`
+                $sql1 = "UPDATE tblvehicles 
+                         SET LastInspectionDate = :nextMaintenanceDate, InspectionSalesCount = 0 
+                         WHERE LastInspectionDate IS NOT NULL";
+                $stmt1 = $dbh->prepare($sql1);
+                $stmt1->bindParam(':nextMaintenanceDate', $nextMaintenanceDate, PDO::PARAM_STR);
+                $stmt1->execute();
+        
+                // Update `tblinspections` - set all columns to 0 and update `last_ai_inspection_date`
+                $sql2 = "UPDATE tblinspections 
+                         SET engine_fluids = 0, battery = 0, tires = 0, brakes = 0, 
+                             lights_electrical = 0, air_filters = 0, belts_hoses = 0, suspension = 0, 
+                             exhaust_system = 0, alignment_suspension = 0, wipers_windshield = 0, 
+                             timing_belt_chain = 0, air_conditioning_heater = 0, 
+                             cabin_exterior_maintenance = 0, professional_inspections = 0, 
+                             last_ai_inspection_date = :formattedTodayDate";
+                $stmt2 = $dbh->prepare($sql2);
+                $stmt2->bindParam(':formattedTodayDate', $formattedTodayDate, PDO::PARAM_STR);
+                $stmt2->execute();
+        
+                // Commit transaction
+                $dbh->commit();
+            } catch (Exception $e) {
+                // Rollback in case of error
+                $dbh->rollBack();
+                throw $e;
+            }
+        } else {
+            echo "<span style='color:orange;'>No maintenance needed yet.</span>";
+        }
+    }
+
 ?>
     <!doctype html>
     <html lang="en" class="no-js">
@@ -63,19 +119,6 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     <div class="stat-panel text-center">
                                                         <div class="stat-panel-number h1 ">
                                                         <?php
-                                                            // $command = escapeshellcmd("C:\\Python312\\python.exe C:\\xampp\\htdocs\\carrentals\\admin\\ai_models\\mysql-prophet-maintenance-forecasting.py"); 
-                                                            // $output = shell_exec($command);
-
-                                                            $pythonExecutable = escapeshellcmd(PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3');
-                                                            $baseDir = realpath(__DIR__ . '/ai_models'); 
-                                                            $scriptPath = escapeshellarg($baseDir . "/mysql-prophet-maintenance-forecasting.py");
-                                                            $command = "$pythonExecutable $scriptPath";
-
-                                                            // Execute the Python script
-                                                            $output = shell_exec($command);
-
-                                                            $data = json_decode($output, true);
-
                                                             if (isset($data['next_maintenance_date'])) {
                                                                 echo htmlentities($data['next_maintenance_date']);
                                                             } else {

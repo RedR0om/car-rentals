@@ -30,6 +30,10 @@ try:
     df = pd.DataFrame(data)
     df['ds'] = pd.to_datetime(df['ds'])  # Convert date column to datetime
 
+  # Safety net Randomization
+    df['ds'] = df['ds'] + pd.to_timedelta(np.random.uniform(-1, 1, len(df)), unit='D')
+    df['y'] = df['y'] + np.random.normal(0, 0.01, len(df))
+    
     # Initialize and fit Prophet model
     model = Prophet()
     model.fit(df)
