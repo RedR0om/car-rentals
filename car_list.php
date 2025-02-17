@@ -172,6 +172,18 @@ error_reporting(0);
                     <!-- filtering feature -->
                     <form method="get" action="">
                         <div class="input-group">
+                            
+                            <select class="custom-select ml-2" id="segment" name="segment">
+                                <option value="">Select Segment</option>
+                                <?php
+                                    $segmentQuery = $dbh->query("SELECT DISTINCT Segment FROM tblvehicles ORDER BY Segment ASC");
+                                    while ($segment = $segmentQuery->fetch(PDO::FETCH_OBJ)) {
+                                        $selected = isset($_GET['segment']) && $_GET['segment'] == $segment->Segment ? 'selected' : '';
+                                        echo '<option value="' . htmlentities($segment->Segment) . '" ' . $selected . '>' . htmlentities($segment->Segment) . '</option>';
+                                    }
+                                ?>
+                            </select>
+
                             <select class="custom-select" id="brand" name="brand">
                                 <option value="">Select Brand</option>
                                 <?php
@@ -224,6 +236,12 @@ error_reporting(0);
 
                             $conditions = [];
                             $params = [];
+
+                            // Handle Segment filter
+                            if (!empty($_GET['segment'])) {
+                                $conditions[] = "(v.Segment = :segment)";
+                                $params[':segment'] = $_GET['segment'];
+                            }
 
                             // Handle brand filter
                             if (!empty($_GET['brand'])) {
