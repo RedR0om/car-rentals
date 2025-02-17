@@ -25,6 +25,10 @@ data = pd.DataFrame({
 # Convert 'ds' to datetime
 data['ds'] = pd.to_datetime(data['ds'])
 
+# Safety net Randomization
+data['ds'] = data['ds'] + pd.to_timedelta(np.random.uniform(-1, 1, len(data)), unit='D')
+data['y'] = data['y'] + np.random.normal(0, 0.01, len(data))
+
 # Initialize the Prophet model
 model = Prophet()
 
