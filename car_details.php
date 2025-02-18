@@ -701,7 +701,77 @@ if (isset($_POST['submit'])) {
                               required></textarea>
                           </div>
 
-                          
+                          <!-- Upload Valid ID -->
+                          <?php if ($_SESSION['login']) { ?>
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="" id="termsCheckbox" required>
+                              <label class="form-check-label" for="termsCheckbox">
+                                I agree to the <a href="#" data-toggle="modal" data-target="#termsModal">Terms and
+                                  Conditions</a>.
+                              </label>
+                            </div>
+
+                            <div class="form-group mt-2"
+                              style="display: flex; justify-content: center; align-items: center;">
+                              <input type="submit" class="btn" name="submit" value="Proceed to Payment" style="background: #ff0000;" id="submit-btn">
+                            </div>
+
+                          <?php } else { ?>
+                            <a href="#loginform" class="btn btn-xs uppercase" data-toggle="modal" data-dismiss="modal">Login
+                              For Book</a>
+
+                          <?php } ?>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- Availability Modal -->
+                <div class="modal fade" id="availabilityModal" tabindex="-1" role="dialog" aria-labelledby="availabilityModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header" style="background-color: #ff0000; color: white;">
+                        <h5 class="modal-title" id="availabilityModalLabel" style="color: white; margin-left: 0px;">Available Vehicles</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body" style="max-height: 800px; overflow-y: auto;" id="availabilityModalBody">
+                        <!-- Dynamic message and content will be injected here -->
+                        <div id="reservationMessage" class="mb-3 text-danger" style="font-size: 1.2rem;"></div>
+                        
+                        <!-- Vehicle Grid -->
+                        <div class="row" id="vehicleGrid"></div>
+
+                        <!-- Estimated Cost -->
+                        <div class="form-group mt-4">
+                          <label class="control-label">Estimated Cost</label>
+                          <input type="text" class="form-control" id="newEstimatedCost" name="new_estimated_cost" value="₱ 0.00" readonly
+                            style="height: calc(3.25rem + 2px);">
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                      <button type="submit" class="btn btn-primary" onclick="reSubmitForm()">Proceed to Payment</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel"
+                  aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="paymentModalLabel" style="color: white;margin-left: 0px;">Payment
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body" style="max-height: 800px; overflow-y: auto;">
+                        <form method="post" enctype="multipart/form-data" id="bookingForm" onsubmit="submitBooking(event)">
                           <!-- Payment Option -->
                           <div class="form-group">
                             <label class="control-label">Payment Option:</label>
@@ -754,17 +824,9 @@ if (isset($_POST['submit'])) {
                               <input type="file" class="form-control-file" id="image" name="image" required>
                             </div>
 
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" value="" id="termsCheckbox" required>
-                              <label class="form-check-label" for="termsCheckbox">
-                                I agree to the <a href="#" data-toggle="modal" data-target="#termsModal">Terms and
-                                  Conditions</a>.
-                              </label>
-                            </div>
-
                             <div class="form-group mt-2"
                               style="display: flex; justify-content: center; align-items: center;">
-                              <input type="submit" class="btn" name="submit" value="Book Now" style="background: #ff0000;" id="submit-btn">
+                              <input type="submit" class="btn" name="submit" value="Book now" style="background: #ff0000;" id="submit-booking-btn">
                             </div>
 
                           <?php } else { ?>
@@ -773,38 +835,6 @@ if (isset($_POST['submit'])) {
 
                           <?php } ?>
                         </form>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-
-                <!-- Availability Modal -->
-                <div class="modal fade" id="availabilityModal" tabindex="-1" role="dialog" aria-labelledby="availabilityModalLabel" aria-hidden="true">
-                  <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header" style="background-color: #ff0000; color: white;">
-                        <h5 class="modal-title" id="availabilityModalLabel" style="color: white; margin-left: 0px;">Available Vehicles</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body" style="max-height: 800px; overflow-y: auto;" id="availabilityModalBody">
-                        <!-- Dynamic message and content will be injected here -->
-                        <div id="reservationMessage" class="mb-3 text-danger" style="font-size: 1.2rem;"></div>
-                        
-                        <!-- Vehicle Grid -->
-                        <div class="row" id="vehicleGrid"></div>
-
-                        <!-- Estimated Cost -->
-                        <div class="form-group mt-4">
-                          <label class="control-label">Estimated Cost</label>
-                          <input type="text" class="form-control" id="newEstimatedCost" name="new_estimated_cost" value="₱ 0.00" readonly
-                            style="height: calc(3.25rem + 2px);">
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                      <button type="submit" class="btn btn-primary" onclick="reSubmitForm()">Submit</button>
                       </div>
                     </div>
                   </div>
@@ -849,9 +879,11 @@ if (isset($_POST['submit'])) {
                           //alert('The reservation already exists!'); // For Debug: Optional
                           showAvailabilityModal('The car is already booked on the selected dates showing alternative Vehicles.', formData);
                         } else {
-                          alert('The reservation is available.');
-                          // Call function to post data to car_reserving.php
-                          reserveCar(formData);
+                          alert('The reservation is available');
+                          showPaymentModal(formData);
+                          
+                          // // Call function to post data to car_reserving.php
+                          // reserveCar(formData);
                         }
                         console.log('Response from server:', data);
                       })
@@ -859,6 +891,43 @@ if (isset($_POST['submit'])) {
                         console.error('Error:', error);
                         alert('There was an error submitting the request.');
                       });
+                  }
+                  
+
+                  let bookingFormData = null;
+
+                  function showPaymentModal(formData) {
+                    // Open payment modal
+                    bookingFormData = formData;
+                    console.log('Stored Form Data:', Object.fromEntries(formData.entries()));
+
+                    $('#bookingModal').modal('hide');
+                    $('#termsModal').modal('hide');
+                    $('#availabilityModal').modal('hide');
+                    $('#paymentModal').modal('show');
+                  }
+
+                  function submitBooking(event) {
+                    event.preventDefault();
+
+                    if (!bookingFormData) {
+                        alert('Form data is missing!');
+                        return;
+                    }
+
+                    // Append payment details from the payment modal to the existing formData
+                    const paymentForm = new FormData(event.target);
+                    for (const [key, value] of paymentForm.entries()) {
+                        bookingFormData.append(key, value);
+                    }
+
+                    // Debugging: Log the combined form data
+                    console.log('Final Form Data:');
+                    for (const [key, value] of bookingFormData.entries()) {
+                        console.log(`${key}: ${value}`);
+                    }
+
+                    reserveCar(bookingFormData);
                   }
 
 
@@ -1040,7 +1109,7 @@ if (isset($_POST['submit'])) {
                         } else {
                           alert('The reservation is available.');
                           // Call function to post data to car_reserving.php
-                          reReserveCar(formData);
+                          showPaymentModal(formData);
                         }
                         console.log('Response from server:', data);
                       })
@@ -1184,6 +1253,7 @@ if (isset($_POST['submit'])) {
                     const termsCheckbox = document.getElementById('termsCheckbox');
                     if (termsCheckbox) {
                       termsCheckbox.checked = true;
+                      $('#termsModal').modal('hide');
                     }
                   }
 

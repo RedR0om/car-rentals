@@ -453,7 +453,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Current Mileage</label>
                                             <div class="col-sm-10">
-                                                <input type="text" name="current_mileage" id="current_mileage" class="form-control" placeholder="Enter current mileage..">
+                                                <input type="number" name="current_mileage" id="current_mileage" class="form-control" placeholder="Enter current mileage..">
                                             </div>
                                         </div>
 
