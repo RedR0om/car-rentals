@@ -403,7 +403,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Vehicle</label>
                                             <div class="col-sm-10">
-                                                <select name="vehicle" class="form-control select2" required>
+                                                <select name="vehicle_display" class="form-control select2" disabled>
                                                     <option value="">Select Vehicle</option>
                                                     <?php foreach ($vehicles as $vehicle) { ?>
                                                         <option value="<?php echo htmlentities($vehicle->id); ?>" <?php echo ($vehicle->id == $inspection->vehicle) ? 'selected' : ''; ?>>
@@ -411,8 +411,10 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         </option>
                                                     <?php } ?>
                                                 </select>
+                                                <input type="hidden" name="vehicle" value="<?php echo htmlentities($inspection->vehicle); ?>">
                                             </div>
                                         </div>
+
 
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Inspector</label>
@@ -446,7 +448,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             <label class="col-sm-2 col-form-label">Last Maintanance Mileage</label>
                                             <div class="col-sm-10">
                                                 <input type="text" name="outgoing_meter" class="form-control"
-                                                    value="<?php echo htmlentities($inspection->outgoing_meter); ?>">
+                                                    value="<?php echo htmlentities($inspection->outgoing_meter); ?>" readonly>
                                             </div>
                                         </div>
 

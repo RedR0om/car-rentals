@@ -36,7 +36,7 @@ model = Prophet()
 model.fit(data)
 
 # Create a dataframe for future predictions (predict for the next 90 days)
-future = model.make_future_dataframe(periods=90)
+future = model.make_future_dataframe(periods=60)
 
 # Get the forecast
 forecast = model.predict(future)

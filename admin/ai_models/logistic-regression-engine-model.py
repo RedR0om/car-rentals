@@ -111,9 +111,21 @@ try:
         model = LogisticRegression()
         model.fit(X_train, y_train)
         
+        y_pred = model.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred, zero_division=1)
+        recall = recall_score(y_test, y_pred, zero_division=1)
+        f1 = f1_score(y_test, y_pred, zero_division=1)
+        
         maintenance_prediction = predict_maintenance(selectedCar_last_maintenance, selectedCar_current_mileage, inspection_type, model)
         
-        inspection_results[inspection_type] = {"maintenance_prediction": maintenance_prediction}
+        inspection_results[inspection_type] = {
+            "maintenance_prediction": maintenance_prediction,
+            "model_accuracy": round(accuracy, 2),
+            "precision": round(precision, 2),
+            "recall": round(recall, 2),
+            "f1_score": round(f1, 2)
+        }
         
         if vehicle_data:
             for key, value in vehicle_data.items():
