@@ -51,10 +51,10 @@ MAX_INSPECTION_GAPS = {
 
 # Database connection
 DB_CONFIG = {
-    "host": "localhost",
+    "host": "ballast.proxy.rlwy.net:35637",
     "user": "root",
-    "password": "",
-    "database": "carrental"
+    "password": "BobDdBAPBobrKyzYicQYaJhDpujZqoKa",
+    "database": "railway"
 }
 
 def predict_maintenance(last_maintenance, current_mileage, inspection_type, model):

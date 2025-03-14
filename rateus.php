@@ -137,7 +137,7 @@ foreach($results as $result)
           
             <?php
 // Make a database connection
-$conn = mysqli_connect("localhost", "root", "", "carrental");
+$conn = mysqli_connect("ballast.proxy.rlwy.net:35637", "root", "BobDdBAPBobrKyzYicQYaJhDpujZqoKa", "railway");
 
 $id=$_GET['id'];
 // Check if the column is empty

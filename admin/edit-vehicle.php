@@ -444,10 +444,10 @@ if (isset($_GET['id'])) {
 																<?php
 
 																// Set up database connection parameters
-																$host = 'localhost'; // Change as needed
+																$host = 'ballast.proxy.rlwy.net:35637'; // Change as needed
 																$dbname = 'carrental'; // Change to your database name
-																$username = 'root'; // Your database username
-																$password = ''; // Your database password
+																$username = 'BobDdBAPBobrKyzYicQYaJhDpujZqoKa'; // Your database username
+																$password = 'railway'; // Your database password
 																
 																try {
 																	// Establish the PDO connection

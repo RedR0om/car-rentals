@@ -1,5 +1,5 @@
 <?php
-$con = mysqli_connect("localhost", "root", "", "carrental");
+$con = mysqli_connect("ballast.proxy.rlwy.net:35637", "root", "BobDdBAPBobrKyzYicQYaJhDpujZqoKa", "railway");
 if (!$con) {
     echo json_encode(['error' => 'Database connection failed.']);
     exit;

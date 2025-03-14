@@ -1,8 +1,8 @@
 <?php
-  $hostname = "localhost";
+  $hostname = "ballast.proxy.rlwy.net:35637";
   $username = "root";
-  $password = "";
-  $dbname = "carrental";
+  $password = "BobDdBAPBobrKyzYicQYaJhDpujZqoKa";
+  $dbname = "railway";
 
   $conn = mysqli_connect($hostname, $username, $password, $dbname);
   if(!$conn){

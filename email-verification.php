@@ -8,7 +8,7 @@ if (isset($_POST["verify_email"])) {
     $verification_code = $_POST["verification_code"];
 
     // Connect with database
-    $conn = mysqli_connect("localhost", "root", "", "carrental");
+    $conn = mysqli_connect("ballast.proxy.rlwy.net:35637", "root", "BobDdBAPBobrKyzYicQYaJhDpujZqoKa", "railway");
 
     // Mark email as verified
     $stmt = $conn->prepare("UPDATE tblusers SET email_verified_at = NOW() WHERE EmailId = ? AND verification_code = ?");

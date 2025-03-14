@@ -1,9 +1,11 @@
 <?php 
 // DB credentials.
-define('DB_HOST','localhost');
+define('DB_HOST','ballast.proxy.rlwy.net:35637');
 define('DB_USER','root');
-define('DB_PASS','');
-define('DB_NAME','carrental');$conn = mysqli_connect("localhost", "root", "", "carrental");
+define('DB_PASS','BobDdBAPBobrKyzYicQYaJhDpujZqoKa');
+define('DB_NAME','railway');
+
+$conn = mysqli_connect("ballast.proxy.rlwy.net:35637", "root", "BobDdBAPBobrKyzYicQYaJhDpujZqoKa", "railway");
 // Establish database connection.
 try
 {

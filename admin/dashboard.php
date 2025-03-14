@@ -366,7 +366,8 @@ if (strlen($_SESSION['alogin']) == 0) {
                                 </div>
                             </div>
                             <?php
-                            $con = mysqli_connect("localhost", "root", "", "carrental");
+                            $con = mysqli_connect("ballast.proxy.rlwy.net:35637", "root", "BobDdBAPBobrKyzYicQYaJhDpujZqoKa", "railway");
+
                             if (!$con) {
                                 # code...
                                 echo "Problem in database connection! Contact administrator!" . mysqli_error($con);
@@ -421,7 +422,8 @@ if (strlen($_SESSION['alogin']) == 0) {
                             </script>
 
                             <?php
-                            $con = mysqli_connect("localhost", "root", "", "carrental");
+                            $con = mysqli_connect("ballast.proxy.rlwy.net:35637", "root", "BobDdBAPBobrKyzYicQYaJhDpujZqoKa", "railway");
+
                             if (!$con) {
                                 echo "Problem in database connection! Contact administrator!" . mysqli_error($con);
                             } else {

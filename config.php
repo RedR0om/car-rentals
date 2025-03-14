@@ -1,9 +1,9 @@
 <?php
 
-$hostname = "localhost";
+$hostname = "ballast.proxy.rlwy.net:35637";
 $username = "root";
-$password = "";
-$database = "test";
+$password = "BobDdBAPBobrKyzYicQYaJhDpujZqoKa";
+$database = "railway";
 
 $conn = mysqli_connect($hostname, $username, $password, $database) or die("Database connection failed");
 

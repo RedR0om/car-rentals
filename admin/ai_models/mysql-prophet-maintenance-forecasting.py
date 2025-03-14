@@ -9,10 +9,10 @@ from datetime import datetime, timedelta
 
 # Database connection
 db_config = {
-    "host": "localhost",
+    "host": "ballast.proxy.rlwy.net:35637",
     "user": "root",
-    "password": "",
-    "database": "carrental"
+    "password": "BobDdBAPBobrKyzYicQYaJhDpujZqoKa",
+    "database": "railway"
 }
 
 try:
