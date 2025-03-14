@@ -120,16 +120,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($query->execute()) {
         echo json_encode(['success' => true, 'message' => 'Booking successful']);
-        exit;
     } else {
-        throw new Exception('Error in database operation');
+        throw new Exception('Error in database operation1');
     }
   } catch (Exception $e) {
+    throw new Exception('Error in database operation2');
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-    exit;
   }
 } else {
+  throw new Exception('Error in database operation3');
   echo json_encode(['success' => false, 'message' => 'Invalid request method']);
-  exit;
 }
 ?>
