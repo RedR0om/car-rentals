@@ -1,6 +1,6 @@
 <?php 
 // DB credentials.
-define('DB_HOST','mysql.railway.internal');
+define('DB_HOST','ballast.proxy.rlwy.net:35637');
 define('DB_USER','root');
 define('DB_PASS','BobDdBAPBobrKyzYicQYaJhDpujZqoKa');
 define('DB_NAME','railway');
