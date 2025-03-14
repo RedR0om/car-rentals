@@ -1,10 +1,14 @@
 <?php
 ob_start();
-if (headers_sent($file, $line)) {
-  die("Headers already sent in $file on line $line");
-}
 session_start();
 include('includes/config.php');
+
+// Enable error reporting for debugging (remove in production)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+header('Content-Type: application/json');
 
 // Enable error reporting for debugging
 ini_set('display_errors', 1);
