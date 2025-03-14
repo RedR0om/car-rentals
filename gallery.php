@@ -56,8 +56,8 @@ error_reporting(0);
           have to offer for your next ride.</p>
         <div class="gallery-container">
           <?php
-          require 'dbc.php';
-          $stmt = $dbc->query("SELECT * FROM tbl_photos ORDER by img_id ASC");
+          // require 'dbc.php';
+          $stmt = $dbh->query("SELECT * FROM tbl_photos ORDER by img_id ASC");
           foreach ($stmt as $img) {
             ?>
             <div class="gallery-item">
