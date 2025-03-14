@@ -952,10 +952,10 @@ if (isset($_POST['submit'])) {
                       .catch(error => {
                         console.error('Error:', error);
                         alert('There was an error completing the car reservation.');
-                        window.history.back(); // Go back to the previous page
-                        setTimeout(function() {
-                          window.location.reload(true); // Refresh the page after navigating back
-                        }, 100); // Small delay to ensure the back action happens first
+                        // window.history.back(); // Go back to the previous page
+                        // setTimeout(function() {
+                        //   window.location.reload(true); // Refresh the page after navigating back
+                        // }, 100); // Small delay to ensure the back action happens first
                       });
                   }
 
