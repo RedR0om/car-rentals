@@ -1,0 +1,20 @@
+# Use PHP 8.3 with FPM
+FROM php:8.3-fpm
+
+# Install Nginx
+RUN apt-get update && apt-get install -y nginx
+
+# Set working directory
+WORKDIR /app
+
+# Copy project files
+COPY . .
+
+# Copy Nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Expose port 8080
+EXPOSE 8080
+
+# Start the project
+CMD ["./start.sh"]

@@ -1,1 +1,8 @@
-php -S 0.0.0.0:9000 -t .
+#!/bin/bash
+set -e
+
+# Start PHP-FPM
+php-fpm -D
+
+# Start Nginx
+nginx -g "daemon off;"
