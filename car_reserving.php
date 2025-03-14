@@ -1,4 +1,8 @@
 <?php
+ob_start();
+if (headers_sent($file, $line)) {
+  die("Headers already sent in $file on line $line");
+}
 session_start();
 include('includes/config.php');
 
@@ -122,5 +126,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 } else {
   echo json_encode(['success' => false, 'message' => 'Invalid request method']);
 }
-
+ob_end_flush();
 ?>
