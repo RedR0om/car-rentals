@@ -1,9 +1,11 @@
     <?php
     session_start();
+    header('Content-Type: application/json');
+    
     include('includes/config.php');
     error_reporting(0);
 
-    header('Content-Type: application/json');
+
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fromdatetime = date('Y-m-d H:i:s', strtotime($_POST['fromdatetime']));
