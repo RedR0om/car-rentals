@@ -956,6 +956,7 @@ if (isset($_POST['submit'])) {
                         // setTimeout(function() {
                         //   window.location.reload(true); // Refresh the page after navigating back
                         // }, 100); // Small delay to ensure the back action happens first
+                        return error.response ? error.response.text().then(text => console.log('Server Error Response:', text)) : null;
                       });
                   }
 

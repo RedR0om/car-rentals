@@ -1,5 +1,4 @@
 <?php
-ob_start();
 session_start();
 include('includes/config.php');
 
@@ -121,14 +120,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($query->execute()) {
         echo json_encode(['success' => true, 'message' => 'Booking successful']);
+        exit;
     } else {
         throw new Exception('Error in database operation');
     }
   } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    exit;
   }
 } else {
   echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+  exit;
 }
-ob_end_flush();
 ?>
