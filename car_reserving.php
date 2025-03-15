@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $image_name = $_FILES['image']['name'];
         $extension = pathinfo($image_name, PATHINFO_EXTENSION);
         $random_name = uniqid() . '.' . $extension;
-        $target_folder = "/app/validid/";
+        $target_folder = "validid/";
         $target_file = $target_folder . $random_name;
 
         if (!move_uploaded_file($image, $target_file)) {
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $gcash_receipt_name = $_FILES['gcash_receipt']['name'];
         $gcash_extension = pathinfo($gcash_receipt_name, PATHINFO_EXTENSION);
         $gcash_random_name = uniqid() . '.' . $gcash_extension;
-        $gcash_target_folder = "/app/validid/";
+        $gcash_target_folder = "validid/";
         $gcash_target_file = $gcash_target_folder . $gcash_random_name;
 
         if (!move_uploaded_file($gcash_receipt, $gcash_target_file)) {
