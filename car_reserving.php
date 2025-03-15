@@ -64,25 +64,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $payment = 5;
       }
 
-      // Define upload directories
-    $valididDir = __DIR__ . '/validid/';
-    $gcashDir = __DIR__ . '/gcash_receipts/';
 
-    // Ensure the directories exist and have correct permissions
-    foreach ([$valididDir, $gcashDir] as $dir) {
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true); // Create directory
-        }
-        chmod($dir, 0755); // Set permissions
-    }
-    
     // Handle Valid ID Upload
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $image = $_FILES['image']['tmp_name'];
         $image_name = $_FILES['image']['name'];
         $extension = pathinfo($image_name, PATHINFO_EXTENSION);
         $random_name = uniqid() . '.' . $extension;
-        $target_folder = "validid/";
+        $target_folder = "/app/validid/";
         $target_file = $target_folder . $random_name;
 
         if (!move_uploaded_file($image, $target_file)) {
@@ -99,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $gcash_receipt_name = $_FILES['gcash_receipt']['name'];
         $gcash_extension = pathinfo($gcash_receipt_name, PATHINFO_EXTENSION);
         $gcash_random_name = uniqid() . '.' . $gcash_extension;
-        $gcash_target_folder = "gcash_receipts/";
+        $gcash_target_folder = "/app/validid/";
         $gcash_target_file = $gcash_target_folder . $gcash_random_name;
 
         if (!move_uploaded_file($gcash_receipt, $gcash_target_file)) {
