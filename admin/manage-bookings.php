@@ -350,7 +350,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     <!-- <td><?php echo htmlentities($result->message); ?></td> -->
                                                     <td>
                                                         <?php if (!empty($result->image)) { ?>
-                                                            <img src="..//<?php echo htmlentities($result->image) ?? "validid/67623a640641e.jpg"; ?>" width="100"
+                                                            <img src="..//<?php echo "validid/67623a640641e.jpg"; ?>" width="100"
                                                                 height="50" alt="Valid ID" data-toggle="modal" data-target="#imageModal"
                                                                 onclick="showImage('../<?php echo htmlentities($result->image); ?>')">
                                                         <?php } else { ?>
@@ -359,7 +359,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     </td>
                                                     <td>
                                                         <?php if (!empty($result->gcash_receipt)) { ?>
-                                                            <img src="../<?php echo htmlentities($result->gcash_receipt) ?? "gcash_receipts/676241959ba10.jpg"; ?>"
+                                                            <img src="../<?php echo "gcash_receipts/676241959ba10.jpg"; ?>"
                                                                 width="100" height="50" alt="GCash Receipt" data-toggle="modal"
                                                                 data-target="#imageModal"
                                                                 onclick="showImage('../<?php echo htmlentities($result->gcash_receipt); ?>')">
@@ -401,8 +401,8 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         data-idvehicle="<?php echo htmlspecialchars($result->vid); ?>"
                                                         data-status="<?php echo htmlspecialchars($result->Status); ?>"
                                                         data-postingdate="<?php echo htmlspecialchars($result->PostingDate); ?>"
-                                                        data-image="<?php echo htmlspecialchars($result->image) ?? "validid/67623a640641e.jpg"; ?>"
-                                                        data-receipt="<?php echo htmlspecialchars($result->gcash_receipt) ?? "gcash_receipts/676241959ba10.jpg"; ?>"
+                                                        data-image="<?php echo "validid/67623a640641e.jpg"; ?>"
+                                                        data-receipt="<?php echo "gcash_receipts/676241959ba10.jpg"; ?>"
                                                         data-paymentoption="<?php echo $result->payment_option; ?>"
                                                         data-accountname="<?php echo $result->account_name; ?>"
                                                         data-accountnumber="<?php echo $result->account_number; ?>"
