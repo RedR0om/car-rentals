@@ -64,6 +64,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $payment = 5;
       }
 
+      // Define upload directories
+    $valididDir = __DIR__ . '/validid/';
+    $gcashDir = __DIR__ . '/gcash_receipts/';
+
+    // Ensure the directories exist and have correct permissions
+    foreach ([$valididDir, $gcashDir] as $dir) {
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true); // Create directory
+        }
+        chmod($dir, 0755); // Set permissions
+    }
+    
     // Handle Valid ID Upload
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $image = $_FILES['image']['tmp_name'];
