@@ -1,19 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python Plots in PHP Page</title>
-</head>
-<body>
+<?php
+// index.php
 
-    <h1>Python Plots in PHP Page</h1>
+// Check if the required GET parameters are provided.
+if (!isset($_GET['last_maintenance']) || !isset($_GET['current_mileage']) || !isset($_GET['vehicleId'])) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Missing parameters. Please provide last_maintenance, current_mileage, and vehicleId.']);
+    exit;
+}
 
-    <h2>Random Data Plot:</h2>
-    <img src="random_data_plot.png" alt="Random Data Plot">
+// Retrieve and sanitize the parameters.
+$lastMaintenance = escapeshellarg($_GET['last_maintenance']);
+$currentMileage = escapeshellarg($_GET['current_mileage']);
+$vehicleId = escapeshellarg($_GET['vehicleId']);
 
-    <h2>Prophet Forecast Plot:</h2>
-    <img src="forecast_plot.png" alt="Prophet Forecast Plot">
+// Build the command to run your Python script.
+// Adjust "python3" to "python" if needed, depending on your server's configuration.
+$command = "prophet-maintenance-forecasting.py $lastMaintenance $currentMileage $vehicleId";
 
-</body>
-</html>
+// Execute the command and capture the output.
+$output = shell_exec($command);
+
+// Set the content type header to JSON.
+header('Content-Type: application/json');
+
+// Output the result from the Python script.
+echo $output;
+?>
