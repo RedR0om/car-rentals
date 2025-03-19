@@ -7,47 +7,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-# Get input values from user
-selectedCar_last_maintenance = float(input("Enter last maintenance mileage: "))
-selectedCar_current_mileage = float(input("Enter current mileage: "))
-vehicleId = int(input("Enter vehicle ID: "))
+# Get input values from command line arguments
+selectedCar_last_maintenance = float(sys.argv[1])
+selectedCar_current_mileage = float(sys.argv[2])
+vehicleId = int(sys.argv[3])
 
 # Recommended mileage gaps based on inspection type (in miles)
-INSPECTION_GAPS = {
-    "engine_fluids": 5000,
-    "battery": 6000,
-    "tires": 7500,
-    "brakes": 60000,
-    "lights_electrical": 6000,
-    "air_filters": 30000,
-    "belts_hoses": 100000,
-    "suspension": 100000,
-    "exhaust_system": 20000,
-    "alignment_suspension": 20000,
-    "wipers_windshield": 12000,
-    "timing_belt_chain": 100000,
-    "air_conditioning_heater": 24000,
-    "cabin_exterior_maintenance": 6000,
-    "professional_inspections": 12000
-}
-
-MAX_INSPECTION_GAPS = {
-    "engine_fluids": 10000,
-    "battery": 12000,
-    "tires": 15000,
-    "brakes": 120000,
-    "lights_electrical": 12000,
-    "air_filters": 60000,
-    "belts_hoses": 200000,
-    "suspension": 200000,
-    "exhaust_system": 40000,
-    "alignment_suspension": 40000,
-    "wipers_windshield": 24000,
-    "timing_belt_chain": 200000,
-    "air_conditioning_heater": 48000,
-    "cabin_exterior_maintenance": 12000,
-    "professional_inspections": 24000
-}
+INSPECTION_GAPS = {...}  # Keep your existing dictionary
+MAX_INSPECTION_GAPS = {...}  # Keep your existing dictionary
 
 # Database connection
 DB_CONFIG = {
@@ -138,22 +105,16 @@ try:
     cursor.close()
     conn.close()
     
-    # Print the results in a readable format
-    print("\n===== Maintenance Prediction Results =====\n")
-    print(f"Last Maintenance Mileage: {selectedCar_last_maintenance}")
-    print(f"Current Mileage: {selectedCar_current_mileage}\n")
+    output = {
+        "last_maintenance_mileage": selectedCar_last_maintenance,
+        "current_mileage": selectedCar_current_mileage,
+        "vehicle_data": vehicle_data if vehicle_data else "No vehicle data found",
+        "inspection_results": inspection_results
+    }
     
-    if vehicle_data:
-        print(f"Vehicle ID: {vehicle_data['id']}")
-        print(f"Vehicle Name: {vehicle_data['vehicle']}\n")
+    print(json.dumps(output))
     
-    print("=== Inspection Results ===")
-    for inspection, details in inspection_results.items():
-        print(f"\nInspection Type: {inspection}")
-        for key, value in details.items():
-            print(f"  {key.replace('_', ' ').title()}: {value}")
-
 except mysql.connector.Error as err:
-    print("\n[ERROR] Database Error:", err)
+    print(json.dumps({"error": "Database Error", "details": str(err)}))
 except Exception as e:
-    print("\n[ERROR] General Error:", e)
+    print(json.dumps({"error": "General Error", "details": str(e)}))

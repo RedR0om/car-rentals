@@ -37,7 +37,7 @@ $vehicleId       = escapeshellarg($_GET['vehicleId']);
 
 // Build the command to run your Python script.
 // Adjust "python3" to "python" if needed, and update the script name if necessary.
-$command = "python3 prophet-maintenance-forecasting.py $lastMaintenance $currentMileage $vehicleId";
+$command = "prophet-maintenance-forecasting.py $lastMaintenance $currentMileage $vehicleId";
 
 // Execute the command and capture the output.
 $output = shell_exec($command);
