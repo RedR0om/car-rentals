@@ -1,57 +1,49 @@
 <?php
-// index.php
+// No need for full paths for Python executable on Railway, use python3 or python
+$pythonExecutable = 'python3';  // Or use 'python' if that's the default version
+$baseDir = realpath(__DIR__ . '/admin/ai_models');  // Correcting the relative path to the script
+$scriptPath = escapeshellarg($baseDir . "/sample.py");  // Make sure the path to your Python script is correct
 
-// If required GET parameters are not provided, display an HTML form.
-if (!isset($_GET['last_maintenance']) || !isset($_GET['current_mileage']) || !isset($_GET['vehicleId'])):
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Maintenance Forecast Input</title>
-</head>
-<body>
-    <h1>Enter Maintenance Details</h1>
-    <form method="get" action="">
-        <label for="last_maintenance">Last Maintenance Mileage:</label>
-        <input type="text" id="last_maintenance" name="last_maintenance" required><br><br>
+// Construct the command to run the Python script
+$command = "$pythonExecutable $scriptPath 2>&1";  // Capture both stdout and stderr
 
-        <label for="current_mileage">Current Mileage:</label>
-        <input type="text" id="current_mileage" name="current_mileage" required><br><br>
-
-        <label for="vehicleId">Vehicle ID:</label>
-        <input type="text" id="vehicleId" name="vehicleId" required><br><br>
-
-        <input type="submit" value="Submit">
-    </form>
-</body>
-</html>
-<?php
-exit;
-endif;
-
-// If parameters are provided, retrieve and sanitize them.
-$lastMaintenance = escapeshellarg($_GET['last_maintenance']);
-$currentMileage  = escapeshellarg($_GET['current_mileage']);
-$vehicleId       = escapeshellarg($_GET['vehicleId']);
-
-// Build the command to run your Python script.
-// Adjust "python3" to "python" if needed, and update the script name if necessary.
-$command = "prophet-maintenance-forecasting.py $lastMaintenance $currentMileage $vehicleId";
-
-// Execute the command and capture the output.
+// Execute the Python script and capture the output
 $output = shell_exec($command);
+
+// Check if there is any output or error
+if ($output === null) {
+    echo "<p>Error: Failed to execute the Python script. Please check the server logs.</p>";
+} else {
+    // Decode the JSON output from the Python script
+    $data = json_decode($output, true);
+
+    // If JSON decoding fails, display the raw output for debugging
+    if ($data === null) {
+        echo "<p>Error: Failed to decode the Python script output as JSON. Raw output: </p><pre>$output</pre>";
+    } else {
+        // HTML layout and display
+        echo "<div class='container'>";
+        echo "<h1 class='title'>Sales Forecast Results</h1>";
+
+        // Display data or error if JSON is invalid
+        if ($data) {
+            echo "<p><strong>Next Maintenance Date:</strong> " . $data['next_maintenance_date'] . "</p>";
+            echo "<p><strong>Predicted Sales:</strong> " . $data['predicted_sales'] . "</p>";
+        } else {
+            echo "<p>Error: Could not retrieve data from Python script.</p>";
+        }
+
+        // Display metrics
+        echo "<div class='metrics'>";
+        echo "<h2>Metrics</h2>";
+        if ($data) {
+            echo "<p><strong>Mean Absolute Error (MAE):</strong> " . $data['metrics']['mae'] . "</p>";
+            echo "<p><strong>Mean Squared Error (MSE):</strong> " . $data['metrics']['mse'] . "</p>";
+            echo "<p><strong>Root Mean Squared Error (RMSE):</strong> " . $data['metrics']['rmse'] . "</p>";
+            echo "<p><strong>R-squared:</strong> " . $data['metrics']['r2'] . "</p>";
+        }
+        echo "</div>";
+        echo "</div>";
+    }
+}
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Maintenance Forecast Results</title>
-</head>
-<body>
-    <h1>Maintenance Forecast Results</h1>
-    <pre><?php echo htmlspecialchars($output); ?></pre>
-    <br>
-    <a href="index.php">Try Again</a>
-</body>
-</html>
