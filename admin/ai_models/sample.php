@@ -4,6 +4,11 @@
 $pythonVersion = shell_exec('python3 --version');
 echo "<p>Using Python version: $pythonVersion</p>";
 
+// Get the list of installed Python packages
+$installedPackages = shell_exec('python3 -m pip freeze');
+echo "<p>Installed Python packages:</p>";
+echo "<pre>$installedPackages</pre>";
+
 // No need for full paths for Python executable on Railway, use python3 or python
 $pythonExecutable = 'python3';  // Or use 'python' if that's the default version
 $baseDir = realpath(__DIR__ . '/admin/ai_models');  // Correcting the relative path to the script
