@@ -1,18 +1,22 @@
 # Use the PHP-FPM image based on Debian Bookworm
 FROM php:8.0-fpm-bookworm
 
-# Install necessary dependencies in a single step to reduce layer size
+# Install system dependencies for Python, pystan, and Prophet
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     python3.10 \
     python3.10-pip \
     python3.10-dev \
     build-essential \
+    gfortran \
+    libatlas-base-dev \
+    liblapack-dev \
+    libblas-dev \
     wget \
     curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Manually install GLIBC 2.38
+# Manually install GLIBC 2.38 (if required)
 RUN wget http://ftp.gnu.org/gnu/libc/glibc-2.38.tar.gz && \
     tar -xvzf glibc-2.38.tar.gz && \
     cd glibc-2.38 && \
@@ -32,11 +36,19 @@ RUN mkdir -p /tmp/matplotlib && chmod -R 777 /tmp/matplotlib
 # Set up Python virtual environment
 RUN python3.10 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-RUN python3.10 -m pip install --upgrade pip
+RUN python3.10 -m pip install --upgrade pip setuptools wheel
 
-# Install Python dependencies from requirements.txt
+# Install numpy separately before Prophet to avoid conflicts
+RUN python3.10 -m pip install --no-cache-dir numpy==1.26.4
+
+# Install pystan separately to ensure it compiles correctly
+RUN python3.10 -m pip install --no-cache-dir pystan==2.19.1.1
+
+# Copy requirements.txt
 COPY requirements.txt /tmp/
-RUN python3.10 -m pip install --no-cache-dir --force-reinstall -r /tmp/requirements.txt
+
+# Install remaining Python dependencies
+RUN python3.10 -m pip install --no-cache-dir -r /tmp/requirements.txt
 
 # Set the working directory
 WORKDIR /var/www/html
