@@ -9,8 +9,10 @@ RUN apt-get update && apt-get install -y \
     python3.10-dev \
     && apt-get clean
 
-# Set MPLCONFIGDIR environment variable so that matplotlib writes to a writable directory
+# Set MPLCONFIGDIR to a writable location
 ENV MPLCONFIGDIR=/tmp/matplotlib
+RUN mkdir -p /tmp/matplotlib
+
 
 # Create the MPLCONFIGDIR directory
 RUN mkdir -p /tmp/matplotlib
