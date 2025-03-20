@@ -1,7 +1,7 @@
-pystan==2.19.1.1
-numpy==2.2.4
-pandas==2.2.3
-mysql-connector-python==9.2.0
-scikit-learn==1.6.1
-prophet==1.1.6
-matplotlib==3.10.1
+numpy
+pandas
+mysql-connector-python
+scikit-learn
+prophet
+matplotlib
+cmdstanpy
