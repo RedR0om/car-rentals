@@ -1,7 +1,7 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Run the Python script
-    $output = shell_exec("python3 admin/ai_models/sample.py 2>&1");
+    $output = shell_exec("python admin/ai_models/sample.py 2>&1");
 
     // Debug: Print raw output (check for errors)
     if (!$output) {
