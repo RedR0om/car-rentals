@@ -4,47 +4,41 @@ import pandas as pd
 from prophet import Prophet
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-# Initialize Prophet with PyStan backend
-model = Prophet(stan_backend='PYTHON-2')
-# If you encounter issues, try 'PYTHON-2' or 'PYTHON-3'
+# Initialize Prophet model (CmdStanPy is the default backend)
+model = Prophet()
 
-# Hardcoded dataset with 50 date rows and sales numbers between 1 and 10
+# Generate a dataset with 50 dates and random sales values
 data = pd.DataFrame({
     'ds': pd.date_range(start='2024-10-01', periods=50, freq='3D'),
-    'y': np.random.randint(1, 10, size=50) + np.random.normal(0, 0.01, 50)
+    'y': np.random.uniform(1, 10, size=50)  # Using uniform instead of randint + noise
 })
 
 # Fit the model
 model.fit(data)
 
-# Create future dataframe (next 60 days) and predict
+# Predict for the next 60 days
 future = model.make_future_dataframe(periods=60)
 forecast = model.predict(future)
 
-# Find the next maintenance date based on the highest predicted 'yhat'
-latest_known_date = data['ds'].max()
-future_forecast = forecast[forecast['ds'] > latest_known_date]
-next_maintenance = future_forecast.nlargest(1, 'yhat')
-next_maintenance_date = next_maintenance['ds'].values[0]
-predicted_sales = next_maintenance['yhat'].values[0]
+# Get next maintenance date (highest predicted sales)
+next_maintenance = forecast.loc[forecast['ds'] > data['ds'].max()].nlargest(1, 'yhat')
+next_maintenance_date = next_maintenance['ds'].iloc[0]
+predicted_sales = round(next_maintenance['yhat'].iloc[0], 2)
 
 # Calculate error metrics
-forecast_actual = forecast[forecast['ds'].isin(data['ds'])]
-mae = mean_absolute_error(data['y'], forecast_actual['yhat'])
-mse = mean_squared_error(data['y'], forecast_actual['yhat'])
-rmse = np.sqrt(mse)
-r2 = r2_score(data['y'], forecast_actual['yhat'])
+forecast_actual = forecast.loc[forecast['ds'].isin(data['ds']), ['ds', 'yhat']]
+metrics = {
+    "MAE": mean_absolute_error(data['y'], forecast_actual['yhat']),
+    "MSE": mean_squared_error(data['y'], forecast_actual['yhat']),
+    "RMSE": np.sqrt(mean_squared_error(data['y'], forecast_actual['yhat'])),
+    "R2": r2_score(data['y'], forecast_actual['yhat'])
+}
 
 # Output JSON
 output = {
     "next_maintenance_date": str(next_maintenance_date),
-    "predicted_sales": round(predicted_sales, 2),
-    "error_metrics": {
-        "MAE": round(mae, 4),
-        "MSE": round(mse, 4),
-        "RMSE": round(rmse, 4),
-        "R2": round(r2, 4)
-    }
+    "predicted_sales": predicted_sales,
+    "error_metrics": {k: round(v, 4) for k, v in metrics.items()}
 }
 
-print(json.dumps(output))
+print(json.dumps(output, indent=2))
