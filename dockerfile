@@ -1,38 +1,32 @@
-# Use PHP-FPM base image (Debian-based)
+# Use the official PHP-FPM image
 FROM php:8.0-fpm
 
-# Install required dependencies in one step
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install Nginx and Python 3.10
+RUN apt-get update && apt-get install -y \
     nginx \
     python3.10 \
-    python3.10-venv \
-    python3-pip \
-    curl \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    python3.10-pip \
+    python3.10-dev \
+    && apt-get clean
 
-# Set up Python virtual environment
-RUN python3.10 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Upgrade pip and install required Python packages
+# Install Python dependencies from requirements.txt
 COPY requirements.txt /tmp/
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r /tmp/requirements.txt
+RUN python3.10 -m pip install -r /tmp/requirements.txt
 
-# Set working directory
+# Set the working directory
 WORKDIR /var/www/html
 
 # Copy project files
 COPY . /var/www/html/
 
-# Set correct file permissions
+# Set file permissions
 RUN chown -R www-data:www-data /var/www/html
 
-# Copy and enable Nginx configuration
-COPY default.conf /etc/nginx/conf.d/default.conf
+# Copy Nginx configuration file
+COPY default.conf /etc/nginx/sites-available/default
 
-# Expose port 8080 for external access
+# Expose port 8080 for Railway
 EXPOSE 8080
 
-# Start both PHP-FPM and Nginx using a process manager
-CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+# Start both PHP-FPM and Nginx
+CMD service php8.0-fpm start && nginx -g "daemon off;"
