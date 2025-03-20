@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>PHP + Python Shell_exec</title>
     <script>
         function fetchData() {
-            fetch("index.php", { method: "POST" })
+            fetch("sample.php", { method: "POST" }) // <-- FIXED
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById("output").innerHTML = 
