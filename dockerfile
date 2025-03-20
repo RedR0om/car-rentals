@@ -1,5 +1,5 @@
-# Use the official PHP-FPM image
-FROM php:8.0-fpm
+# Use the PHP-FPM image based on Debian Bookworm (which includes GLIBC 2.38)
+FROM php:8.0-fpm-bookworm
 
 # Install Nginx and Python 3.10
 RUN apt-get update && apt-get install -y \
@@ -8,6 +8,12 @@ RUN apt-get update && apt-get install -y \
     python3.10-pip \
     python3.10-dev \
     && apt-get clean
+
+# Set MPLCONFIGDIR environment variable so that matplotlib writes to a writable directory
+ENV MPLCONFIGDIR=/tmp/matplotlib
+
+# Create the MPLCONFIGDIR directory
+RUN mkdir -p /tmp/matplotlib
 
 # Install Python dependencies from requirements.txt
 COPY requirements.txt /tmp/
