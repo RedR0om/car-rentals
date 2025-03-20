@@ -4,14 +4,17 @@ import numpy as np
 import pandas as pd
 from prophet import Prophet
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import platform
+import importlib.metadata
+import cmdstanpy
 
 try:
     # Debug info
-    import platform
-    import pkg_resources
-
     python_version = platform.python_version()
-    installed_packages = sorted([pkg.project_name for pkg in pkg_resources.working_set])
+    installed_packages = sorted([dist.metadata["Name"] for dist in importlib.metadata.distributions()])
+
+    # Fix cmdstanpy permission issue
+    cmdstanpy.set_cmdstan_path("/tmp/cmdstan")
 
     # Initialize Prophet model
     model = Prophet()
