@@ -1,7 +1,7 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Run the Python script and capture JSON output
-    $output = shell_exec("python3 sample.py 2>&1");
+    $output = shell_exec("python3 admin/ai_models/sample.py 2>&1");
     
     // Decode JSON response
     $data = json_decode($output, true);
