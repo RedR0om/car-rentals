@@ -25,8 +25,9 @@ RUN wget http://ftp.gnu.org/gnu/libc/glibc-2.38.tar.gz && \
 ENV LD_LIBRARY_PATH=/opt/glibc-2.38/lib:$LD_LIBRARY_PATH
 
 # Set MPLCONFIGDIR to a writable location
-ENV MPLCONFIGDIR=/var/www/.matplotlib
-RUN mkdir -p /var/www/.matplotlib && chmod -R 777 /var/www/.matplotlib
+ENV MPLCONFIGDIR=/tmp/matplotlib
+RUN mkdir -p /tmp/matplotlib && chmod -R 777 /tmp/matplotlib
+
 
 # Set up Python virtual environment
 RUN python3.10 -m venv /opt/venv
