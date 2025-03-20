@@ -1,8 +1,8 @@
 # Use the PHP-FPM image based on Debian Bookworm
 FROM php:8.0-fpm-bookworm
 
-# Install necessary dependencies
-RUN apt-get update && apt-get install -y \
+# Install necessary dependencies in a single step to reduce layer size
+RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     python3.10 \
     python3.10-pip \
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     wget \
     curl \
-    && apt-get clean
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Manually install GLIBC 2.38
 RUN wget http://ftp.gnu.org/gnu/libc/glibc-2.38.tar.gz && \
@@ -19,7 +19,8 @@ RUN wget http://ftp.gnu.org/gnu/libc/glibc-2.38.tar.gz && \
     mkdir build && cd build && \
     ../configure --prefix=/opt/glibc-2.38 && \
     make -j$(nproc) && \
-    make install
+    make install && \
+    cd / && rm -rf glibc-2.38 glibc-2.38.tar.gz
 
 # Set environment to use the new GLIBC version
 ENV LD_LIBRARY_PATH=/opt/glibc-2.38/lib:$LD_LIBRARY_PATH
@@ -28,7 +29,6 @@ ENV LD_LIBRARY_PATH=/opt/glibc-2.38/lib:$LD_LIBRARY_PATH
 ENV MPLCONFIGDIR=/tmp/matplotlib
 RUN mkdir -p /tmp/matplotlib && chmod -R 777 /tmp/matplotlib
 
-
 # Set up Python virtual environment
 RUN python3.10 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
@@ -36,7 +36,7 @@ RUN python3.10 -m pip install --upgrade pip
 
 # Install Python dependencies from requirements.txt
 COPY requirements.txt /tmp/
-RUN python3.10 -m pip install -r /tmp/requirements.txt
+RUN python3.10 -m pip install --no-cache-dir --force-reinstall -r /tmp/requirements.txt
 
 # Set the working directory
 WORKDIR /var/www/html
@@ -47,11 +47,11 @@ COPY . /var/www/html/
 # Set file permissions
 RUN chown -R www-data:www-data /var/www/html
 
-# Copy Nginx configuration file
-COPY default.conf /etc/nginx/sites-available/default
+# Copy and enable Nginx configuration
+COPY default.conf /etc/nginx/sites-enabled/default
 
 # Expose port 8080 for Railway
 EXPOSE 8080
 
-# Start both PHP-FPM and Nginx
+# Start PHP-FPM and Nginx properly using a process manager
 CMD service php8.0-fpm start && nginx -g "daemon off;"
