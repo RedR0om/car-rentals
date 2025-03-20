@@ -1,59 +1,39 @@
 <?php
-
-// Check the Python version being used
-$pythonVersion = shell_exec('python3 --version');
-echo "<p>Using Python version: $pythonVersion</p>";
-
-// Get the list of installed Python packages
-$installedPackages = shell_exec('python3 -m pip freeze');
-echo "<p>Installed Python packages:</p>";
-echo "<pre>$installedPackages</pre>";
-
-// No need for full paths for Python executable on Railway, use python3 or python
-$pythonExecutable = 'python3';  // Or use 'python' if that's the default version
-$baseDir = realpath(__DIR__ . '/admin/ai_models');  // Correcting the relative path to the script
-$scriptPath = escapeshellarg($baseDir . "/sample.py");  // Make sure the path to your Python script is correct
-
-// Construct the command to run the Python script
-$command = "$pythonExecutable $scriptPath 2>&1";  // Capture both stdout and stderr
-
-// Execute the Python script and capture the output
-$output = shell_exec($command);
-
-// Check if there is any output or error
-if ($output === null) {
-    echo "<p>Error: Failed to execute the Python script. Please check the server logs.</p>";
-} else {
-    // Decode the JSON output from the Python script
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Run the Python script and capture JSON output
+    $output = shell_exec("python3 sample.py 2>&1");
+    
+    // Decode JSON response
     $data = json_decode($output, true);
-
-    // If JSON decoding fails, display the raw output for debugging
-    if ($data === null) {
-        echo "<p>Error: Failed to decode the Python script output as JSON. Raw output: </p><pre>$output</pre>";
-    } else {
-        // HTML layout and display
-        echo "<div class='container'>";
-        echo "<h1 class='title'>Sales Forecast Results</h1>";
-
-        // Display data or error if JSON is invalid
-        if ($data) {
-            echo "<p><strong>Next Maintenance Date:</strong> " . $data['next_maintenance_date'] . "</p>";
-            echo "<p><strong>Predicted Sales:</strong> " . $data['predicted_sales'] . "</p>";
-        } else {
-            echo "<p>Error: Could not retrieve data from Python script.</p>";
-        }
-
-        // Display metrics
-        echo "<div class='metrics'>";
-        echo "<h2>Metrics</h2>";
-        if ($data) {
-            echo "<p><strong>Mean Absolute Error (MAE):</strong> " . $data['metrics']['mae'] . "</p>";
-            echo "<p><strong>Mean Squared Error (MSE):</strong> " . $data['metrics']['mse'] . "</p>";
-            echo "<p><strong>Root Mean Squared Error (RMSE):</strong> " . $data['metrics']['rmse'] . "</p>";
-            echo "<p><strong>R-squared:</strong> " . $data['metrics']['r2'] . "</p>";
-        }
-        echo "</div>";
-        echo "</div>";
-    }
+    
+    // Send JSON response to frontend
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHP + Python Shell_exec</title>
+    <script>
+        function fetchData() {
+            fetch("index.php", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("output").innerHTML = 
+                        `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                })
+                .catch(error => console.error("Error:", error));
+        }
+    </script>
+</head>
+<body>
+    <h1>PHP + Python Shell_exec</h1>
+    <button onclick="fetchData()">Run Python</button>
+    <div id="output"></div>
+</body>
+</html>
