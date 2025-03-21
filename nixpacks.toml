@@ -1,4 +1,0 @@
-[phases.start]
-cmds = [
-  "nginx -g 'daemon off;' & php-fpm -F"
-]

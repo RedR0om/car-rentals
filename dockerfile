@@ -1,21 +1,25 @@
-# Use official PHP with FPM
-FROM php:8.2-fpm
+# Use an official Python image
+FROM python:3.10
 
-# Install necessary dependencies
-RUN apt-get update && apt-get install -y \
-    nginx \
-    && docker-php-ext-install pcntl
+# Set the working directory
+WORKDIR /app
 
-# Remove default Nginx config and copy our custom one
+# Copy and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Nginx
+RUN apt-get update && apt-get install -y nginx
+
+# Remove default Nginx site and copy custom config
 RUN rm /etc/nginx/sites-enabled/default
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copy your PHP app into the container
-COPY . /var/www/html
+# Create required log directory
+RUN mkdir -p /var/log/nginx && touch /var/log/nginx/error.log /var/log/nginx/access.log
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html
+# Expose port 8080
+EXPOSE 8080
 
-# No need to copy supervisord.conf
-
-CMD ["php-fpm", "-F"]
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
