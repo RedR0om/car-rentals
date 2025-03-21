@@ -1,27 +1,13 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Run the Python script
-    $output = shell_exec("python3 sample.py 2>&1");
+// Execute Python script and capture output
+$output = shell_exec("python3 sample.py 2>&1");
 
-    // Debug: Print raw output (check for errors)
-    if (!$output) {
-        echo json_encode(["error" => "Python script did not return any output"]);
-        exit;
-    }
+// Decode JSON output
+$data = json_decode($output, true);
 
-    // Try decoding JSON
-    $data = json_decode($output, true);
-
-    // Debug: Check if JSON decoding failed
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        echo json_encode(["error" => "Invalid JSON", "raw" => $output]);
-        exit;
-    }
-
-    // Send JSON response
-    header('Content-Type: application/json');
-    echo json_encode($data);
-    exit;
+// If JSON decoding fails, set an error response
+if ($data === null) {
+    $data = ["status" => "error", "message" => "Failed to execute script"];
 }
 ?>
 
@@ -30,26 +16,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHP + Python Debug UI</title>
-    <script>
-        function fetchData() {
-            fetch("sample.php", { method: "POST" })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("output").innerHTML = 
-                        `<h3>Python Version:</h3> <p>${data.python_version || "N/A"}</p>
-                        <h3>Installed Packages:</h3> <pre>${data.installed_packages ? data.installed_packages.join("\n") : "N/A"}</pre>
-                        <h3>Message:</h3> <p>${data.message || "N/A"}</p>
-                        <h3>Status:</h3> <p>${data.status || "N/A"}</p>
-                        <h3>Errors (if any):</h3> <pre>${data.error ? data.error + "\n" + data.raw : "No errors"}</pre>`;
-                })
-                .catch(error => document.getElementById("output").innerHTML = `<p>Error: ${error}</p>`);
-        }
-    </script>
+    <title>Python Script Output</title>
 </head>
 <body>
-    <h1>Run Python Script</h1>
-    <button onclick="fetchData()">Run Python</button>
-    <div id="output"></div>
+    <h2>Python Script Output</h2>
+
+    <?php if ($data['status'] === "success"): ?>
+        <h3>Python Version: <?php echo htmlspecialchars($data['python_version']); ?></h3>
+        <h3>Message: <?php echo htmlspecialchars($data['message']); ?></h3>
+        <h4>Installed Packages:</h4>
+        <pre><?php echo htmlspecialchars(implode("\n", $data['installed_packages'])); ?></pre>
+    <?php else: ?>
+        <h3 style="color: red;">Error: <?php echo htmlspecialchars($data['message']); ?></h3>
+    <?php endif; ?>
 </body>
 </html>

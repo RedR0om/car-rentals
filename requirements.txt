@@ -1,4 +1,3 @@
-setuptools                # Ensures required packaging tools are available
 numpy                     # Fundamental numerical computations (used by many libraries below)
 pandas                    # Data manipulation (depends on numpy)
 scikit-learn              # Machine learning (depends on numpy, pandas)
