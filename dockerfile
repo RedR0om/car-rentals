@@ -32,6 +32,10 @@ ENV LD_LIBRARY_PATH=/opt/glibc-${GLIBC_VERSION}/lib:$LD_LIBRARY_PATH
 COPY requirements.txt /tmp/
 RUN python3.10 -m pip install --no-cache-dir -r /tmp/requirements.txt
 
+# Install CmdStan
+RUN python3.10 -m pip install cmdstanpy && \
+    python3.10 -c "import cmdstanpy; cmdstanpy.install_cmdstan(dir='/tmp/cmdstan', overwrite=True)"
+
 # Set the working directory
 WORKDIR /var/www/html
 
