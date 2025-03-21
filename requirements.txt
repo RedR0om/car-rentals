@@ -1,8 +1,7 @@
-numpy                     # Fundamental numerical computations (used by many libraries below)
-pandas                    # Data manipulation (depends on numpy)
-scikit-learn              # Machine learning (depends on numpy, pandas)
-prophet                   # Time series forecasting (depends on numpy, pandas, cmdstanpy)
-cmdstanpy                 # Backend for Prophet
-plotly                    # Visualization (can be used with Prophet)
-matplotlib                # General visualization library
-mysql-connector-python    # Database connection
+flask
+numpy
+pandas
+mysql-connector-python
+scikit-learn
+prophet
+matplotlib

@@ -4,22 +4,15 @@ FROM python:3.10
 # Set the working directory
 WORKDIR /app
 
-# Copy and install Python dependencies
+# Copy requirements file and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Nginx
-RUN apt-get update && apt-get install -y nginx
+# Copy application files
+COPY . .
 
-# Remove default Nginx site and copy custom config
-RUN rm /etc/nginx/sites-enabled/default
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Create required log directory
-RUN mkdir -p /var/log/nginx && touch /var/log/nginx/error.log /var/log/nginx/access.log
-
-# Expose port 8080
+# Expose port 8080 (required by Railway)
 EXPOSE 8080
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Run Python app (make sure your app runs on 0.0.0.0:8080)
+CMD ["python", "app.py"]
