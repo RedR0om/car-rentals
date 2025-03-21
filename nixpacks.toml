@@ -1,12 +1,4 @@
-[phases.setup]
-nixPkgs = ["nginx", "php"]
-
-
-[phases.build]
-cmds = [
-    "mkdir -p /app",
-    "cp /etc/nginx/fastcgi_params /app/fastcgi_params"
-]
-
 [phases.start]
-cmds = ["supervisord -c /app/supervisord.conf"]
+cmds = [
+  "nginx -g 'daemon off;' & php-fpm -F"
+]
