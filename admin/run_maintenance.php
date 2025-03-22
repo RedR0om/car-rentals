@@ -8,13 +8,13 @@ error_reporting(E_ALL);
 error_log("PHP Error Log - Check railway logs or server logs");
 
 // Database connection
-$host = "ballast.proxy.rlwy.net:35637";
+$host = "ballast.proxy.rlwy.net";
+$port = 35637;
 $username = "root";
 $password = "BobDdBAPBobrKyzYicQYaJhDpujZqoKa";
 $dbname = "railway";
 
-// Create connection
-$conn = new mysqli($host, $username, $password, $dbname);
+$conn = new mysqli($host, $username, $password, $dbname, $port);
 
 if ($conn->connect_error) {
     error_log("Database Connection Error: " . $conn->connect_error);
@@ -37,7 +37,7 @@ if (!is_numeric($selectedCar_current_mileage) || $selectedCar_current_mileage <=
 }
 
 // ✅ Fetch Last Maintenance Data
-$sql = "SELECT outgoing_meter FROM carrental.tblinspections WHERE id = ? LIMIT 1";
+$sql = "SELECT outgoing_meter FROM tblinspections WHERE id = ? LIMIT 1";
 
 if ($stmt = $conn->prepare($sql)) {
     $stmt->bind_param("i", $vehicleId);
