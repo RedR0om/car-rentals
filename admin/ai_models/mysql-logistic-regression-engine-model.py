@@ -51,11 +51,13 @@ MAX_INSPECTION_GAPS = {
 
 # Database connection
 DB_CONFIG = {
-    "host": "ballast.proxy.rlwy.net:35637",
+    "host": "ballast.proxy.rlwy.net",  # Remove port from here
+    "port": 35637,  # Add port separately
     "user": "root",
     "password": "BobDdBAPBobrKyzYicQYaJhDpujZqoKa",
     "database": "railway"
 }
+
 
 def predict_maintenance(last_maintenance, current_mileage, inspection_type, model):
     recommended_gap = INSPECTION_GAPS.get(inspection_type)
