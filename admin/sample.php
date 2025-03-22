@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Send Vehicle Data</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- ✅ jQuery added -->
 </head>
 <body>
 
@@ -20,27 +21,23 @@
     <div id="result"></div>
 
     <script>
-        document.getElementById("vehicleForm").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent page reload
-            
-            let formData = new FormData(this);
+        $(document).ready(function () {
+            $("#vehicleForm").submit(function (event) {
+                event.preventDefault(); // Prevent page reload
 
-            fetch("run_maintenance.php", { // ✅ Corrected file path
-                method: "POST",
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok " + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById("result").innerText = JSON.stringify(data, null, 2);
-            })
-            .catch(error => {
-                document.getElementById("result").innerText = "Error: " + error.message;
-                console.error("Error:", error);
+                $.ajax({
+                    url: "run_maintenance.php", // ✅ Make sure this file path is correct
+                    type: "POST",
+                    data: $(this).serialize(), // ✅ Serialize form data
+                    dataType: "json", // ✅ Expect JSON response
+                    success: function (data) {
+                        $("#result").html("<pre>" + JSON.stringify(data, null, 2) + "</pre>");
+                    },
+                    error: function (xhr, status, error) {
+                        $("#result").html("Error: " + xhr.responseText);
+                        console.error("AJAX Error:", status, error);
+                    }
+                });
             });
         });
     </script>
