@@ -25,15 +25,21 @@
             
             let formData = new FormData(this);
 
-            fetch("admin\run_maintenance.php", { // Change to your PHP file path
+            fetch("admin/run_maintenance.php", { // ✅ Corrected file path
                 method: "POST",
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok " + response.statusText);
+                }
+                return response.json();
+            })
             .then(data => {
                 document.getElementById("result").innerText = JSON.stringify(data, null, 2);
             })
             .catch(error => {
+                document.getElementById("result").innerText = "Error: " + error.message;
                 console.error("Error:", error);
             });
         });
