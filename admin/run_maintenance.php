@@ -7,15 +7,14 @@ ini_set('log_errors', 1);
 error_reporting(E_ALL);
 error_log("PHP Error Log - Check railway logs or server logs");
 
-// ✅ Database connection settings
-$host = "ballast.proxy.rlwy.net";
-$port = 35637; 
+// Database connection
+$host = "ballast.proxy.rlwy.net:35637";
 $username = "root";
 $password = "BobDdBAPBobrKyzYicQYaJhDpujZqoKa";
 $dbname = "railway";
 
-// ✅ Connect to MySQL
-$conn = new mysqli($host, $username, $password, $dbname, $port);
+// Create connection
+$conn = new mysqli($host, $username, $password, $dbname);
 
 if ($conn->connect_error) {
     error_log("Database Connection Error: " . $conn->connect_error);
