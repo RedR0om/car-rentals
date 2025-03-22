@@ -25,7 +25,7 @@
             
             let formData = new FormData(this);
 
-            fetch("admin/run_maintenance.php", { // ✅ Corrected file path
+            fetch("../run_maintenance.php", { // ✅ Corrected file path
                 method: "POST",
                 body: formData
             })
