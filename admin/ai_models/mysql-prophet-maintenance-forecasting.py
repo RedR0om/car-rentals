@@ -97,17 +97,6 @@ try:
         cursor.execute(query_insert, (next_maintenance_date,))
         conn.commit()  # Commit the transaction to save the changes
 
-        # Plot forecast
-        #fig1 = model.plot(forecast)
-        #plt.title("Forecast with Prophet")
-        #plt.xlabel("Date")
-        #plt.ylabel("Sales")
-        #plt.show()
-
-        # Plot components
-        #fig2 = model.plot_components(forecast)
-        #plt.show()
-
         # Evaluate model accuracy
         forecast_actual = forecast[forecast['ds'].isin(df['ds'])]
         mae = mean_absolute_error(df['y'], forecast_actual['yhat'])

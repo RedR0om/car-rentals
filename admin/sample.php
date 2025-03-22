@@ -1,6 +1,6 @@
 <?php
 // Define the path to your Python script
-$pythonScript = "mysql-prophet-maintenance-forecasting.py";
+$pythonScript = "ai_models/mysql-prophet-maintenance-forecasting.py";
 
 // Run the Python script and capture output
 $output = shell_exec("python3 " . escapeshellarg($pythonScript));
@@ -18,4 +18,4 @@ if (json_last_error() === JSON_ERROR_NONE) {
     header("Content-Type: application/json");
     echo json_encode(["error" => "Failed to execute Python script or invalid JSON output"]);
 }
-?>
+?>  
