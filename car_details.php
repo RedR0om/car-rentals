@@ -652,6 +652,10 @@ if (isset($_POST['submit'])) {
                             </select>
                           </div>
 
+                          <?php
+                            $shouldShowMetroManila = false; // Change this condition as needed
+                          ?>
+                          <?php if ($shouldShowMetroManila): ?>
                           <!-- Is Metro Manila Fields Only one Required! -->
                           <div class="form-group">
                             <label for="is-metro-manila" class="control-label">Is within Metro Manila?</label>
@@ -664,6 +668,7 @@ if (isset($_POST['submit'])) {
                               <label class="form-check-label" for="metro-manila-no">No</label>
                             </div>
                           </div>
+                          <?php endif; ?>
 
 
                           <!-- Date and Time Fields -->
