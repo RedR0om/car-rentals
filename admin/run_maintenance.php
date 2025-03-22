@@ -11,20 +11,18 @@ $dbname = "railway";
 // ✅ Connect to MySQL with separate host & port
 $conn = new mysqli($host, $username, $password, $dbname, $port);
 
-// ✅ Check for database connection errors
 if ($conn->connect_error) {
     echo json_encode(["error" => "Connection failed: " . $conn->connect_error]);
     exit;
 }
 
-// ✅ Check if required parameters are present
 if (isset($_POST['vehicleId']) && isset($_POST['current_mileage'])) {
     $vehicleId = $_POST['vehicleId'];
     $selectedCar_current_mileage = $_POST['current_mileage'];
 
-    // ✅ Validate mileage input
     if (is_numeric($selectedCar_current_mileage) && $selectedCar_current_mileage > 0) {
-        $sql = "SELECT outgoing_meter FROM carrental.tblinspections WHERE id = ? LIMIT 1";
+        $sql = "SELECT outgoing_meter FROM carrental.tblinspections where id = ?
+                LIMIT 1";
 
         if ($stmt = $conn->prepare($sql)) {
             $stmt->bind_param("i", $vehicleId);
@@ -37,21 +35,14 @@ if (isset($_POST['vehicleId']) && isset($_POST['current_mileage'])) {
             exit;
         }
 
-        // ✅ Ensure Python environment is correctly detected
-        $pythonExecutable = escapeshellcmd('python3'); // Use `python3` explicitly for Linux (Railway)
+        $pythonExecutable = escapeshellcmd(PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3');
         $baseDir = realpath(__DIR__ . '/ai_models'); 
         $scriptPath = escapeshellarg($baseDir . "/mysql-logistic-regression-engine-model.py");
 
-        // ✅ Properly escape shell arguments to avoid security issues
-        $arg1 = escapeshellarg($selectedCar_last_maintenance);
-        $arg2 = escapeshellarg($selectedCar_current_mileage);
-        $arg3 = escapeshellarg($vehicleId);
+        $command = "$pythonExecutable $scriptPath $selectedCar_last_maintenance $selectedCar_current_mileage $vehicleId";
 
-        // ✅ Build and execute command
-        $command = "$pythonExecutable $scriptPath $arg1 $arg2 $arg3";
         exec($command, $output, $status);
-
-        // ✅ Check execution result
+        
         if ($status === 0) {
             $result = json_decode(implode("\n", $output), true);
             echo json_encode($result);
@@ -65,6 +56,5 @@ if (isset($_POST['vehicleId']) && isset($_POST['current_mileage'])) {
     echo json_encode(["error" => "Vehicle ID and mileage are required"]);
 }
 
-// ✅ Close database connection
 $conn->close();
 ?>
