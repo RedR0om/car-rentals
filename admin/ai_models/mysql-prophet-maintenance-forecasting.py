@@ -9,7 +9,8 @@ from datetime import datetime, timedelta
 
 # Database connection
 db_config = {
-    "host": "ballast.proxy.rlwy.net:35637",
+    "host": "ballast.proxy.rlwy.net",  # Remove port from here
+    "port": 35637,  # Add port separately
     "user": "root",
     "password": "BobDdBAPBobrKyzYicQYaJhDpujZqoKa",
     "database": "railway"
