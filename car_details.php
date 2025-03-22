@@ -199,7 +199,7 @@ if (isset($_POST['submit'])) {
             $_SESSION['brndid'] = $result->bid;
 
             // Define default image path
-            $defaultImage = 'civicfront.jpg';
+            $defaultImage = 'Civicfront1.jpg';
             ?>
             <div class="owl-carousel clients-carousel">
               <img
