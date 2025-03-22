@@ -352,17 +352,17 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         <?php if (!empty($result->image)) { ?>
                                                             <img src="..//<?php echo "validid/67623a640641e.jpg"; ?>" width="100"
                                                                 height="50" alt="Valid ID" data-toggle="modal" data-target="#imageModal"
-                                                                onclick="showImage('../<?php echo htmlentities($result->image); ?>')">
+                                                                onclick="showImage('../validid/67623a640641e.jpg')">
                                                         <?php } else { ?>
                                                             <span>No Valid ID</span>
                                                         <?php } ?>
                                                     </td>
                                                     <td>
                                                         <?php if (!empty($result->gcash_receipt)) { ?>
-                                                            <img src="../<?php echo "gcash_receipts/676241959ba10.jpg"; ?>"
+                                                            <img src="../<?php echo "gcash_receipts/676241959ba101.jpg"; ?>"
                                                                 width="100" height="50" alt="GCash Receipt" data-toggle="modal"
                                                                 data-target="#imageModal"
-                                                                onclick="showImage('../<?php echo htmlentities($result->gcash_receipt); ?>')">
+                                                                onclick="showImage('../gcash_receipts/676241959ba101.jpg')">
                                                         <?php } else { ?>
                                                             <span>No GCash Receipt</span>
                                                         <?php } ?>
@@ -402,7 +402,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         data-status="<?php echo htmlspecialchars($result->Status); ?>"
                                                         data-postingdate="<?php echo htmlspecialchars($result->PostingDate); ?>"
                                                         data-image="<?php echo !empty($result->image) ? "validid/67623a640641e.jpg" : ''; ?>"
-                                                        data-receipt="<?php echo !empty($result->gcash_receupt) ? "gcash_receipts/676241959ba10.jpg" : ''; ?>"
+                                                        data-receipt="<?php echo !empty($result->gcash_receipt) ? "gcash_receipts/676241959ba101.jpg" : ''; ?>"
                                                         data-paymentoption="<?php echo $result->payment_option; ?>"
                                                         data-accountname="<?php echo $result->account_name; ?>"
                                                         data-accountnumber="<?php echo $result->account_number; ?>"
@@ -692,7 +692,6 @@ if (strlen($_SESSION['alogin']) == 0) {
                     var ismetromanila = link.data('ismetromanila') === 1 ? 'Yes' : 'No';
                     var id = link.data('id');
 
-                    console.log('gcash: ', receipt);
 
                     var statusText = "";
 
