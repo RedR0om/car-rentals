@@ -277,23 +277,36 @@ if (strlen($_SESSION['alogin']) == 0) {
 
                                     <form method="post" class="form-horizontal">
                                         <?php
-                                        // Fetch vehicles from tblvehicles table
-                                        $sql = "SELECT id, VehiclesTitle FROM tblvehicles";
-                                        $query = $dbh->prepare($sql);
-                                        $query->execute();
-                                        $vehicles = $query->fetchAll(PDO::FETCH_OBJ);
+                                            // Fetch vehicles with segments from tblvehicles
+                                            $sql = "SELECT id, VehiclesTitle, Segment FROM tblvehicles";
+                                            $query = $dbh->prepare($sql);
+                                            $query->execute();
+                                            $vehicles = $query->fetchAll(PDO::FETCH_OBJ);
                                         ?>
+                                        
+                                        <!-- Segment Selection -->
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Segment</label>
+                                            <div class="col-sm-10">
+                                                <select id="segmentSelect" class="form-control select2" required onchange="filterVehicles()">
+                                                    <option value="">Select Segment Type</option>
+                                                    <?php
+                                                    $segments = array_unique(array_map(fn($v) => $v->Segment, $vehicles));
+                                                    foreach ($segments as $segment) { ?>
+                                                        <option value="<?php echo htmlentities($segment); ?>">
+                                                            <?php echo htmlentities($segment); ?>
+                                                        </option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
 
+                                        <!-- Vehicle Selection -->
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Vehicle</label>
                                             <div class="col-sm-10">
-                                                <select name="vehicle" class="form-control select2" required>
+                                                <select id="vehicleSelect" name="vehicle" class="form-control select2" required>
                                                     <option value="">Select Vehicle</option>
-                                                    <?php foreach ($vehicles as $vehicle) { ?>
-                                                        <option value="<?php echo htmlentities($vehicle->id); ?>">
-                                                            <?php echo htmlentities($vehicle->VehiclesTitle); ?>
-                                                        </option>
-                                                    <?php } ?>
                                                 </select>
                                             </div>
                                         </div>
@@ -352,6 +365,31 @@ if (strlen($_SESSION['alogin']) == 0) {
                     </div>
                 </div>
             </div>
+
+            <!--Dynamic filtering for vehicles-->
+            <script>
+                // Store vehicle data in JavaScript
+                let vehiclesData = <?php echo json_encode($vehicles); ?>;
+
+                function filterVehicles() {
+                    let selectedSegment = document.getElementById("segmentSelect").value;
+                    let vehicleSelect = document.getElementById("vehicleSelect");
+
+                    // Clear existing options
+                    vehicleSelect.innerHTML = '<option value="">Select Vehicle</option>';
+
+                    // Filter vehicles based on selected segment
+                    vehiclesData.forEach(vehicle => {
+                        if (vehicle.Segment === selectedSegment) {
+                            let option = document.createElement("option");
+                            option.value = vehicle.id;
+                            option.textContent = vehicle.VehiclesTitle;
+                            vehicleSelect.appendChild(option);
+                        }
+                    });
+                }
+            </script>
+
 
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
