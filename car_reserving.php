@@ -17,7 +17,7 @@ error_reporting(E_ALL);
 // Handle POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   try {
-    $requiredFields = ['payment', 'fromdatetime', 'todatetime', 'message', 'pickup_location', 'dropoff_location', 'is_metro_manila', 'estimated_cost'];
+    $requiredFields = ['payment', 'fromdatetime', 'todatetime', 'message', 'pickup_location', 'dropoff_location', 'estimated_cost'];
 
     // Validate required fields
     foreach ($requiredFields as $field) {
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = htmlspecialchars($_POST['message']);
     $pickup_location = htmlspecialchars($_POST['pickup_location']);
     $dropoff_location = htmlspecialchars($_POST['dropoff_location']);
-    $is_metro_manila = htmlspecialchars($_POST['is_metro_manila']);
+    $is_metro_manila = 0;
     $estimated_cost = htmlspecialchars($_POST['estimated_cost']);
     $useremail = $_SESSION['login'];
     $vhid = htmlspecialchars($_POST['vhid']);
