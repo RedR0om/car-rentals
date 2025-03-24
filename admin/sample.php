@@ -148,21 +148,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </div>
 
 <script>
-    document.getElementById("vehicleForm").addEventListener("submit", function(event) {
+    document.getElementById("vehicleForm").addEventListener("submit", async function (event) {
         event.preventDefault();
         
         let formData = new FormData(this);
 
-        fetch("index.php", {
-            method: "POST",
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            let responseDiv = document.getElementById("response");
-            responseDiv.innerHTML = "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
-        })
-        .catch(error => console.error("Error:", error));
+        try {
+            let response = await fetch(window.location.href, {
+                method: "POST",
+                body: formData
+            });
+
+            let text = await response.text(); // Get raw text response for debugging
+
+            try {
+                let data = JSON.parse(text); // Try parsing JSON
+                document.getElementById("response").innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                console.error("Invalid JSON response:", text);
+                document.getElementById("response").innerHTML = `<pre>Error: Invalid server response</pre>`;
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+            document.getElementById("response").innerHTML = `<pre>Error: Could not connect to the server</pre>`;
+        }
     });
 </script>
 
