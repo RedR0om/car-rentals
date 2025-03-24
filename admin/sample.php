@@ -1,37 +1,39 @@
 <?php
-header('Content-Type: application/json');
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    header('Content-Type: application/json'); // Ensure JSON response
 
-// Prevent PHP errors from being displayed
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
-error_reporting(E_ALL);
-error_log("PHP Error Log - Check railway logs or server logs");
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    error_reporting(E_ALL);
+    error_log("PHP Error Log - Check railway logs or server logs");
 
-// Database connection
-$host = "ballast.proxy.rlwy.net";
-$port = 35637;
-$username = "root";
-$password = "BobDdBAPBobrKyzYicQYaJhDpujZqoKa";
-$dbname = "railway";
+    // Database connection
+    $host = "ballast.proxy.rlwy.net";
+    $port = 35637;
+    $username = "root";
+    $password = "BobDdBAPBobrKyzYicQYaJhDpujZqoKa";
+    $dbname = "railway";
 
-$conn = new mysqli($host, $username, $password, $dbname, $port);
+    $conn = new mysqli($host, $username, $password, $dbname, $port);
 
-if ($conn->connect_error) {
-    error_log("Database Connection Error: " . $conn->connect_error);
-    die(json_encode(["error" => "Connection failed"]));
-}
+    if ($conn->connect_error) {
+        error_log("Database Connection Error: " . $conn->connect_error);
+        echo json_encode(["error" => "Connection failed"]);
+        exit;
+    }
 
-// Handle POST request
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Validate Input
     if (!isset($_POST['vehicleId']) || !isset($_POST['current_mileage'])) {
-        die(json_encode(["error" => "Vehicle ID and mileage are required"]));
+        echo json_encode(["error" => "Vehicle ID and mileage are required"]);
+        exit;
     }
 
     $vehicleId = $_POST['vehicleId'];
     $selectedCar_current_mileage = $_POST['current_mileage'];
 
     if (!is_numeric($selectedCar_current_mileage) || $selectedCar_current_mileage <= 0) {
-        die(json_encode(["error" => "Invalid current mileage"]));
+        echo json_encode(["error" => "Invalid current mileage"]);
+        exit;
     }
 
     // Fetch Last Maintenance Data
@@ -41,16 +43,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("i", $vehicleId);
         $stmt->execute();
         $stmt->bind_result($selectedCar_last_maintenance);
-        
+
         if (!$stmt->fetch()) {
             error_log("No record found for vehicle ID: $vehicleId");
-            die(json_encode(["error" => "No record found for vehicle ID"]));
+            echo json_encode(["error" => "No record found for vehicle ID"]);
+            exit;
         }
-        
+
         $stmt->close();
     } else {
         error_log("SQL Error: " . $conn->error);
-        die(json_encode(["error" => "SQL prepare failed"]));
+        echo json_encode(["error" => "SQL prepare failed"]);
+        exit;
     }
 
     // Execute Python Script
@@ -70,17 +74,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             error_log("Invalid JSON from Python script: " . json_last_error_msg());
-            die(json_encode(["error" => "Invalid JSON from Python script"]));
+            echo json_encode(["error" => "Invalid JSON from Python script"]);
         } else {
-            die(json_encode($result));
+            echo json_encode($result);
         }
     } else {
-        die(json_encode(["error" => "Python script execution failed", "details" => $output]));
+        echo json_encode(["error" => "Python script execution failed", "details" => $output]);
     }
-}
 
-// Close the database connection
-$conn->close();
+    $conn->close();
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
