@@ -1,7 +1,7 @@
 <?php
-header('Content-Type: application/json'); // Ensure JSON response
+header('Content-Type: application/json');
 
-// ✅ Prevent PHP errors from displaying
+// Prevent PHP errors from being displayed
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 error_reporting(E_ALL);
@@ -14,63 +14,51 @@ $username = "root";
 $password = "BobDdBAPBobrKyzYicQYaJhDpujZqoKa";
 $dbname = "railway";
 
-$conn = new mysqli($host, $username, $dbname, $port);
+$conn = new mysqli($host, $username, $password, $dbname, $port);
 
 if ($conn->connect_error) {
     error_log("Database Connection Error: " . $conn->connect_error);
-    echo json_encode(["error" => "Connection failed"]);
-    exit;
+    die(json_encode(["error" => "Connection failed"]));
 }
 
-// ✅ Handle Form Submission (AJAX)
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (!isset($_POST['vehicleId'], $_POST['current_mileage'], $_POST['inspection_date'])) {
-        echo json_encode(["error" => "Vehicle ID, mileage, and inspection date are required"]);
-        exit;
+// Handle POST request
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['vehicleId']) || !isset($_POST['current_mileage'])) {
+        die(json_encode(["error" => "Vehicle ID and mileage are required"]));
     }
 
     $vehicleId = $_POST['vehicleId'];
     $selectedCar_current_mileage = $_POST['current_mileage'];
-    $inspection_date = $_POST['inspection_date'];
 
     if (!is_numeric($selectedCar_current_mileage) || $selectedCar_current_mileage <= 0) {
-        echo json_encode(["error" => "Invalid current mileage"]);
-        exit;
+        die(json_encode(["error" => "Invalid current mileage"]));
     }
 
-    // Validate Date Format (YYYY-MM-DD)
-    if (!preg_match("/^\d{4}-\d{2}-\d{2}$/", $inspection_date)) {
-        echo json_encode(["error" => "Invalid date format. Use YYYY-MM-DD"]);
-        exit;
-    }
-
-    // ✅ Fetch Last Maintenance Data
+    // Fetch Last Maintenance Data
     $sql = "SELECT outgoing_meter FROM tblinspections WHERE id = ? LIMIT 1";
 
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("i", $vehicleId);
         $stmt->execute();
         $stmt->bind_result($selectedCar_last_maintenance);
-
+        
         if (!$stmt->fetch()) {
             error_log("No record found for vehicle ID: $vehicleId");
-            echo json_encode(["error" => "No record found for vehicle ID"]);
-            exit;
+            die(json_encode(["error" => "No record found for vehicle ID"]));
         }
         
         $stmt->close();
     } else {
         error_log("SQL Error: " . $conn->error);
-        echo json_encode(["error" => "SQL prepare failed"]);
-        exit;
+        die(json_encode(["error" => "SQL prepare failed"]));
     }
 
-    // ✅ Execute Python Script
+    // Execute Python Script
     $pythonExecutable = escapeshellcmd(PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3');
     $baseDir = realpath(__DIR__ . '/ai_models'); 
     $scriptPath = escapeshellarg($baseDir . "/mysql-logistic-regression-engine-model.py");
 
-    $command = "$pythonExecutable $scriptPath $selectedCar_last_maintenance $selectedCar_current_mileage $vehicleId $inspection_date";
+    $command = "$pythonExecutable $scriptPath $selectedCar_last_maintenance $selectedCar_current_mileage $vehicleId";
     error_log("Executing command: $command");
 
     exec($command . " 2>&1", $output, $status);
@@ -82,17 +70,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             error_log("Invalid JSON from Python script: " . json_last_error_msg());
-            echo json_encode(["error" => "Invalid JSON from Python script"]);
+            die(json_encode(["error" => "Invalid JSON from Python script"]));
         } else {
-            echo json_encode($result);
+            die(json_encode($result));
         }
     } else {
-        echo json_encode(["error" => "Python script execution failed", "details" => $output]);
+        die(json_encode(["error" => "Python script execution failed", "details" => $output]));
     }
-
-    $conn->close();
-    exit;
 }
+
+// Close the database connection
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -101,48 +89,78 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vehicle Inspection</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
 
-    <h2>Vehicle Inspection Form</h2>
-
-    <form id="inspectionForm">
+<div class="container">
+    <h2>Check Vehicle Inspection</h2>
+    <form id="vehicleForm">
         <label for="vehicleId">Vehicle ID:</label>
-        <input type="number" id="vehicleId" name="vehicleId" required><br><br>
+        <input type="number" id="vehicleId" name="vehicleId" required>
 
-        <label for="current_mileage">Current Mileage:</label>
-        <input type="number" id="current_mileage" name="current_mileage" required><br><br>
-
-        <label for="inspection_date">Inspection Date:</label>
-        <input type="date" id="inspection_date" name="inspection_date" required><br><br>
+        <label for="currentMileage">Current Mileage:</label>
+        <input type="number" id="currentMileage" name="current_mileage" required>
 
         <button type="submit">Submit</button>
     </form>
 
-    <h3>Response:</h3>
-    <pre id="response"></pre>
+    <div id="response"></div>
+</div>
 
-    <script>
-        $(document).ready(function () {
-            $("#inspectionForm").submit(function (event) {
-                event.preventDefault();
+<script>
+    document.getElementById("vehicleForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        
+        let formData = new FormData(this);
 
-                $.ajax({
-                    url: "",  // This will submit to the same PHP file
-                    type: "POST",
-                    data: $(this).serialize(),
-                    dataType: "json",
-                    success: function (response) {
-                        $("#response").text(JSON.stringify(response, null, 2));
-                    },
-                    error: function () {
-                        $("#response").text("Error occurred. Check server logs.");
-                    }
-                });
-            });
-        });
-    </script>
+        fetch("index.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            let responseDiv = document.getElementById("response");
+            responseDiv.innerHTML = "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+        })
+        .catch(error => console.error("Error:", error));
+    });
+</script>
 
 </body>
 </html>
