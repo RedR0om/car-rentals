@@ -13,20 +13,18 @@ if (strlen($_SESSION['alogin']) == 0) {
         $notes = $_POST['notes'];
         $outgoing_date = $_POST['outgoing_date'];
         $outgoing_meter = $_POST['outgoing_meter'];
-        $outgoing_fuel = $_POST['outgoing_fuel'];
 
         $sql = "INSERT INTO tblinspections 
             (vehicle, inspector, notes, 
-            outgoing_date, outgoing_meter, outgoing_fuel) 
+            outgoing_date, outgoing_meter) 
             VALUES (:vehicle, :inspector, :notes, 
-            :outgoing_date, :outgoing_meter, :outgoing_fuel )";
+            :outgoing_date, :outgoing_meter)";
         $query = $dbh->prepare($sql);
         $query->bindParam(':vehicle', $vehicle, PDO::PARAM_STR);
         $query->bindParam(':inspector', $inspector, PDO::PARAM_STR);
         $query->bindParam(':notes', $notes, PDO::PARAM_STR);
         $query->bindParam(':outgoing_date', $outgoing_date, PDO::PARAM_STR);
         $query->bindParam(':outgoing_meter', $outgoing_meter, PDO::PARAM_STR);
-        $query->bindParam(':outgoing_fuel', $outgoing_fuel, PDO::PARAM_STR);
         $query->execute();
 
         $lastInsertId = $dbh->lastInsertId();
@@ -340,19 +338,6 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         <input type="number" name="outgoing_meter" class="form-control">
                                                     </div>
                                                 </div>
-                                                <div class="form-group row">
-                                                    <label class="col-sm-4 col-form-label">Fuel Level</label>
-                                                    <div class="col-sm-8">
-                                                        <select name="outgoing_fuel" class="form-control">
-                                                            <option value="1/4">1/4</option>
-                                                            <option value="1/2">1/2</option>
-                                                            <option value="3/4">3/4</option>
-                                                            <option value="Full">Full</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
                                         <div class="form-group text-center mt-4">
                                             <button type="submit" name="submit" class="btn btn-primary btn-lg">Submit

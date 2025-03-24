@@ -24,7 +24,6 @@ if (strlen($_SESSION['alogin']) == 0) {
             $inspection_date = $_POST['inspection_date'];
             $notes = $_POST['notes'];
             $outgoing_meter = $_POST['current_mileage'];
-            $outgoing_fuel = $_POST['outgoing_fuel'];
             $car_availability = ($_POST['car_availability'] == "Available") ? 1 : 0;
 
 
@@ -66,7 +65,6 @@ if (strlen($_SESSION['alogin']) == 0) {
                 inspection_date = :inspection_date, 
                 notes = :notes, 
                 outgoing_meter = :outgoing_meter, 
-                outgoing_fuel = :outgoing_fuel,
                 engine_fluids = :engine_fluids,
                 engine_fluids_remarks = :engine_fluids_remarks,
                 battery = :battery,
@@ -106,7 +104,6 @@ if (strlen($_SESSION['alogin']) == 0) {
             $query->bindParam(':inspection_date', $inspection_date, PDO::PARAM_STR);
             $query->bindParam(':notes', $notes, PDO::PARAM_STR);
             $query->bindParam(':outgoing_meter', $outgoing_meter, PDO::PARAM_STR);
-            $query->bindParam(':outgoing_fuel', $outgoing_fuel, PDO::PARAM_STR);
 
             $query->bindParam(':engine_fluids', $engine_fluids_status, PDO::PARAM_STR);
             $query->bindParam(':engine_fluids_remarks', $engine_fluids_remarks, PDO::PARAM_STR);
@@ -456,14 +453,6 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             <label class="col-sm-2 col-form-label">Current Mileage</label>
                                             <div class="col-sm-10">
                                                 <input type="number" name="current_mileage" id="current_mileage" class="form-control" placeholder="Enter current mileage..">
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Fuel</label>
-                                            <div class="col-sm-10">
-                                                <input type="text" name="outgoing_fuel" class="form-control"
-                                                    value="<?php echo htmlentities($inspection->outgoing_fuel); ?>">
                                             </div>
                                         </div>
 
