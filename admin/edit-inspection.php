@@ -15,7 +15,7 @@ if (strlen($_SESSION['alogin']) == 0) {
     if (isset($_POST['submit'])) {
 
         if (empty($_POST['current_mileage']) || empty($_POST['inspection_date']) || trim($_POST['inspection_date']) === "dd/mm/yyyy") {
-            $error = 'Please input required fields (inspection date or current mileage)';
+            $error = 'Please input required fields (current inspection date or current mileage)';
         } else {
 
             $id = $_POST['id'];
@@ -530,7 +530,11 @@ if (strlen($_SESSION['alogin']) == 0) {
                         $.ajax({
                             url: "run_maintenance.php",
                             type: "POST",
-                            data: { vehicleId: vehicleId, current_mileage: currentMileage },
+                            data: { 
+                                vehicleId: vehicleId, 
+                                current_mileage: currentMileage, 
+                                inspection_date: inspectionDate
+                            },
                             dataType: "json",
                             beforeSend: function () {
                                 resultContainer.html("<div class='alert alert-info'>Calculating...</div>");
@@ -548,6 +552,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                     <br>
                                     <h5><strong>Last Maintenance Mileage:</strong> ${response.selectedCar_last_maintenance}</h5>
                                     <h5><strong>Current Mileage:</strong> ${response.selectedCar_current_mileage}</h5>
+                                    <h5><strong>Current Inspection Date:</strong> ${response.inspection_date}</h5>
 
                                     <div class="form-group row">
                                         <div class="col-sm-2"> </div>

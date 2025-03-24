@@ -3,6 +3,7 @@ import json
 import numpy as np
 import pandas as pd
 import mysql.connector
+from datetime import datetime, timedelta
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -11,6 +12,14 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 selectedCar_last_maintenance = float(sys.argv[1])  # last maintenance mileage
 selectedCar_current_mileage = float(sys.argv[2])  # current mileage
 vehicleId = int(sys.argv[3])  # vehicle ID
+inspectionDate = sys.argv[4]  # inspection date
+
+# Convert inspectionDate to valid format
+try:
+    inspectionDate = datetime.strptime(inspectionDate, '%Y-%m-%d').date()
+except ValueError:
+    print(json.dumps({"error": "Invalid date format for inspectionDate"}))
+    sys.exit(1)
 
 # Recommended mileage gaps based on inspection type (in miles)
 INSPECTION_GAPS = {
@@ -49,6 +58,25 @@ MAX_INSPECTION_GAPS = {
     "professional_inspections": 24000
 }
 
+# Recommended date inspection gaps based on inspection type
+DATE_INSPECTION_GAPS = {
+    "engine_fluids": 6,
+    "battery": 6,
+    "tires": 6,
+    "brakes": 12,
+    "lights_electrical": 6,
+    "air_filters": 12,
+    "belts_hoses": 36,
+    "suspension": 60,
+    "exhaust_system": 12,
+    "alignment_suspension": 24,
+    "wipers_windshield": 6,
+    "timing_belt_chain": 60,
+    "air_conditioning_heater": 24,
+    "cabin_exterior_maintenance": 6,
+    "professional_inspections": 12
+}
+
 # Database connection
 DB_CONFIG = {
     "host": "ballast.proxy.rlwy.net",  # Remove port from here
@@ -59,13 +87,26 @@ DB_CONFIG = {
 }
 
 
-def predict_maintenance(last_maintenance, current_mileage, inspection_type, model):
+def predict_maintenance(last_maintenance, current_mileage, last_inspection_date, inspection_type, model):
     recommended_gap = INSPECTION_GAPS.get(inspection_type)
     max_gap = MAX_INSPECTION_GAPS.get(inspection_type)
+    date_gap = DATE_INSPECTION_GAPS.get(inspection_type)
     
-    if recommended_gap is None or max_gap is None:
+    if recommended_gap is None or max_gap is None or date_gap is None:
         return "Unknown Inspection Type"
     
+    # Convert last_inspection_date (string) to datetime
+    try:
+        last_inspection_date = datetime.strptime(last_inspection_date, "%d/%m/%Y").date()
+    except ValueError:
+        return "Invalid Date Format"
+
+    # Calculate if inspection is overdue based on date
+    next_inspection_due = last_inspection_date + timedelta(days=date_gap * 30)
+    if datetime.today().date() >= next_inspection_due:
+        return "Yes"  # Automatically return Yes if the inspection date is due
+    
+    # Calculate mileage gap
     mileage_gap = current_mileage - last_maintenance
     
     # Check if the mileage gap has reached or exceeded the maximum allowable gap
@@ -75,6 +116,10 @@ def predict_maintenance(last_maintenance, current_mileage, inspection_type, mode
     # Check if the mileage gap is less than the recommended gap
     if mileage_gap < recommended_gap:
         return "No"
+    
+    # Check if the inspection date has passed the required interval
+    if last_inspection_date + timedelta(days=date_gap * 30) <= inspectionDate:
+        return "Yes"
     
     input_data = pd.DataFrame([[last_maintenance, current_mileage]], columns=["last_maintenance_mileage", "current_mileage"])
     prediction = model.predict(input_data)[0]
@@ -99,6 +144,7 @@ try:
         SELECT 
             last_mileage AS last_maintenance_mileage, 
             mileage AS current_mileage, 
+            last_inspection_date, 
             ai_is_maintenance AS maintenance
         FROM tblvehicle_maintenance
         WHERE inspection_type = '{inspection_type}'
@@ -117,7 +163,7 @@ try:
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
         
-        model = LogisticRegression()
+        model = LogisticRegression(class_weight="balanced")
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
         
@@ -126,10 +172,13 @@ try:
         recall = recall_score(y_test, y_pred, zero_division=1)
         f1 = f1_score(y_test, y_pred, zero_division=1)
         
-        maintenance_prediction = predict_maintenance(selectedCar_last_maintenance, selectedCar_current_mileage, inspection_type, model)
+        last_inspection_date = df["last_inspection_date"] = pd.to_datetime(df["last_inspection_date"], format="%d/%m/%Y", errors="coerce").dt.date
+        
+        maintenance_prediction = predict_maintenance(selectedCar_last_maintenance, selectedCar_current_mileage, last_inspection_date, inspection_type, model)
         
         inspection_results[inspection_type] = {
-            "maintenance_prediction": maintenance_prediction
+            "maintenance_prediction": maintenance_prediction,
+            "last_inspection_date": str(last_inspection_date)
         }
         
         # Merge vehicle_data fields relevant to the inspection type
