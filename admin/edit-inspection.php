@@ -436,8 +436,15 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         <div class="form-group row">
                                             <label class="col-sm-2 col-form-label">Last Inspection Date</label>
                                             <div class="col-sm-10">
-                                                <input type="date" id="inspection_date" name="inspection_date" class="form-control"
-                                                    value="<?php echo htmlentities($inspection->inspection_date); ?>">
+                                                <input type="date" id="last_inspection_date" name="last_inspection_date" class="form-control"
+                                                    value="<?php echo htmlentities($inspection->inspection_date); ?>" readonly>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Current Inspection Date</label>
+                                            <div class="col-sm-10">
+                                                <input type="date" id="inspection_date" name="inspection_date" class="form-control">
                                             </div>
                                         </div>
 
