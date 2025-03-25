@@ -180,11 +180,12 @@ try:
     result = {
         "selectedCar_last_maintenance": selectedCar_last_maintenance,
         "selectedCar_current_mileage": selectedCar_current_mileage,
-        "inspection_date": inspection_date,
-        "last_inspection_date": last_inspection_date,
+        "inspection_date": inspection_date.strftime("%Y-%m-%d") if isinstance(inspection_date, datetime) else inspection_date,
+        "last_inspection_date": last_inspection_date.strftime("%Y-%m-%d") if isinstance(last_inspection_date, datetime) else last_inspection_date,
         "inspection_results": inspection_results,
         "vehicle_data": {"id": vehicle_data["id"], "vehicle": vehicle_data["vehicle"]} if vehicle_data else {}
     }
+
     
     print(json.dumps(result, indent=4))
 
