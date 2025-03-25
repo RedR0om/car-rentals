@@ -2,11 +2,6 @@
 session_start();
 include('includes/config.php');
 
-// Enable error reporting for debugging (remove in production)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 header('Content-Type: application/json');
 
 // Enable error reporting for debugging
@@ -70,9 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle Valid ID Upload
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
       $image_tmp = $_FILES['image']['tmp_name'];
+      $mime_type = mime_content_type($image_tmp);
 
       $postFields = [
-          'file' => new CURLFile($image_tmp), // Attach file
+          'file' => new CURLFile($image_tmp, $mime_type), // Attach file
           'upload_preset' => $upload_preset, // Your upload preset
       ];
 
@@ -85,7 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       // Execute cURL request
       $response = curl_exec($ch);
+      $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
       curl_close($ch);
+
+      if ($httpCode !== 200) {
+          throw new Exception('Cloudinary valid id upload failed: ' . $response);
+      }
 
       $cloudinaryResponse = json_decode($response, true);
 
@@ -123,34 +124,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle Receipt Upload (if payment is not cash)
     if ($payment != 1 && isset($_FILES['gcash_receipt']) && $_FILES['gcash_receipt']['error'] === UPLOAD_ERR_OK) {
 
-        $gcash_image_tmp = $_FILES['gcash_receipt']['tmp_name'];
+          $gcash_image_tmp = $_FILES['gcash_receipt']['tmp_name'];
+          $mime_type2 = mime_content_type($gcash_image_tmp);
 
-        $gcashPostFields = [
-            'file' => new CURLFile($gcash_image_tmp), // Attach file
-            'upload_preset' => $upload_preset, // Your upload preset
-        ];
+          $gcashPostFields = [
+              'file' => new CURLFile($gcash_image_tmp, $mime_type2), // Attach file
+              'upload_preset' => $upload_preset, // Your upload preset
+          ];
 
-        // Initialize cURL session
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $cloudinaryUrl);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $gcashPostFields);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+          // Initialize cURL session
+          $ch = curl_init();
+          curl_setopt($ch, CURLOPT_URL, $cloudinaryUrl);
+          curl_setopt($ch, CURLOPT_POST, true);
+          curl_setopt($ch, CURLOPT_POSTFIELDS, $gcashPostFields);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        // Execute cURL request
-        $response2 = curl_exec($ch);
-        curl_close($ch);
+          // Execute cURL request
+          $response2 = curl_exec($ch);
+          $httpCode2 = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+          curl_close($ch);
 
-        $cloudinaryResponse2 = json_decode($response2, true);
-
-        if (isset($cloudinaryResponse2['secure_url'])) {
-          $gcashImageUrl = $cloudinaryResponse2['secure_url']; 
-        } else {
-            throw new Exception('Cloudinary valid id upload failed.');
+          if ($httpCode2 !== 200) {
+            throw new Exception('Cloudinary gcash receipt upload failed: ' . $response);
         }
-    } else {
-      throw new Exception('Gcash receipt is required.');
-  }
+
+          $cloudinaryResponse2 = json_decode($response2, true);
+
+          if (isset($cloudinaryResponse2['secure_url'])) {
+            $gcashImageUrl = $cloudinaryResponse2['secure_url']; 
+          } else {
+              throw new Exception('Cloudinary valid id upload failed.');
+          }
+      } else {
+        throw new Exception('Gcash receipt is required.');
+    }
     // if ($payment != 1 && isset($_FILES['gcash_receipt']) && $_FILES['gcash_receipt']['error'] === UPLOAD_ERR_OK) {
     //     $gcash_receipt = $_FILES['gcash_receipt']['tmp_name'];
     //     $gcash_receipt_name = $_FILES['gcash_receipt']['name'];
@@ -198,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         throw new Exception('Error in database operation1');
     }
   } catch (Exception $e) {
-    throw new Exception('Error in database operation2');
+    throw new Exception('Error in database operation2', $e->getMessage());
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
   }
 } else {
