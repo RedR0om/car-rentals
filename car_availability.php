@@ -34,9 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $selectedCarType = $vehicle['CarType'];
     $selectedSegment = $vehicle['Segment'];
 
-    $minPrice = $selectedPrice * 0.5;
-    $maxPrice = $selectedPrice * 2;
-
     function findVehicles($dbh, $minPrice, $maxPrice, $seatingRange = null, $carType = null, $segment = null) {
         $sql = "SELECT id FROM tblvehicles WHERE PricePerDay BETWEEN :minPrice AND :maxPrice AND status = 1";
         if ($seatingRange !== null) {
@@ -83,25 +80,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    $seatingRange = ['min' => $selectedSeating, 'max' => $selectedSeating];
-    $result = findVehicles($dbh, $minPrice, $maxPrice, $seatingRange, $selectedCarType, $selectedSegment);
+    $attempts = [
+        ['min' => $selectedSeating, 'max' => $selectedSeating],
+        ['min' => $selectedSeating - 2, 'max' => $selectedSeating + 2],
+        null // No seating restriction
+    ];
 
-    if (empty($result)) {
-        $seatingRange = ['min' => $selectedSeating - 2, 'max' => $selectedSeating + 2];
+    $minPrice = $selectedPrice * 0.5;
+    $maxPrice = $selectedPrice * 2;
+    $availableVehicleIds = [];
+    
+    foreach ($attempts as $seatingRange) {
         $result = findVehicles($dbh, $minPrice, $maxPrice, $seatingRange, $selectedCarType, $selectedSegment);
+
+        foreach ($result as $vehicle) {
+            $bookings = checkVehicleBooking($dbh, $fromdatetime, $todatetime, $vehicle['id']);
+            if (empty($bookings)) {
+                $availableVehicleIds[] = $vehicle['id'];
+            }
+            if (count($availableVehicleIds) >= 3) break 2; // Stop if 3 vehicles found
+        }
     }
 
-    if (empty($result)) {
+    if (count($availableVehicleIds) < 3) {
         $minPrice = $selectedPrice * 0.25;
         $maxPrice = $selectedPrice * 3;
         $result = findVehicles($dbh, $minPrice, $maxPrice);
-    }
 
-    $availableVehicleIds = [];
-    foreach ($result as $vehicle) {
-        $bookings = checkVehicleBooking($dbh, $fromdatetime, $todatetime, $vehicle['id']);
-        if (empty($bookings)) {
-            $availableVehicleIds[] = $vehicle['id'];
+        foreach ($result as $vehicle) {
+            $bookings = checkVehicleBooking($dbh, $fromdatetime, $todatetime, $vehicle['id']);
+            if (empty($bookings) && !in_array($vehicle['id'], $availableVehicleIds)) {
+                $availableVehicleIds[] = $vehicle['id'];
+            }
+            if (count($availableVehicleIds) >= 3) break;
         }
     }
 
@@ -118,9 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Limit the result to 3 vehicles
         $vehicles = array_slice($vehicles, 0, 3);
-
         echo json_encode(['success' => true, 'vehicles' => $vehicles]);
     } else {
         echo json_encode(['success' => true, 'vehicles' => []]);

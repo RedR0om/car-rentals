@@ -77,7 +77,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $scriptPath = escapeshellarg($baseDir . "/sample.py");
 
     $command = "$pythonExecutable $scriptPath $selectedCar_last_maintenance $selectedCar_current_mileage $vehicleId $inspection_date $last_inspection_date";
-
     error_log("Executing command: $command");
 
     exec($command . " 2>&1", $output, $status);
