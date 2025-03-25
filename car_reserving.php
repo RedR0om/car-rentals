@@ -69,31 +69,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Handle Valid ID Upload
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $image = $_FILES['image']['tmp_name'];
+      $image_tmp = $_FILES['image']['tmp_name'];
 
-        $postFields = [
-            'file' => new CURLFile($image_tmp), // Attach file
-            'upload_preset' => $upload_preset, // Your upload preset
-        ];
+      $postFields = [
+          'file' => new CURLFile($image_tmp), // Attach file
+          'upload_preset' => $upload_preset, // Your upload preset
+      ];
 
-        // Initialize cURL session
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $cloudinaryUrl);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      // Initialize cURL session
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, $cloudinaryUrl);
+      curl_setopt($ch, CURLOPT_POST, true);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        // Execute cURL request
-        $response = curl_exec($ch);
-        curl_close($ch);
+      // Execute cURL request
+      $response = curl_exec($ch);
+      curl_close($ch);
 
-        $cloudinaryResponse = json_decode($response, true);
+      $cloudinaryResponse = json_decode($response, true);
 
-        if (isset($cloudinaryResponse['secure_url'])) {
-          $imageUrl = $cloudinaryResponse['secure_url']; 
-        } else {
-            throw new Exception('Cloudinary upload failed.');
-        }
+      if (isset($cloudinaryResponse['secure_url'])) {
+        $imageUrl = $cloudinaryResponse['secure_url']; 
+      } else {
+          throw new Exception('Cloudinary upload failed.');
+      }
 
     } else {
         throw new Exception('Valid ID is required.');
