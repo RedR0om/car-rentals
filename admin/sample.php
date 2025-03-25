@@ -1,7 +1,6 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    header('Content-Type: application/json'); // Ensure JSON response
-
+    header('Content-Type: application/json');
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     error_reporting(E_ALL);
@@ -13,9 +12,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = "root";
     $password = "BobDdBAPBobrKyzYicQYaJhDpujZqoKa";
     $dbname = "railway";
-
+    
     $conn = new mysqli($host, $username, $password, $dbname, $port);
-
+    
     if ($conn->connect_error) {
         error_log("Database Connection Error: " . $conn->connect_error);
         echo json_encode(["error" => "Connection failed"]);
@@ -23,16 +22,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     // Validate Input
-    if (!isset($_POST['vehicleId']) || !isset($_POST['current_mileage'])) {
-        echo json_encode(["error" => "Vehicle ID and mileage are required"]);
+    if (!isset($_POST['vehicleId'], $_POST['current_mileage'], $_POST['inspection_date'], $_POST['last_inspection_date'])) {
+        echo json_encode(["error" => "Vehicle ID, mileage, inspection date, and last inspection date are required"]);
         exit;
     }
 
     $vehicleId = $_POST['vehicleId'];
     $selectedCar_current_mileage = $_POST['current_mileage'];
+    $inspection_date = $_POST['inspection_date'];
+    $last_inspection_date = $_POST['last_inspection_date'];
 
+
+    // Validate mileage
     if (!is_numeric($selectedCar_current_mileage) || $selectedCar_current_mileage <= 0) {
         echo json_encode(["error" => "Invalid current mileage"]);
+        exit;
+    }
+
+    // Validate date format (YYYY-MM-DD)
+    if (!preg_match("/^\\d{4}-\\d{2}-\\d{2}$/", $inspection_date)) {
+        echo json_encode(["error" => "Invalid date format. Use YYYY-MM-DD."]);
+        exit;
+    }
+
+    // Validate date format for last inspection date (YYYY-MM-DD)
+    if (!preg_match("/^\d{4}-\d{2}-\d{2}$/", $last_inspection_date)) {
+        echo json_encode(["error" => "Invalid last inspection date format. Use YYYY-MM-DD."]);
         exit;
     }
 
@@ -49,7 +64,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             echo json_encode(["error" => "No record found for vehicle ID"]);
             exit;
         }
-
         $stmt->close();
     } else {
         error_log("SQL Error: " . $conn->error);
@@ -59,10 +73,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Execute Python Script
     $pythonExecutable = escapeshellcmd(PHP_OS_FAMILY === 'Windows' ? 'python' : 'python3');
-    $baseDir = realpath(__DIR__ . '/ai_models'); 
-    $scriptPath = escapeshellarg($baseDir . "/mysql-logistic-regression-engine-model.py");
+    $baseDir = realpath(__DIR__ . '/ai_models');
+    $scriptPath = escapeshellarg($baseDir . "/sample.py");
 
-    $command = "$pythonExecutable $scriptPath $selectedCar_last_maintenance $selectedCar_current_mileage $vehicleId";
+    $command = "$pythonExecutable $scriptPath $selectedCar_last_maintenance $selectedCar_current_mileage $vehicleId $inspection_date $last_inspection_date";
+
     error_log("Executing command: $command");
 
     exec($command . " 2>&1", $output, $status);
@@ -71,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($status === 0) {
         $result = json_decode(implode("\n", $output), true);
-
+        
         if (json_last_error() !== JSON_ERROR_NONE) {
             error_log("Invalid JSON from Python script: " . json_last_error_msg());
             echo json_encode(["error" => "Invalid JSON from Python script"]);
@@ -131,7 +146,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </style>
 </head>
 <body>
-
 <div class="container">
     <h2>Check Vehicle Inspection</h2>
     <form id="vehicleForm">
@@ -140,10 +154,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <label for="currentMileage">Current Mileage:</label>
         <input type="number" id="currentMileage" name="current_mileage" required>
+        
+        <label for="lastInspectionDate">Last Inspection Date:</label>
+        <input type="date" id="lastInspectionDate" name="last_inspection_date" required>
+
+
+        <label for="inspectionDate">Current Inspection Date:</label>
+        <input type="date" id="inspectionDate" name="inspection_date" required>
 
         <button type="submit">Submit</button>
     </form>
-
     <div id="response"></div>
 </div>
 
@@ -152,17 +172,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         event.preventDefault();
         
         let formData = new FormData(this);
-
+        
         try {
             let response = await fetch(window.location.href, {
                 method: "POST",
                 body: formData
             });
 
-            let text = await response.text(); // Get raw text response for debugging
+            let text = await response.text();
 
             try {
-                let data = JSON.parse(text); // Try parsing JSON
+                let data = JSON.parse(text);
                 document.getElementById("response").innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
             } catch (error) {
                 console.error("Invalid JSON response:", text);
@@ -174,6 +194,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     });
 </script>
-
 </body>
 </html>
