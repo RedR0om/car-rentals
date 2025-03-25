@@ -205,7 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         throw new Exception('Error in database operation1');
     }
   } catch (Exception $e) {
-    throw new Exception('Error in database operation2', $e->getMessage());
+    throw new Exception('Error in database operation2 '. $e->getMessage());
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
   }
 } else {
