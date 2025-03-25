@@ -127,8 +127,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           curl_close($ch);
 
           if ($httpCode2 !== 200) {
-            throw new Exception('Cloudinary gcash receipt upload failed: ' . $response);
-        }
+              throw new Exception('Cloudinary gcash receipt upload failed: ' . $response);
+          }
 
           $cloudinaryResponse2 = json_decode($response2, true);
 
@@ -138,8 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               throw new Exception('Cloudinary valid id upload failed.');
           }
       } else {
-        throw new Exception('Gcash receipt is required.');
-    }
+          throw new Exception('Gcash receipt is required.');
+      }
 
     // Insert data into the database
     $sql = "INSERT INTO tblbooking (userEmail, VehicleId, FromDate, ToDate, message, Status, payment, payment_option, BookingNumber, pickup_location, dropoff_location, is_metro_manila, estimated_cost, image, gcash_receipt, account_number, account_name, reference_number) 
@@ -170,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         throw new Exception('Error in database operation1');
     }
   } catch (Exception $e) {
-    throw new Exception('Error in database operation2');
+    throw new Exception('Error in database operation2' . ' ' . $gcashImageUrl . $e->getMessage());
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
   }
 } else {
