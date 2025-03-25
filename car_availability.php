@@ -34,6 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $selectedCarType = $vehicle['CarType'];
     $selectedSegment = $vehicle['Segment'];
 
+    $minPrice = $selectedPrice * 0.5;
+    $maxPrice = $selectedPrice * 2;
+
     function findVehicles($dbh, $minPrice, $maxPrice, $seatingRange = null, $carType = null, $segment = null) {
         $sql = "SELECT id FROM tblvehicles WHERE PricePerDay BETWEEN :minPrice AND :maxPrice AND status = 1";
         if ($seatingRange !== null) {
@@ -80,39 +83,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    $attempts = [
-        ['min' => $selectedSeating, 'max' => $selectedSeating],
-        ['min' => $selectedSeating - 2, 'max' => $selectedSeating + 2],
-        null // No seating restriction
-    ];
+    $seatingRange = ['min' => $selectedSeating, 'max' => $selectedSeating];
+    $result = findVehicles($dbh, $minPrice, $maxPrice, $seatingRange, $selectedCarType, $selectedSegment);
 
-    $minPrice = $selectedPrice * 0.5;
-    $maxPrice = $selectedPrice * 2;
-    $availableVehicleIds = [];
-    
-    foreach ($attempts as $seatingRange) {
+    if (empty($result)) {
+        $seatingRange = ['min' => $selectedSeating - 2, 'max' => $selectedSeating + 2];
         $result = findVehicles($dbh, $minPrice, $maxPrice, $seatingRange, $selectedCarType, $selectedSegment);
-
-        foreach ($result as $vehicle) {
-            $bookings = checkVehicleBooking($dbh, $fromdatetime, $todatetime, $vehicle['id']);
-            if (empty($bookings)) {
-                $availableVehicleIds[] = $vehicle['id'];
-            }
-            if (count($availableVehicleIds) >= 3) break 2; // Stop if 3 vehicles found
-        }
     }
 
-    if (count($availableVehicleIds) < 3) {
+    if (empty($result)) {
         $minPrice = $selectedPrice * 0.25;
         $maxPrice = $selectedPrice * 3;
         $result = findVehicles($dbh, $minPrice, $maxPrice);
+    }
 
-        foreach ($result as $vehicle) {
-            $bookings = checkVehicleBooking($dbh, $fromdatetime, $todatetime, $vehicle['id']);
-            if (empty($bookings) && !in_array($vehicle['id'], $availableVehicleIds)) {
-                $availableVehicleIds[] = $vehicle['id'];
-            }
-            if (count($availableVehicleIds) >= 3) break;
+    $availableVehicleIds = [];
+    foreach ($result as $vehicle) {
+        $bookings = checkVehicleBooking($dbh, $fromdatetime, $todatetime, $vehicle['id']);
+        if (empty($bookings)) {
+            $availableVehicleIds[] = $vehicle['id'];
         }
     }
 
@@ -124,16 +113,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 JOIN tblbrands b ON b.id = v.VehiclesBrand
                 WHERE v.id IN (" . implode(',', array_map('intval', $availableVehicleIds)) . ")
                 ORDER BY v.id ASC";
-
         $stmt = $dbh->prepare($sql);
         $stmt->execute();
         $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $vehicles = array_slice($vehicles, 0, 3);
-        echo json_encode(['success' => true, 'vehicles' => $vehicles]);
     } else {
-        echo json_encode(['success' => true, 'vehicles' => []]);
+        $vehicles = [];
     }
+
+    // If less than 3 vehicles, fetch more from the same segment, ordered by price ascending
+    if (count($vehicles) < 3) {
+        $needed = 3 - count($vehicles);
+        $sql = "SELECT v.id, v.VehiclesTitle, v.PricePerDay, v.Vimage1, v.SeatingCapacity, v.ModelYear, 
+                        v.FuelType, b.BrandName, v.VehiclesBrand,
+                        COALESCE((SELECT AVG(rating) FROM tblbooking WHERE VehicleId = v.id), 0) AS avg_rating
+                FROM tblvehicles v
+                JOIN tblbrands b ON b.id = v.VehiclesBrand
+                WHERE v.Segment = :segment AND v.status = 1
+                ORDER BY v.PricePerDay ASC
+                LIMIT :needed";
+        $stmt = $dbh->prepare($sql);
+        $stmt->bindValue(':segment', $selectedSegment, PDO::PARAM_STR);
+        $stmt->bindValue(':needed', $needed, PDO::PARAM_INT);
+        $stmt->execute();
+        $additionalVehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $vehicles = array_merge($vehicles, $additionalVehicles);
+    }
+
+    echo json_encode(['success' => true, 'vehicles' => array_slice($vehicles, 0, 3)]);
     exit;
 }
 
