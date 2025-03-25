@@ -64,28 +64,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $payment = 5;
       }
 
+    $cloudinaryUrl = "https://api.cloudinary.com/v1_1/dkcjftn5c/image/upload";
+    $upload_preset = "tmtcrs";
 
     // Handle Valid ID Upload
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $image = $_FILES['image']['tmp_name'];
-        $image_name = $_FILES['image']['name'];
-        $extension = pathinfo($image_name, PATHINFO_EXTENSION);
-        $random_name = uniqid() . '.' . $extension;
-        $target_folder = "/tmp/validid/";
 
-        // Ensure the directory exists
-        if (!is_dir($target_folder)) {
-          mkdir($target_folder, 0777, true);
+        $postFields = [
+            'file' => new CURLFile($image_tmp), // Attach file
+            'upload_preset' => $upload_preset, // Your upload preset
+        ];
+
+        // Initialize cURL session
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $cloudinaryUrl);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        // Execute cURL request
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $cloudinaryResponse = json_decode($response, true);
+
+        if (isset($cloudinaryResponse['secure_url'])) {
+          $imageUrl = $cloudinaryResponse['secure_url']; 
+        } else {
+            throw new Exception('Cloudinary upload failed.');
         }
 
-        $target_file = $target_folder . $random_name;
-
-        if (!move_uploaded_file($image, $target_file)) {
-            throw new Exception('Error uploading Valid ID.');
-        }
     } else {
         throw new Exception('Valid ID is required.');
     }
+
+    // if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+    //     $image = $_FILES['image']['tmp_name'];
+    //     $image_name = $_FILES['image']['name'];
+    //     $extension = pathinfo($image_name, PATHINFO_EXTENSION);
+    //     $random_name = uniqid() . '.' . $extension;
+    //     $target_folder = "/tmp/validid/";
+
+    //     // Ensure the directory exists
+    //     if (!is_dir($target_folder)) {
+    //       mkdir($target_folder, 0777, true);
+    //     }
+
+    //     $target_file = $target_folder . $random_name;
+
+    //     if (!move_uploaded_file($image, $target_file)) {
+    //         throw new Exception('Error uploading Valid ID.');
+    //     }
+    // } else {
+    //     throw new Exception('Valid ID is required.');
+    // }
 
     // Handle Receipt Upload (if payment is not cash)
     $gcash_target_file = null;
@@ -124,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $query->bindParam(':dropoff_location', $dropoff_location, PDO::PARAM_STR);
     $query->bindParam(':is_metro_manila', $is_metro_manila, PDO::PARAM_STR);
     $query->bindParam(':estimated_cost', $estimated_cost, PDO::PARAM_STR);
-    $query->bindParam(':image', $target_file, PDO::PARAM_STR);
+    $query->bindParam(':image', $imageUrl, PDO::PARAM_STR);
     $query->bindParam(':gcash_receipt', $gcash_target_file, PDO::PARAM_STR);
     $query->bindParam(':account_number', $account_number, PDO::PARAM_STR);
     $query->bindParam(':account_name', $account_name, PDO::PARAM_STR);
