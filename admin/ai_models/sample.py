@@ -152,7 +152,10 @@ try:
         recall = recall_score(y_test, y_pred, zero_division=1)
         f1 = f1_score(y_test, y_pred, zero_division=1)
         
+        inspection_date = datetime.strptime(inspection_date, "%Y-%m-%d")
+        last_inspection_date = datetime.strptime(last_inspection_date, "%Y-%m-%d")
         date_gap_exceeded = (inspection_date - last_inspection_date) >= DATE_INSPECTION_GAPS.get(inspection_type, timedelta(days=9999))
+
         maintenance_prediction = predict_maintenance(selectedCar_last_maintenance, selectedCar_current_mileage, inspection_type, model, date_gap_exceeded)
         
         inspection_results[inspection_type] = {
