@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (isset($cloudinaryResponse['secure_url'])) {
         $imageUrl = $cloudinaryResponse['secure_url']; 
       } else {
-          throw new Exception('Cloudinary upload failed.');
+          throw new Exception('Cloudinary valid id upload failed.');
       }
 
     } else {
@@ -121,24 +121,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // }
 
     // Handle Receipt Upload (if payment is not cash)
-    $gcash_target_file = null;
     if ($payment != 1 && isset($_FILES['gcash_receipt']) && $_FILES['gcash_receipt']['error'] === UPLOAD_ERR_OK) {
-        $gcash_receipt = $_FILES['gcash_receipt']['tmp_name'];
-        $gcash_receipt_name = $_FILES['gcash_receipt']['name'];
-        $gcash_extension = pathinfo($gcash_receipt_name, PATHINFO_EXTENSION);
-        $gcash_random_name = uniqid() . '.' . $gcash_extension;
-        $gcash_target_folder = "/tmp/gcash_receipts/";
 
-        if (!is_dir($gcash_target_folder)) {
-          mkdir($gcash_target_folder, 0777, true);
+        $gcash_image_tmp = $_FILES['gcash_receipt']['tmp_name'];
+
+        $gcashPostFields = [
+            'file' => new CURLFile($gcash_image_tmp), // Attach file
+            'upload_preset' => $upload_preset, // Your upload preset
+        ];
+
+        // Initialize cURL session
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $cloudinaryUrl);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $gcashPostFields);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        // Execute cURL request
+        $response2 = curl_exec($ch);
+        curl_close($ch);
+
+        $cloudinaryResponse2 = json_decode($response2, true);
+
+        if (isset($cloudinaryResponse2['secure_url'])) {
+          $gcashImageUrl = $cloudinaryResponse2['secure_url']; 
+        } else {
+            throw new Exception('Cloudinary valid id upload failed.');
         }
+    } else {
+      throw new Exception('Gcash receipt is required.');
+  }
+    // if ($payment != 1 && isset($_FILES['gcash_receipt']) && $_FILES['gcash_receipt']['error'] === UPLOAD_ERR_OK) {
+    //     $gcash_receipt = $_FILES['gcash_receipt']['tmp_name'];
+    //     $gcash_receipt_name = $_FILES['gcash_receipt']['name'];
+    //     $gcash_extension = pathinfo($gcash_receipt_name, PATHINFO_EXTENSION);
+    //     $gcash_random_name = uniqid() . '.' . $gcash_extension;
+    //     $gcash_target_folder = "/tmp/gcash_receipts/";
 
-        $gcash_target_file = $gcash_target_folder . $gcash_random_name;
+    //     if (!is_dir($gcash_target_folder)) {
+    //       mkdir($gcash_target_folder, 0777, true);
+    //     }
 
-        if (!move_uploaded_file($gcash_receipt, $gcash_target_file)) {
-            throw new Exception('Error uploading GCash receipt.');
-        }
-    }
+    //     $gcash_target_file = $gcash_target_folder . $gcash_random_name;
+
+    //     if (!move_uploaded_file($gcash_receipt, $gcash_target_file)) {
+    //         throw new Exception('Error uploading GCash receipt.');
+    //     }
+    // }
 
     // Insert data into the database
     $sql = "INSERT INTO tblbooking (userEmail, VehicleId, FromDate, ToDate, message, Status, payment, payment_option, BookingNumber, pickup_location, dropoff_location, is_metro_manila, estimated_cost, image, gcash_receipt, account_number, account_name, reference_number) 
@@ -158,7 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $query->bindParam(':is_metro_manila', $is_metro_manila, PDO::PARAM_STR);
     $query->bindParam(':estimated_cost', $estimated_cost, PDO::PARAM_STR);
     $query->bindParam(':image', $imageUrl, PDO::PARAM_STR);
-    $query->bindParam(':gcash_receipt', $gcash_target_file, PDO::PARAM_STR);
+    $query->bindParam(':gcash_receipt', $gcashImageUrl, PDO::PARAM_STR);
     $query->bindParam(':account_number', $account_number, PDO::PARAM_STR);
     $query->bindParam(':account_name', $account_name, PDO::PARAM_STR);
     $query->bindParam(':reference_number', $reference_number, PDO::PARAM_STR);

@@ -350,19 +350,19 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                     <!-- <td><?php echo htmlentities($result->message); ?></td> -->
                                                     <td>
                                                         <?php if (!empty($result->image)) { ?>
-                                                            <img src="..//<?php echo "validid/67623a640641e.jpg"; ?>" width="100"
+                                                            <img src="<?php echo htmlentities($result->image); ?>" width="100"
                                                                 height="50" alt="Valid ID" data-toggle="modal" data-target="#imageModal"
-                                                                onclick="showImage('../validid/67623a640641e.jpg')">
+                                                                onclick="showImage('<?php echo htmlentities($result->image); ?>')">
                                                         <?php } else { ?>
                                                             <span>No Valid ID</span>
                                                         <?php } ?>
                                                     </td>
                                                     <td>
                                                         <?php if (!empty($result->gcash_receipt)) { ?>
-                                                            <img src="../<?php echo "gcash_receipts/676241959ba101.jpg"; ?>"
+                                                            <img src="<?php echo htmlentities($result->gcash_receipt); ?>"
                                                                 width="100" height="50" alt="GCash Receipt" data-toggle="modal"
                                                                 data-target="#imageModal"
-                                                                onclick="showImage('../gcash_receipts/676241959ba101.jpg')">
+                                                                onclick="showImage('<?php echo htmlentities($result->gcash_receipt); ?>')">
                                                         <?php } else { ?>
                                                             <span>No GCash Receipt</span>
                                                         <?php } ?>
@@ -401,8 +401,8 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         data-idvehicle="<?php echo htmlspecialchars($result->vid); ?>"
                                                         data-status="<?php echo htmlspecialchars($result->Status); ?>"
                                                         data-postingdate="<?php echo htmlspecialchars($result->PostingDate); ?>"
-                                                        data-image="<?php echo !empty($result->image) ? "validid/67623a640641e.jpg" : ''; ?>"
-                                                        data-receipt="<?php echo !empty($result->gcash_receipt) ? "gcash_receipts/676241959ba101.jpg" : ''; ?>"
+                                                        data-image="<?php echo !empty($result->image) ? $result->image : "validid/67623a640641e.jpg"; ?>"
+                                                        data-receipt="<?php echo !empty($result->gcash_receipt) ? $result->gcash_receipt : "gcash_receipts/676241959ba101.jpg"; ?>"
                                                         data-paymentoption="<?php echo $result->payment_option; ?>"
                                                         data-accountname="<?php echo $result->account_name; ?>"
                                                         data-accountnumber="<?php echo $result->account_number; ?>"
@@ -736,8 +736,8 @@ if (strlen($_SESSION['alogin']) == 0) {
                     $('#modal-idvehicle').text(idvehicle);
                     $('#modal-status').text(statusText);
                     $('#modal-postingdate').text(postingdate);
-                    $('#modal-receipt').attr('src', '../' + receipt);
-                    $('#modal-image').attr('src', '..//' + image);
+                    $('#modal-receipt').attr('src', receipt);
+                    $('#modal-image').attr('src', image);
                     $('#modal-paymentoption').text(paymentoption);
                     $('#modal-accountname').text(accountname);
                     $('#modal-accountnumber').text(accountnumber);
