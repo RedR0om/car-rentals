@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $upload_preset = "tmtcrs";
 
     // Handle Valid ID Upload
+    $imageUrl = '';
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
       $image_tmp = $_FILES['image']['tmp_name'];
       $mime_type = mime_content_type($image_tmp);
@@ -100,28 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         throw new Exception('Valid ID is required.');
     }
 
-    // if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-    //     $image = $_FILES['image']['tmp_name'];
-    //     $image_name = $_FILES['image']['name'];
-    //     $extension = pathinfo($image_name, PATHINFO_EXTENSION);
-    //     $random_name = uniqid() . '.' . $extension;
-    //     $target_folder = "/tmp/validid/";
-
-    //     // Ensure the directory exists
-    //     if (!is_dir($target_folder)) {
-    //       mkdir($target_folder, 0777, true);
-    //     }
-
-    //     $target_file = $target_folder . $random_name;
-
-    //     if (!move_uploaded_file($image, $target_file)) {
-    //         throw new Exception('Error uploading Valid ID.');
-    //     }
-    // } else {
-    //     throw new Exception('Valid ID is required.');
-    // }
 
     // Handle Receipt Upload (if payment is not cash)
+    $gcashImageUrl = '';
     if ($payment != 1 && isset($_FILES['gcash_receipt']) && $_FILES['gcash_receipt']['error'] === UPLOAD_ERR_OK) {
 
           $gcash_image_tmp = $_FILES['gcash_receipt']['tmp_name'];
@@ -158,23 +140,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       } else {
         throw new Exception('Gcash receipt is required.');
     }
-    // if ($payment != 1 && isset($_FILES['gcash_receipt']) && $_FILES['gcash_receipt']['error'] === UPLOAD_ERR_OK) {
-    //     $gcash_receipt = $_FILES['gcash_receipt']['tmp_name'];
-    //     $gcash_receipt_name = $_FILES['gcash_receipt']['name'];
-    //     $gcash_extension = pathinfo($gcash_receipt_name, PATHINFO_EXTENSION);
-    //     $gcash_random_name = uniqid() . '.' . $gcash_extension;
-    //     $gcash_target_folder = "/tmp/gcash_receipts/";
-
-    //     if (!is_dir($gcash_target_folder)) {
-    //       mkdir($gcash_target_folder, 0777, true);
-    //     }
-
-    //     $gcash_target_file = $gcash_target_folder . $gcash_random_name;
-
-    //     if (!move_uploaded_file($gcash_receipt, $gcash_target_file)) {
-    //         throw new Exception('Error uploading GCash receipt.');
-    //     }
-    // }
 
     // Insert data into the database
     $sql = "INSERT INTO tblbooking (userEmail, VehicleId, FromDate, ToDate, message, Status, payment, payment_option, BookingNumber, pickup_location, dropoff_location, is_metro_manila, estimated_cost, image, gcash_receipt, account_number, account_name, reference_number) 
@@ -205,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         throw new Exception('Error in database operation1');
     }
   } catch (Exception $e) {
-    throw new Exception('Error in database operation2 '. $e->getMessage());
+    throw new Exception('Error in database operation2');
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
   }
 } else {
