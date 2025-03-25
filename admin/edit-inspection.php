@@ -519,6 +519,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                 $("#calculateMaintenance").click(function () {
                     var vehicleId = $("#vehicleId").val();
                     var currentMileage = $("#current_mileage").val();
+                    var lastInspectionDate = $("#last_inspection_date").val();
                     var inspectionDate = $("#inspection_date").val();
 
                     var resultContainer = $("#result");
@@ -532,7 +533,8 @@ if (strlen($_SESSION['alogin']) == 0) {
                             type: "POST",
                             data: { 
                                 vehicleId: vehicleId, 
-                                current_mileage: currentMileage, 
+                                current_mileage: currentMileage,
+                                last_inspection_date: lastInspectionDate, 
                                 inspection_date: inspectionDate
                             },
                             dataType: "json",

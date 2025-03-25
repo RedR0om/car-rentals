@@ -23,16 +23,31 @@ if ($conn->connect_error) {
 }
 
 // ✅ Validate Input
-if (!isset($_POST['vehicleId']) || !isset($_POST['current_mileage'])) {
-    echo json_encode(["error" => "Vehicle ID and mileage are required"]);
+if (!isset($_POST['vehicleId'], $_POST['current_mileage'], $_POST['inspection_date'], $_POST['last_inspection_date'])) {
+    echo json_encode(["error" => "Vehicle ID, mileage, inspection date, and last inspection date are required"]);
     exit;
 }
 
 $vehicleId = $_POST['vehicleId'];
 $selectedCar_current_mileage = $_POST['current_mileage'];
+$inspection_date = $_POST['inspection_date'];
+$last_inspection_date = $_POST['last_inspection_date'];
 
+// Validate mileage
 if (!is_numeric($selectedCar_current_mileage) || $selectedCar_current_mileage <= 0) {
     echo json_encode(["error" => "Invalid current mileage"]);
+    exit;
+}
+
+// Validate date format (YYYY-MM-DD)
+if (!preg_match("/^\\d{4}-\\d{2}-\\d{2}$/", $inspection_date)) {
+    echo json_encode(["error" => "Invalid date format. Use YYYY-MM-DD."]);
+    exit;
+}
+
+// Validate date format for last inspection date (YYYY-MM-DD)
+if (!preg_match("/^\d{4}-\d{2}-\d{2}$/", $last_inspection_date)) {
+    echo json_encode(["error" => "Invalid last inspection date format. Use YYYY-MM-DD."]);
     exit;
 }
 
@@ -62,7 +77,7 @@ $pythonExecutable = escapeshellcmd(PHP_OS_FAMILY === 'Windows' ? 'python' : 'pyt
 $baseDir = realpath(__DIR__ . '/ai_models'); 
 $scriptPath = escapeshellarg($baseDir . "/mysql-logistic-regression-engine-model.py");
 
-$command = "$pythonExecutable $scriptPath $selectedCar_last_maintenance $selectedCar_current_mileage $vehicleId";
+$command = "$pythonExecutable $scriptPath $selectedCar_last_maintenance $selectedCar_current_mileage $vehicleId $inspection_date $last_inspection_date";
 error_log("Executing command: $command");
 
 exec($command . " 2>&1", $output, $status);

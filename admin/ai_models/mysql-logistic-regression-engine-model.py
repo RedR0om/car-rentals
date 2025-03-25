@@ -3,6 +3,7 @@ import json
 import numpy as np
 import pandas as pd
 import mysql.connector
+from datetime import datetime, timedelta
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
@@ -11,6 +12,8 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 selectedCar_last_maintenance = float(sys.argv[1])  # last maintenance mileage
 selectedCar_current_mileage = float(sys.argv[2])  # current mileage
 vehicleId = int(sys.argv[3])  # vehicle ID
+inspection_date = sys.argv[4]  # new argument: inspection date (as string)
+last_inspection_date = sys.argv[5]  # new argument: last inspection date (as string)
 
 # Recommended mileage gaps based on inspection type (in miles)
 INSPECTION_GAPS = {
@@ -49,6 +52,25 @@ MAX_INSPECTION_GAPS = {
     "professional_inspections": 24000
 }
 
+# Recommended date inspection gaps based on inspection type (in months/years)
+DATE_INSPECTION_GAPS = {
+    "engine_fluids": timedelta(days=180),
+    "battery": timedelta(days=180),
+    "tires": timedelta(days=180),
+    "brakes": timedelta(days=365),
+    "lights_electrical": timedelta(days=180),
+    "air_filters": timedelta(days=365),
+    "belts_hoses": timedelta(days=1095),  # 3 years
+    "suspension": timedelta(days=1825),  # 5 years
+    "exhaust_system": timedelta(days=365),
+    "alignment_suspension": timedelta(days=730),  # 2 years
+    "wipers_windshield": timedelta(days=180),
+    "timing_belt_chain": timedelta(days=1825),  # 5 years
+    "air_conditioning_heater": timedelta(days=730),
+    "cabin_exterior_maintenance": timedelta(days=180),
+    "professional_inspections": timedelta(days=365)
+}
+
 # Database connection
 DB_CONFIG = {
     "host": "ballast.proxy.rlwy.net",  # Remove port from here
@@ -59,7 +81,11 @@ DB_CONFIG = {
 }
 
 
-def predict_maintenance(last_maintenance, current_mileage, inspection_type, model):
+def predict_maintenance(last_maintenance, current_mileage, inspection_type, model, date_gap_exceeded):
+    
+    if date_gap_exceeded:
+        return "Yes"  # Automatically return "Yes" if the inspection date gap is exceeded
+    
     recommended_gap = INSPECTION_GAPS.get(inspection_type)
     max_gap = MAX_INSPECTION_GAPS.get(inspection_type)
     
@@ -126,7 +152,14 @@ try:
         recall = recall_score(y_test, y_pred, zero_division=1)
         f1 = f1_score(y_test, y_pred, zero_division=1)
         
-        maintenance_prediction = predict_maintenance(selectedCar_last_maintenance, selectedCar_current_mileage, inspection_type, model)
+        if isinstance(inspection_date, str):
+            inspection_date = datetime.strptime(inspection_date, "%Y-%m-%d")
+
+        if isinstance(last_inspection_date, str):
+            last_inspection_date = datetime.strptime(last_inspection_date, "%Y-%m-%d")
+        date_gap_exceeded = (inspection_date - last_inspection_date) >= DATE_INSPECTION_GAPS.get(inspection_type, timedelta(days=9999))
+
+        maintenance_prediction = predict_maintenance(selectedCar_last_maintenance, selectedCar_current_mileage, inspection_type, model, date_gap_exceeded)
         
         inspection_results[inspection_type] = {
             "maintenance_prediction": maintenance_prediction
@@ -147,9 +180,12 @@ try:
     result = {
         "selectedCar_last_maintenance": selectedCar_last_maintenance,
         "selectedCar_current_mileage": selectedCar_current_mileage,
+        "inspection_date": inspection_date.strftime("%Y-%m-%d") if isinstance(inspection_date, datetime) else inspection_date,
+        "last_inspection_date": last_inspection_date.strftime("%Y-%m-%d") if isinstance(last_inspection_date, datetime) else last_inspection_date,
         "inspection_results": inspection_results,
         "vehicle_data": {"id": vehicle_data["id"], "vehicle": vehicle_data["vehicle"]} if vehicle_data else {}
     }
+
     
     print(json.dumps(result, indent=4))
 
