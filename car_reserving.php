@@ -137,8 +137,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           } else {
               throw new Exception('Cloudinary valid id upload failed.');
           }
-      } else {
-          throw new Exception('Gcash receipt is required.');
       }
 
     // Insert data into the database
