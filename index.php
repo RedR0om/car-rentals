@@ -167,7 +167,9 @@ error_reporting(0);
                                 <div class="box wow  fadeInLeft" style="width:104%; height: 87.8%;">
                                     <div class="car-info-box">
                                         <a href="car_details.php?vhid=<?php echo htmlentities($result->id); ?>">
-                                            <img src="admin/img/vehicleimages/<?php echo !empty($result->Vimage1) ? htmlentities($result->Vimage1) : 'civicfront.jpg'; ?>" alt="image" style="height: 180px; border-bottom:  solid; border-color: #fa2837b3; width: 290px; max-height: 180px;">
+                                        <img src="admin/img/vehicleimages/<?php echo !empty($result->Vimage1) ? htmlentities($result->Vimage1) : 'Civicside.jpg'; ?>" 
+                                            alt="image" 
+                                            style="height: 180px; border-bottom: solid; border-color: #fa2837b3; width: 290px; max-height: 180px;">
 
                                             <ul style=" width: 290px;  background-color: #fa2837;">
                                                 <li><i class="fa fa-car"
