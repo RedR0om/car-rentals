@@ -115,34 +115,14 @@ if (isset($_POST['signup'])) {
 </script>
 <script type="text/javascript">
     function valid() {
-        const form = document.signup;
-
-        // Password match validation
-        if (form.password.value !== form.confirmpassword.value) {
-            alert("Password and Confirm Password Field do not match!!");
-            form.confirmpassword.focus();
+        if (document.signup.password.value != document.signup.confirmpassword.value) {
+            alert("Password and Confirm Password Field do not match  !!");
+            document.signup.confirmpassword.focus();
             return false;
         }
-
-        // Date of Birth validation (must be at least 18)
-        const dob = new Date(form.dob.value);
-        const today = new Date();
-        const age = today.getFullYear() - dob.getFullYear();
-        const m = today.getMonth() - dob.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-            age--;
-        }
-
-        if (age < 18) {
-            alert("You must be at least 18 years old.");
-            form.dob.focus();
-            return false;
-        }
-
         return true;
     }
 </script>
-
 
 <script>
     function previewImage() {
