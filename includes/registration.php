@@ -142,6 +142,32 @@ if (isset($_POST['signup'])) {
     }
 </script>
 
+<script>
+    function validateDOB() {
+        const dobInput = document.getElementById('dob');
+        const dobValue = new Date(dobInput.value);
+        const today = new Date();
+
+        // Calculate age
+        let age = today.getFullYear() - dobValue.getFullYear();
+        const monthDiff = today.getMonth() - dobValue.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobValue.getDate())) {
+            age--;
+        }
+
+        if (age < 18) {
+            alert("You must be at least 18 years old.");
+            dobInput.value = "";
+            dobInput.focus();
+            return false;
+        }
+
+        return true;
+    }
+</script>
+
+
 <div class="modal fade" id="signupform">
 
     <div class="modal-dialog" role="document">
@@ -206,8 +232,9 @@ if (isset($_POST['signup'])) {
 
                                 <!-- FORM FOR Date of Birth -->
                                 <div class="form-group">
-                                    <input type="date" class="form-control" name="dob" id="dob" required>
+                                    <input type="date" class="form-control" name="dob" id="dob" onchange="validateDOB();" required>
                                 </div>
+
 
 
                                 <!-- FORM FOR MOBILE NO. -->
