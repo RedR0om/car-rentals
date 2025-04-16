@@ -204,9 +204,12 @@ if (isset($_POST['signup'])) {
                                     </select>
                                 </div>
 
+                                <!-- FORM FOR Date of Birth -->
                                 <div class="form-group">
-                                    <input type="date" class="form-control" name="dob" required="required">
+                                    <input type="date" class="form-control" name="dob" required 
+                                        max="<?php echo date('Y-m-d', strtotime('-18 years')); ?>">
                                 </div>
+
 
                                 <!-- FORM FOR MOBILE NO. -->
                                 <div class="form-group" style="width: 100%; ">
