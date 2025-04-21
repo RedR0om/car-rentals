@@ -130,8 +130,7 @@ if (isset($_POST['send'])) {
       <div class="container">
         <div class="section-header">
           <p style="width: 100%; font-family:'Tahoma',sans-serif">Please contact us via email or phone at <b>09199044995</b>.
-            We would be delighted to answer your questions and arrange a meeting with you. Tempo | Rental can help you
-            stand out from the crowd.</p>
+            We would be delighted to answer your questions and arrange a meeting with you.</p>
         </div>
         <div class="row contact-info">
           <div class="col-lg-5">
