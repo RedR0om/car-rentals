@@ -437,7 +437,78 @@ if (strlen($_SESSION['alogin']) == 0) {
                                 </div>
                             </div>
 
-                            
+                            <!-- Upcoming Booking Table -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">Upcoming Booking</div>
+                                        <div class="panel-body">
+                                            <?php
+                                            // Fetch booking applications
+                                            $sqlReservations = "SELECT 
+                                                tblusers.FullName, 
+                                                tblbrands.BrandName, 
+                                                tblvehicles.VehiclesTitle, 
+                                                tblvehicles.plate, 
+                                                tblbooking.FromDate,
+                                                tblbooking.ToDate
+                                            FROM tblbooking 
+                                            JOIN tblvehicles ON tblvehicles.id = tblbooking.VehicleId 
+                                            JOIN tblusers ON tblusers.EmailId = tblbooking.userEmail 
+                                            JOIN tblbrands ON tblvehicles.VehiclesBrand = tblbrands.id
+                                            WHERE tblbooking.Status = 1
+                                            AND tblbooking.FromDate >= CURDATE()
+                                            AND tblbooking.FromDate < DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+                                            ORDER BY 
+                                                tblbooking.Status ASC,
+                                                tblbooking.FromDate DESC
+                                            LIMIT 20";
+
+                                            $queryReservations = $dbh->prepare($sqlReservations);
+                                            $queryReservations->execute();
+                                            $reservations = $queryReservations->fetchAll(PDO::FETCH_OBJ);
+                                            ?>
+
+                                            <table class="table table-bordered table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Full Name</th>
+                                                        <th>Brand</th>
+                                                        <th>Vehicle Name</th>
+                                                        <th>Plate Number</th>
+                                                        <th>From Date</th>
+                                                        <th>To Date</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php 
+                                                    if ($queryReservations->rowCount() > 0) {
+                                                        foreach ($reservations as $reservation) { 
+                                                    ?>
+                                                        <tr>
+                                                            <td><?php echo htmlentities($reservation->FullName); ?></td>
+                                                            <td><?php echo htmlentities($reservation->BrandName); ?></td>
+                                                            <td><?php echo htmlentities($reservation->VehiclesTitle); ?></td>
+                                                            <td><?php echo htmlentities($reservation->plate); ?></td>
+                                                            <td><?php echo htmlentities(date('d M Y', strtotime($reservation->FromDate))); ?></td>
+                                                            <td><?php echo htmlentities(date('d M Y', strtotime($reservation->ToDate))); ?></td>
+                                                        </tr>
+                                                    <?php 
+                                                        }
+                                                    } else { 
+                                                    ?>
+                                                        <tr>
+                                                            <td colspan="6" class="text-center">No new reservation applications found</td>
+                                                        </tr>
+                                                    <?php } ?>
+                                                </tbody>
+                                            </table>
+                                            <a href="manage-bookings.php" class="btn btn-primary btn-xs">View All Bookings</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <?php
                             $con = mysqli_connect("ballast.proxy.rlwy.net:35637", "root", "BobDdBAPBobrKyzYicQYaJhDpujZqoKa", "railway");
 
