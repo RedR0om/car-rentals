@@ -250,6 +250,11 @@ if (strlen($_SESSION['alogin']) == 0) {
             .alert {
                 border-radius: 0.3rem;
             }
+
+            .required-asterisk {
+                color: red;
+                margin-left: 3px;
+            }
         </style>
     </head>
 
@@ -284,7 +289,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         
                                         <!-- Segment Selection -->
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Segment</label>
+                                            <label class="col-sm-2 col-form-label">Segment<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <select id="segmentSelect" class="form-control select2" required onchange="filterVehicles()">
                                                     <option value="">Select Segment Type</option>
@@ -301,7 +306,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
                                         <!-- Vehicle Selection -->
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Vehicle</label>
+                                            <label class="col-sm-2 col-form-label">Vehicle<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <select id="vehicleSelect" name="vehicle" class="form-control select2" required>
                                                     <option value="">Select Vehicle</option>
@@ -310,14 +315,14 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Inspector</label>
+                                            <label class="col-sm-2 col-form-label">Inspector<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <input type="text" name="inspector" class="form-control" required>
                                             </div>
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Notes</label>
+                                            <label class="col-sm-2 col-form-label">Notes<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <textarea name="notes" class="form-control" rows="3"></textarea>
                                             </div>
@@ -326,14 +331,14 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group row">
-                                                    <label class="col-sm-4 col-form-label">Date</label>
+                                                    <label class="col-sm-4 col-form-label">Date<span class="required-asterisk">*</span></label>
                                                     <div class="col-sm-8">
                                                         <input type="date" name="outgoing_date" class="form-control">
                                                     </div>
                                                 </div>
 
                                                 <div class="form-group row">
-                                                    <label class="col-sm-4 col-form-label">Meter Reading (Km)</label>
+                                                    <label class="col-sm-4 col-form-label">Meter Reading (Km)<span class="required-asterisk">*</span></label>
                                                     <div class="col-sm-8">
                                                         <input type="number" name="outgoing_meter" class="form-control">
                                                     </div>
