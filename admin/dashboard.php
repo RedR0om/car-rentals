@@ -441,7 +441,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="panel panel-default">
-                                        <div class="panel-heading">Upcoming Booking</div>
+                                        <div class="panel-heading">Upcoming Confirmed Bookings</div>
                                         <div class="panel-body">
                                             <?php
                                             // Fetch booking applications

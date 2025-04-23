@@ -639,10 +639,10 @@ if (isset($_POST['submit'])) {
 
                           <!-- Drop-off Location Dropdown -->
                           <div class="form-group">
-                            <label for="dropoff" class="control-label">Venue Location:</label>
+                            <label for="dropoff" class="control-label">Destination:</label>
                             <select class="form-control" name="dropoff_location" required
                               style="height: calc(3.25rem + 2px);">
-                              <option value="">Select Venue Location</option>
+                              <option value="">Select Destination</option>
                               <?php foreach ($places as $place) { ?>
                                 <option value="<?php echo $place->PlaceID; ?>">
                                   <?php echo htmlentities($place->PlaceName); ?>

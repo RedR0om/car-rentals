@@ -194,7 +194,7 @@ if (isset($_POST['signup'])) {
                                 style="width: 100%;">
 
                                 <div class="form-group">
-                                    <label for="image">Choose Image:</label>
+                                    <label for="image">Profile Picture</label>
                                     <input type="file" class="form-control-file" id="image" name="image"
                                         onchange="previewImage();" required>
                                     <center>
@@ -205,14 +205,14 @@ if (isset($_POST['signup'])) {
                                 </div>
                                 <!-- FORM FOR NAME -->
                                 <div class="form-group" style="width: 100%; ">
-
+                                    <label for="fullname">Full Name</label>
                                     <input type="text" class="form-control" name="fullname" placeholder="Full Name"
                                         required="required">
 
                                 </div>
                                 <!-- FORM FOR GENDER -->
                                 <div class="form-group" style="width: 100%; ">
-
+                                    <label for="gender">Gender</label>
                                     <select class="selectpicker" name="gender" required>
                                         <option class="gender"> Gender<br><br></option>
                                         <?php $ret = "select id,Gender from tblgender";
@@ -232,6 +232,7 @@ if (isset($_POST['signup'])) {
 
                                 <!-- FORM FOR Date of Birth -->
                                 <div class="form-group">
+                                    <label for="dob">Date of Birth</label>
                                     <input type="date" class="form-control" name="dob" id="dob" onchange="validateDOB();" required>
                                 </div>
 
@@ -239,7 +240,7 @@ if (isset($_POST['signup'])) {
 
                                 <!-- FORM FOR MOBILE NO. -->
                                 <div class="form-group" style="width: 100%; ">
-
+                                    <label for="mobileno">Mobile Number</label>
                                     <input type="tel" class="form-control" name="mobileno" placeholder="Mobile Number"
                                         minlength="11" maxlength="11" required="required">
 
@@ -247,13 +248,13 @@ if (isset($_POST['signup'])) {
 
                                 <!-- FORM FOR STREET NO. -->
                                 <div class="form-group" style="width: 100%; ">
-
+                                    <label for="street">Street Address</label>
                                     <input type="text" class="form-control" name="street" placeholder="Street"
                                         required="required">
                                 </div>
                                 <!-- FORM FOR BARANGGAY -->
                                 <div class="form-group" style="width: 100%; ">
-
+                                    <label for="brgy">Barangay</label>
                                     <input type="text" class="form-control" name="brgy" placeholder="Barangay"
                                         required="required">
 
@@ -261,7 +262,7 @@ if (isset($_POST['signup'])) {
 
                                 <!-- FORM FOR CITY -->
                                 <div class="form-group" style="width: 100%; ">
-
+                                    <label for="city">City</label>
                                     <input type="text" class="form-control" name="city" placeholder="City"
                                         required="required">
 
@@ -269,7 +270,7 @@ if (isset($_POST['signup'])) {
 
                                 <!-- FORM FOR EMAIL -->
                                 <div class="form-group" style="width: 100%; ">
-
+                                    <label for="emailid">Email Address</label>
                                     <input type="email" class="form-control" name="emailid" id="emailid"
                                         onBlur="checkAvailability()" placeholder="Email Address" required="required">
                                     <span id="user-availability-status" style="font-size:12px;"></span>
@@ -278,7 +279,7 @@ if (isset($_POST['signup'])) {
 
                                 <!-- FORM FOR PASSWORD -->
                                 <div class="form-group" style="width: 100%; ">
-
+                                    <label for="password">Password</label>
                                     <input type="password" class="form-control" name="password" placeholder="Password"
                                         required="required">
 
@@ -286,7 +287,7 @@ if (isset($_POST['signup'])) {
 
                                 <!-- FORM FOR CONFIRM PASS -->
                                 <div class="form-group" style="width: 100%; ">
-
+                                    <label for="confirmpassword">Confirm Password</label>
                                     <input type="password" class="form-control" name="confirmpassword"
                                         placeholder="Confirm Password" required="required">
 
