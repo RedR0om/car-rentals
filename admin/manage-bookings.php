@@ -268,8 +268,6 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         <input type="date" name="to_date" id="to_date">
                                         <button type="submit" name="sort_by_date" class="btn btn-primary">Sort by Date
                                             Range</button>
-                                        <button type="submit" name="sort_by_date1" class="btn btn-primary">Sort by Booked
-                                            Date</button>
                                         <button type="reset-btn" class="btn btn-danger">Reset</button>
                                     </form>
 
@@ -311,24 +309,21 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         if (isset($_GET['sort_by_date'])) {
                                             $from_date = $_GET['from_date'];
                                             $to_date = $_GET['to_date'];
-                                            if (!empty($from_date) && !empty($to_date)) {
-                                                $sql .= "WHERE tblbooking.FromDate >= '$from_date' AND tblbooking.ToDate <= '$to_date' ";
-                                            } else {
-                                                if (!empty($from_date)) {
-                                                    $sql .= "WHERE tblbooking.FromDate >= '$from_date' AND tblbooking.ToDate <= '$from_date'";
+                                            
+                                            if (!empty($from_date) || !empty($to_date)) {
+                                                // Check if WHERE clause already exists
+                                                if (strpos($sql, 'WHERE') === false) {
+                                                    $sql .= " WHERE ";
+                                                } else {
+                                                    $sql .= " AND ";
                                                 }
-                                            }
-
-                                        }
-
-                                        if (isset($_GET['sort_by_date'])) {
-                                            $from_date = $_GET['from_date'];
-                                            $to_date = $_GET['to_date'];
-                                            if (!empty($from_date) && !empty($to_date)) {
-                                                $sql .= " AND tblbooking.FromDate >= '$from_date' AND tblbooking.ToDate <= '$to_date' ";
-                                            } else {
-                                                if (!empty($from_date)) {
-                                                    $sql .= " AND tblbooking.FromDate >= '$from_date' AND tblbooking.ToDate <= '$from_date'";
+                                                
+                                                if (!empty($from_date) && !empty($to_date)) {
+                                                    $sql .= "DATE(tblbooking.FromDate) >= '$from_date' AND DATE(tblbooking.ToDate) <= '$to_date'";
+                                                } elseif (!empty($from_date)) {
+                                                    $sql .= "DATE(tblbooking.FromDate) >= '$from_date'";
+                                                } elseif (!empty($to_date)) {
+                                                    $sql .= "DATE(tblbooking.ToDate) <= '$to_date'";
                                                 }
                                             }
                                         }
