@@ -368,6 +368,11 @@ if (strlen($_SESSION['alogin']) == 0) {
             .alert {
                 border-radius: 0.3rem;
             }
+
+            .required-asterisk {
+                color: red;
+                margin-left: 3px;
+            }
         </style>
     </head>
 
@@ -398,7 +403,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         <input type="hidden" name="id" id="vehicleId" value="<?php echo htmlentities($inspection->id); ?>">
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Vehicle</label>
+                                            <label class="col-sm-2 col-form-label">Vehicle<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <select name="vehicle_display" class="form-control select2" disabled>
                                                     <option value="">Select Vehicle</option>
@@ -414,7 +419,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Inspector</label>
+                                            <label class="col-sm-2 col-form-label">Inspector<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <input type="text" name="inspector" class="form-control"
                                                     value="<?php echo htmlentities($inspection->inspector); ?>" required>
@@ -422,7 +427,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Car Availability</label>
+                                            <label class="col-sm-2 col-form-label">Car Availability<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <select name="car_availability" class="form-control" required>
                                                     <option value="Available" <?php echo (!empty($car_status) && $car_status->status == 1) ? "selected" : ""; ?>>Available</option>
@@ -434,7 +439,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Last Inspection Date</label>
+                                            <label class="col-sm-2 col-form-label">Last Inspection Date<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <input type="date" id="last_inspection_date" name="last_inspection_date" class="form-control"
                                                     value="<?php echo htmlentities($inspection->inspection_date); ?>" readonly>
@@ -442,14 +447,14 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Current Inspection Date</label>
+                                            <label class="col-sm-2 col-form-label">Current Inspection Date<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <input type="date" id="inspection_date" name="inspection_date" class="form-control">
                                             </div>
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Last Maintanance Mileage</label>
+                                            <label class="col-sm-2 col-form-label">Last Maintanance Mileage<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <input type="text" name="outgoing_meter" class="form-control"
                                                     value="<?php echo htmlentities($inspection->outgoing_meter); ?>" readonly>
@@ -457,14 +462,14 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Current Mileage</label>
+                                            <label class="col-sm-2 col-form-label">Current Mileage<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <input type="number" name="current_mileage" id="current_mileage" class="form-control" placeholder="Enter current mileage..">
                                             </div>
                                         </div>
 
                                         <div class="form-group row">
-                                            <label class="col-sm-2 col-form-label">Notes</label>
+                                            <label class="col-sm-2 col-form-label">Notes<span class="required-asterisk">*</span></label>
                                             <div class="col-sm-10">
                                                 <textarea name="notes"
                                                     class="form-control"><?php echo htmlentities($inspection->notes); ?></textarea>
