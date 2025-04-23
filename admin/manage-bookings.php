@@ -310,6 +310,10 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             $from_date = $_GET['from_date'];
                                             $to_date = $_GET['to_date'];
                                             
+                                            echo "<script>console.log('Debug: Date filter form submitted');</script>";
+                                            echo "<script>console.log('Debug: From Date:', '" . ($from_date ?? 'empty') . "');</script>";
+                                            echo "<script>console.log('Debug: To Date:', '" . ($to_date ?? 'empty') . "');</script>";
+                                            
                                             if (!empty($from_date) || !empty($to_date)) {
                                                 // Check if WHERE clause already exists
                                                 if (strpos($sql, 'WHERE') === false) {
@@ -320,17 +324,25 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                 
                                                 if (!empty($from_date) && !empty($to_date)) {
                                                     $sql .= "DATE(tblbooking.FromDate) >= '$from_date' AND DATE(tblbooking.ToDate) <= '$to_date'";
+                                                    echo "<script>console.log('Debug: Both dates provided - filtering between $from_date and $to_date');</script>";
                                                 } elseif (!empty($from_date)) {
                                                     $sql .= "DATE(tblbooking.FromDate) >= '$from_date'";
+                                                    echo "<script>console.log('Debug: Only From Date provided - filtering after $from_date');</script>";
                                                 } elseif (!empty($to_date)) {
                                                     $sql .= "DATE(tblbooking.ToDate) <= '$to_date'";
+                                                    echo "<script>console.log('Debug: Only To Date provided - filtering before $to_date');</script>";
                                                 }
                                             }
                                         }
 
+                                        // Add this right before executing the query
+                                        echo "<script>console.log('Debug: Final SQL Query:', " . json_encode($sql) . ");</script>";
+
                                         $query = $dbh->prepare($sql);
                                         $query->execute();
                                         $results = $query->fetchAll(PDO::FETCH_OBJ);
+                                        // Add this after getting results
+                                        echo "<script>console.log('Debug: Number of results found:', " . count($results) . ");</script>";
                                         $cnt = 1;
                                         if ($query->rowCount() > 0) {
                                             foreach ($results as $result) { ?>
