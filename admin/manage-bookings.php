@@ -267,10 +267,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             <option value="all" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == 'all') ? 'selected' : ''; ?>>All Statuses</option>
                                             <option value="0" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '0') ? 'selected' : ''; ?>>Not Confirmed</option>
                                             <option value="1" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '1') ? 'selected' : ''; ?>>Confirmed</option>
-                                            <option value="3" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '3') ? 'selected' : ''; ?>>On-Going</option>
                                             <option value="4" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '4') ? 'selected' : ''; ?>>Done</option>
-                                            <option value="5" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '5') ? 'selected' : ''; ?>>Rejected</option>
-                                            <option value="6" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '6') ? 'selected' : ''; ?>>Car Returned</option>
                                         </select>
                                         
                                         <!-- Keep your existing date filter fields here -->
