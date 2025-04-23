@@ -198,7 +198,7 @@ if (strlen($_SESSION['alogin']) == 0) {
         <meta name="author" content="">
         <meta name="theme-color" content="#3e454c">
 
-        <title>Car Rental Portal |Staff Manage Bookings</title>
+        <title>Car Rental Portal | Staff Manage Bookings</title>
 
         <!-- Font awesome -->
         <link rel="stylesheet" href="css/font-awesome.min.css">
@@ -261,16 +261,30 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </div><?php } else if ($msg) { ?>
                                             <div class="succWrap"><strong>SUCCESS</strong>:<?php echo htmlentities($msg); ?> </div>
                                     <?php } ?>
+                                    <!-- Modified Filter Form -->
                                     <form method="GET" align="center">
-                                        <label for="from_date">From Date:</label>
-                                        <input type="date" name="from_date" id="from_date">
-                                        <label for="to_date">To Date:</label>
-                                        <input type="date" name="to_date" id="to_date">
-                                        <button type="submit" name="sort_by_date" class="btn btn-primary">Sort by Date
-                                            Range</button>
-                                        <button type="submit" name="sort_by_date1" class="btn btn-primary">Sort by Booked
-                                            Date</button>
-                                        <button type="reset-btn" class="btn btn-danger">Reset</button>
+                                        <div class="form-group">
+                                            <label for="status_filter">Filter by Status:</label>
+                                            <select name="status_filter" id="status_filter" class="form-control">
+                                                <option value="">All Statuses</option>
+                                                <option value="0" <?= isset($_GET['status_filter']) && $_GET['status_filter'] == '0' ? 'selected' : '' ?>>Not Confirmed</option>
+                                                <option value="1" <?= isset($_GET['status_filter']) && $_GET['status_filter'] == '1' ? 'selected' : '' ?>>Confirmed</option>
+                                                <option value="5" <?= isset($_GET['status_filter']) && $_GET['status_filter'] == '5' ? 'selected' : '' ?>>Rejected</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="from_date">From Date:</label>
+                                            <input type="date" name="from_date" id="from_date" class="form-control" 
+                                                value="<?= isset($_GET['from_date']) ? htmlspecialchars($_GET['from_date']) : '' ?>">
+                                            
+                                            <label for="to_date">To Date:</label>
+                                            <input type="date" name="to_date" id="to_date" class="form-control"
+                                                value="<?= isset($_GET['to_date']) ? htmlspecialchars($_GET['to_date']) : '' ?>">
+                                        </div>
+
+                                        <button type="submit" name="filter" class="btn btn-primary">Apply Filters</button>
+                                        <button type="reset" class="btn btn-secondary">Reset</button>
                                     </form>
 
                                     <table id="zctb" class="display table table-striped table-bordered table-hover"
@@ -308,32 +322,45 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         tblbooking.Status ASC,
                                         tblbooking.PostingDate DESC";  // Exclude Rejected and Car Returned statuses
                                     
-                                        if (isset($_GET['sort_by_date'])) {
-                                            $from_date = $_GET['from_date'];
-                                            $to_date = $_GET['to_date'];
-                                            if (!empty($from_date) && !empty($to_date)) {
-                                                $sql .= "WHERE tblbooking.FromDate >= '$from_date' AND tblbooking.ToDate <= '$to_date' ";
-                                            } else {
-                                                if (!empty($from_date)) {
-                                                    $sql .= "WHERE tblbooking.FromDate >= '$from_date' AND tblbooking.ToDate <= '$from_date'";
-                                                }
-                                            }
-
+                                        $params = [];
+                                        $conditions = [];
+                                        
+                                        // Status Filter
+                                        if (isset($_GET['status_filter']) && $_GET['status_filter'] !== '') {
+                                            $conditions[] = "tblbooking.Status = :status";
+                                            $params[':status'] = $_GET['status_filter'];
                                         }
-
-                                        if (isset($_GET['sort_by_date'])) {
-                                            $from_date = $_GET['from_date'];
-                                            $to_date = $_GET['to_date'];
-                                            if (!empty($from_date) && !empty($to_date)) {
-                                                $sql .= " AND tblbooking.FromDate >= '$from_date' AND tblbooking.ToDate <= '$to_date' ";
-                                            } else {
-                                                if (!empty($from_date)) {
-                                                    $sql .= " AND tblbooking.FromDate >= '$from_date' AND tblbooking.ToDate <= '$from_date'";
-                                                }
-                                            }
+                                        
+                                        // Date Range Filter
+                                        if (isset($_GET['from_date']) && !empty($_GET['from_date'])) {
+                                            $conditions[] = "DATE(tblbooking.FromDate) >= :from_date";
+                                            $params[':from_date'] = $_GET['from_date'];
                                         }
-
+                                        
+                                        if (isset($_GET['to_date']) && !empty($_GET['to_date'])) {
+                                            $conditions[] = "DATE(tblbooking.ToDate) <= :to_date";
+                                            $params[':to_date'] = $_GET['to_date'];
+                                        }
+                                        
+                                        // Combine conditions
+                                        if (!empty($conditions)) {
+                                            $sql .= " AND " . implode(" AND ", $conditions);
+                                        }
+                                        
+                                        // Ordering
+                                        if (isset($_GET['sort_by_date1'])) {
+                                            $sql .= " ORDER BY tblbooking.PostingDate DESC";
+                                        } else {
+                                            $sql .= " ORDER BY tblbooking.Status ASC, tblbooking.PostingDate DESC";
+                                        }
+                                        
                                         $query = $dbh->prepare($sql);
+                                        
+                                        // Bind parameters
+                                        foreach ($params as $key => $value) {
+                                            $query->bindValue($key, $value);
+                                        }
+                                        
                                         $query->execute();
                                         $results = $query->fetchAll(PDO::FETCH_OBJ);
                                         $cnt = 1;
@@ -634,6 +661,17 @@ if (strlen($_SESSION['alogin']) == 0) {
             function showImage(imageSrc) {
                 document.getElementById('modalImage').src = imageSrc;
             }
+        </script>
+        <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const fromDate = document.getElementById('from_date').value;
+            const toDate = document.getElementById('to_date').value;
+            
+            if (fromDate && toDate && new Date(fromDate) > new Date(toDate)) {
+                alert('End date cannot be before start date!');
+                e.preventDefault();
+            }
+        });
         </script>
 
         <!-- Loading Scripts -->
