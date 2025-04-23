@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Sanitize inputs
-    $account_number = isset($_POST['account_number']) ? htmlspecialchars($_POST['account_number']) : null;
+    $account_number = !empty($_POST['account_number']) ? htmlspecialchars($_POST['account_number']) : '0';
     $account_name = isset($_POST['account_name']) ? htmlspecialchars($_POST['account_name']) : null;
     $reference_number = isset($_POST['reference_number']) ? htmlspecialchars($_POST['reference_number']) : null;
     $payment = htmlspecialchars($_POST['payment']);

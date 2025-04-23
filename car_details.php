@@ -792,7 +792,7 @@ if (isset($_POST['submit'])) {
                           </div>
 
                           <!-- GCash Payment Fields -->
-                          <div id="gcash-fields" style="display: none;">
+                          < id="gcash-fields" style="display: none;">
                             <p>Send it to this <span id="payment-type">Gcash</span> Account: <span
                                 id="account-number">0909584666</span></p>
 
@@ -802,12 +802,15 @@ if (isset($_POST['submit'])) {
                                 placeholder="Enter Account Name" required>
                             </div>
 
+                            <!---
                             <div class="form-group">
                               <label for="account_number" class="control-label">Account Number:</label>
                               <input type="number" class="form-control" id="account_number" name="account_number"
                                 placeholder="Enter Account Number" required>
                             </div>
-
+                            -->
+                            <input type="hidden" name="account_number" value="0">
+                            
                             <div class="form-group">
                               <label for="reference_number" class="control-label">Reference Number:</label>
                               <input type="text" class="form-control" id="reference_number" name="reference_number"
