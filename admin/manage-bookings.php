@@ -291,21 +291,19 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             </tr>
                                         </thead>
                                         <?php
-                                        $sql = "SELECT tblusers.FullName, tblusers.EmailId, tblbrands.BrandName, tblvehicles.plate, tblvehicles.VehiclesTitle, tblbooking.FromDate,
-                                        tblbooking.ToDate, tblbooking.message, tblbooking.VehicleId as vid, tblbooking.Status, tblbooking.PostingDate, tblbooking.id, tblbooking.image,
-                                        tblbooking.gcash_receipt, tblbooking.payment_option, tblbooking.account_name, tblbooking.account_number, tblbooking.reference_number,
-                                        (SELECT CONCAT(tblplace.PlaceName, tblplace.City) FROM tblplace WHERE tblplace.PlaceID = tblbooking.pickup_location) as pickup_location,
-                                        (SELECT CONCAT(tblplace.PlaceName, tblplace.City) FROM tblplace WHERE tblplace.PlaceID = tblbooking.dropoff_location) as dropoff_location,
-                                        tblbooking.is_metro_manila
-                                        FROM tblbooking 
-                                        JOIN tblvehicles ON tblvehicles.id=tblbooking.VehicleId 
-                                        JOIN tblusers ON tblusers.EmailId=tblbooking.userEmail 
-                                        JOIN tblbrands ON tblvehicles.VehiclesBrand=tblbrands.id
-                                        WHERE tblbooking.Status != 2 AND tblbooking.Status != 6
-                                        ORDER BY
-                                        tblbooking.Status ASC,
-                                        tblbooking.PostingDate DESC";  // Exclude Rejected and Car Returned statuses
+                                            $sql = "SELECT tblusers.FullName, tblusers.EmailId, tblbrands.BrandName, tblvehicles.plate, tblvehicles.VehiclesTitle, tblbooking.FromDate,
+                                            tblbooking.ToDate, tblbooking.message, tblbooking.VehicleId as vid, tblbooking.Status, tblbooking.PostingDate, tblbooking.id, tblbooking.image,
+                                            tblbooking.gcash_receipt, tblbooking.payment_option, tblbooking.account_name, tblbooking.account_number, tblbooking.reference_number,
+                                            (SELECT CONCAT(tblplace.PlaceName, tblplace.City) FROM tblplace WHERE tblplace.PlaceID = tblbooking.pickup_location) as pickup_location,
+                                            (SELECT CONCAT(tblplace.PlaceName, tblplace.City) FROM tblplace WHERE tblplace.PlaceID = tblbooking.dropoff_location) as dropoff_location,
+                                            tblbooking.is_metro_manila
+                                            FROM tblbooking 
+                                            JOIN tblvehicles ON tblvehicles.id=tblbooking.VehicleId 
+                                            JOIN tblusers ON tblusers.EmailId=tblbooking.userEmail 
+                                            JOIN tblbrands ON tblvehicles.VehiclesBrand=tblbrands.id
+                                            WHERE tblbooking.Status != 2 AND tblbooking.Status != 6";
                                     
+                                        // Add date filtering BEFORE the ORDER BY
                                         if (isset($_GET['sort_by_date'])) {
                                             $from_date = $_GET['from_date'];
                                             $to_date = $_GET['to_date'];
@@ -315,12 +313,8 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             echo "<script>console.log('Debug: To Date:', '" . ($to_date ?? 'empty') . "');</script>";
                                             
                                             if (!empty($from_date) || !empty($to_date)) {
-                                                // Check if WHERE clause already exists
-                                                if (strpos($sql, 'WHERE') === false) {
-                                                    $sql .= " WHERE ";
-                                                } else {
-                                                    $sql .= " AND ";
-                                                }
+                                                // We already have a WHERE clause, so we'll always use AND here
+                                                $sql .= " AND ";
                                                 
                                                 if (!empty($from_date) && !empty($to_date)) {
                                                     $sql .= "DATE(tblbooking.FromDate) >= '$from_date' AND DATE(tblbooking.ToDate) <= '$to_date'";
@@ -334,6 +328,9 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                 }
                                             }
                                         }
+
+                                        // Add ORDER BY at the end
+                                        $sql .= " ORDER BY tblbooking.Status ASC, tblbooking.PostingDate DESC";
 
                                         // Add this right before executing the query
                                         echo "<script>console.log('Debug: Final SQL Query:', " . json_encode($sql) . ");</script>";
