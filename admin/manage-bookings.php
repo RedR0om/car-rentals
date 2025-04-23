@@ -262,13 +262,24 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             <div class="succWrap"><strong>SUCCESS</strong>:<?php echo htmlentities($msg); ?> </div>
                                     <?php } ?>
                                     <form method="GET" align="center">
+                                        <label for="status_filter">Filter by Status:</label>
+                                        <select name="status_filter" id="status_filter">
+                                            <option value="all" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == 'all') ? 'selected' : ''; ?>>All Statuses</option>
+                                            <option value="0" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '0') ? 'selected' : ''; ?>>Not Confirmed</option>
+                                            <option value="1" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '1') ? 'selected' : ''; ?>>Confirmed</option>
+                                            <option value="3" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '3') ? 'selected' : ''; ?>>On-Going</option>
+                                            <option value="4" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '4') ? 'selected' : ''; ?>>Done</option>
+                                            <option value="5" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '5') ? 'selected' : ''; ?>>Rejected</option>
+                                            <option value="6" <?php echo (isset($_GET['status_filter']) && $_GET['status_filter'] == '6') ? 'selected' : ''; ?>>Car Returned</option>
+                                        </select>
+                                        
+                                        <!-- Keep your existing date filter fields here -->
                                         <label for="from_date">From Date:</label>
-                                        <input type="date" name="from_date" id="from_date">
+                                        <input type="date" name="from_date" id="from_date" value="<?php echo isset($_GET['from_date']) ? htmlspecialchars($_GET['from_date']) : ''; ?>">
                                         <label for="to_date">To Date:</label>
-                                        <input type="date" name="to_date" id="to_date">
-                                        <button type="submit" name="sort_by_date" class="btn btn-primary">Sort by Date
-                                            Range</button>
-                                        <button type="reset-btn" class="btn btn-danger">Reset</button>
+                                        <input type="date" name="to_date" id="to_date" value="<?php echo isset($_GET['to_date']) ? htmlspecialchars($_GET['to_date']) : ''; ?>">
+                                        
+                                        <button type="submit" name="filter" class="btn btn-primary">Apply Filters</button>
                                     </form>
 
                                     <table id="zctb" class="display table table-striped table-bordered table-hover"
@@ -292,47 +303,59 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </thead>
                                         <?php
                                             $sql = "SELECT tblusers.FullName, tblusers.EmailId, tblbrands.BrandName, tblvehicles.plate, tblvehicles.VehiclesTitle, tblbooking.FromDate,
-                                            tblbooking.ToDate, tblbooking.message, tblbooking.VehicleId as vid, tblbooking.Status, tblbooking.PostingDate, tblbooking.id, tblbooking.image,
-                                            tblbooking.gcash_receipt, tblbooking.payment_option, tblbooking.account_name, tblbooking.account_number, tblbooking.reference_number,
-                                            (SELECT CONCAT(tblplace.PlaceName, tblplace.City) FROM tblplace WHERE tblplace.PlaceID = tblbooking.pickup_location) as pickup_location,
-                                            (SELECT CONCAT(tblplace.PlaceName, tblplace.City) FROM tblplace WHERE tblplace.PlaceID = tblbooking.dropoff_location) as dropoff_location,
-                                            tblbooking.is_metro_manila
-                                            FROM tblbooking 
-                                            JOIN tblvehicles ON tblvehicles.id=tblbooking.VehicleId 
-                                            JOIN tblusers ON tblusers.EmailId=tblbooking.userEmail 
-                                            JOIN tblbrands ON tblvehicles.VehiclesBrand=tblbrands.id
-                                            WHERE tblbooking.Status != 2 AND tblbooking.Status != 6";
-                                    
-                                        // Add date filtering BEFORE the ORDER BY
-                                        if (isset($_GET['sort_by_date'])) {
-                                            $from_date = $_GET['from_date'];
-                                            $to_date = $_GET['to_date'];
-                                            
-                                            echo "<script>console.log('Debug: Date filter form submitted');</script>";
-                                            echo "<script>console.log('Debug: From Date:', '" . ($from_date ?? 'empty') . "');</script>";
-                                            echo "<script>console.log('Debug: To Date:', '" . ($to_date ?? 'empty') . "');</script>";
-                                            
-                                            if (!empty($from_date) || !empty($to_date)) {
-                                                // We already have a WHERE clause, so we'll always use AND here
-                                                $sql .= " AND ";
+                                                    tblbooking.ToDate, tblbooking.message, tblbooking.VehicleId as vid, tblbooking.Status, tblbooking.PostingDate, tblbooking.id, tblbooking.image,
+                                                    tblbooking.gcash_receipt, tblbooking.payment_option, tblbooking.account_name, tblbooking.account_number, tblbooking.reference_number,
+                                                    (SELECT CONCAT(tblplace.PlaceName, tblplace.City) FROM tblplace WHERE tblplace.PlaceID = tblbooking.pickup_location) as pickup_location,
+                                                    (SELECT CONCAT(tblplace.PlaceName, tblplace.City) FROM tblplace WHERE tblplace.PlaceID = tblbooking.dropoff_location) as dropoff_location,
+                                                    tblbooking.is_metro_manila
+                                                    FROM tblbooking 
+                                                    JOIN tblvehicles ON tblvehicles.id=tblbooking.VehicleId 
+                                                    JOIN tblusers ON tblusers.EmailId=tblbooking.userEmail 
+                                                    JOIN tblbrands ON tblvehicles.VehiclesBrand=tblbrands.id";
+
+                                            $whereConditions = array();
+
+                                            // Handle status filter
+                                            if (isset($_GET['status_filter']) && $_GET['status_filter'] !== 'all') {
+                                                $selectedStatus = intval($_GET['status_filter']);
+                                                $whereConditions[] = "tblbooking.Status = $selectedStatus";
+                                            } else {
+                                                // Default exclusion (only when not filtering by specific status)
+                                                $whereConditions[] = "tblbooking.Status != 2"; // Exclude status 2 by default
+                                                $whereConditions[] = "tblbooking.Status != 6"; // Exclude status 6 by default
+                                            }
+
+                                            // Handle date filter
+                                            if (isset($_GET['filter'])) {
+                                                $from_date = $_GET['from_date'];
+                                                $to_date = $_GET['to_date'];
                                                 
-                                                if (!empty($from_date) && !empty($to_date)) {
-                                                    $sql .= "DATE(tblbooking.FromDate) >= '$from_date' AND DATE(tblbooking.ToDate) <= '$to_date'";
-                                                    echo "<script>console.log('Debug: Both dates provided - filtering between $from_date and $to_date');</script>";
-                                                } elseif (!empty($from_date)) {
-                                                    $sql .= "DATE(tblbooking.FromDate) >= '$from_date'";
-                                                    echo "<script>console.log('Debug: Only From Date provided - filtering after $from_date');</script>";
-                                                } elseif (!empty($to_date)) {
-                                                    $sql .= "DATE(tblbooking.ToDate) <= '$to_date'";
-                                                    echo "<script>console.log('Debug: Only To Date provided - filtering before $to_date');</script>";
+                                                if (!empty($from_date) || !empty($to_date)) {
+                                                    $dateConditions = array();
+                                                    
+                                                    if (!empty($from_date)) {
+                                                        $dateConditions[] = "DATE(tblbooking.FromDate) >= '$from_date'";
+                                                    }
+                                                    if (!empty($to_date)) {
+                                                        $dateConditions[] = "DATE(tblbooking.ToDate) <= '$to_date'";
+                                                    }
+                                                    
+                                                    if (!empty($dateConditions)) {
+                                                        $whereConditions[] = "(" . implode(' AND ', $dateConditions) . ")";
+                                                    }
                                                 }
                                             }
-                                        }
 
-                                        // Add ORDER BY at the end
-                                        $sql .= " ORDER BY tblbooking.Status ASC, tblbooking.PostingDate DESC";
+                                            // Combine WHERE conditions
+                                            if (!empty($whereConditions)) {
+                                                $sql .= " WHERE " . implode(' AND ', $whereConditions);
+                                            }
 
-                                        // Add this right before executing the query
+                                            // Add ORDER BY
+                                            $sql .= " ORDER BY tblbooking.Status ASC, tblbooking.PostingDate DESC";
+
+                                        // Add this after the SQL construction
+                                        echo "<script>console.log('Debug: Status Filter:', '" . (isset($_GET['status_filter']) ? $_GET['status_filter'] : 'all') . "');</script>";
                                         echo "<script>console.log('Debug: Final SQL Query:', " . json_encode($sql) . ");</script>";
 
                                         $query = $dbh->prepare($sql);
